@@ -310,7 +310,13 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             });
 
             if (res.status === 401) {
+                // Invalid token - clear session and redirect
+                localStorage.removeItem('elirama_token');
+                localStorage.removeItem('elirama_user');
                 setServerStatus('disconnected');
+                if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+                    window.location.href = '/login';
+                }
                 return null;
             }
 

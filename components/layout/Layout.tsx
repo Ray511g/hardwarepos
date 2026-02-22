@@ -28,8 +28,25 @@ export default function Layout({ children }: LayoutProps) {
     const [unreadCount, setUnreadCount] = useState(0);
 
     const fetchNotifications = async () => {
+        const token = localStorage.getItem('elirama_token');
+        if (!token) return;
+
         try {
-            const res = await fetch('/api/notifications');
+            const res = await fetch('/api/notifications', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.status === 401) {
+                // Invalid token - clear session
+                localStorage.removeItem('elirama_token');
+                localStorage.removeItem('elirama_user');
+                // setServerStatus('disconnected'); // This line is commented out as setServerStatus is not available in this component's context
+                // Redirect if not already on login
+                if (window.location.pathname !== '/login') {
+                    window.location.href = '/login';
+                }
+                return; // Changed from return null; as fetchNotifications doesn't return a value
+            }
+
             if (res.ok) {
                 const data = await res.json();
                 setNotifications(data);
@@ -41,11 +58,17 @@ export default function Layout({ children }: LayoutProps) {
     };
 
     const markAsRead = async (id: string) => {
+        const token = localStorage.getItem('elirama_token');
+        if (!token) return;
+
         try {
             await fetch('/api/notifications', {
                 method: 'PUT',
                 body: JSON.stringify({ id }),
-                headers: { 'Content-Type': 'application/json' }
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
             });
             fetchNotifications();
         } catch (error) { }

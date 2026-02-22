@@ -27,6 +27,116 @@ const PayrollManager: React.FC<PayrollManagerProps> = ({ staff, payrollEntries, 
 
     const isAdminOrPrincipal = user?.role === 'Super Admin' || user?.role === 'Principal' || user?.role === 'Admin';
 
+    const handlePrintPayslip = (entry: any) => {
+        const win = window.open('', '_blank');
+        if (!win) return;
+
+        const payslipHTML = `
+            <html>
+                <head>
+                    <title>Payslip - ${entry.staff?.firstName} ${entry.staff?.lastName}</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; padding: 40px; color: #333; }
+                        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+                        .school-name { font-size: 24px; font-weight: bold; margin: 0; }
+                        .document-title { font-size: 18px; color: #666; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; }
+                        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 30px; }
+                        .info-item { margin-bottom: 8px; font-size: 14px; }
+                        .info-label { font-weight: 600; color: #666; width: 120px; display: inline-block; }
+                        .salary-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                        .salary-table th, .salary-table td { padding: 12px; border: 1px solid #eee; text-align: left; font-size: 14px; }
+                        .salary-table th { background: #f9fafb; font-weight: 600; }
+                        .salary-table td.amount { text-align: right; }
+                        .total-row { font-weight: bold; background: #f3f4f6; }
+                        .footer { margin-top: 50px; font-size: 12px; color: #999; text-align: center; }
+                        .signature-space { margin-top: 60px; display: flex; justify-content: space-between; }
+                        .signature-box { border-top: 1px solid #333; width: 200px; text-align: center; padding-top: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1 class="school-name">ELIRAMA SCHOOLS</h1>
+                        <div class="document-title">Staff Pay Advice</div>
+                        <p style="margin: 5px 0;">P.O. Box 12345, Nairobi | info@elirama.ac.ke</p>
+                    </div>
+
+                    <div class="info-grid">
+                        <div>
+                            <div class="info-item"><span class="info-label">Staff Name:</span> ${entry.staff?.firstName} ${entry.staff?.lastName}</div>
+                            <div class="info-item"><span class="info-label">Staff ID:</span> ${entry.staff?.id.slice(0, 8).toUpperCase()}</div>
+                            <div class="info-item"><span class="info-label">Role:</span> ${entry.staff?.role}</div>
+                            <div class="info-item"><span class="info-label">Month/Year:</span> ${['', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][entry.month]} ${entry.year}</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div class="info-item"><span class="info-label">Print Date:</span> ${new Date().toLocaleDateString()}</div>
+                            <div class="info-item"><span class="info-label">Bank:</span> ${entry.staff?.bankName || 'N/A'}</div>
+                            <div class="info-item"><span class="info-label">Account:</span> ${entry.staff?.accountNumber || 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    <table class="salary-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th class="amount">Earnings (KES)</th>
+                                <th class="amount">Deductions (KES)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Basic Salary</td>
+                                <td class="amount">${entry.basicSalary.toLocaleString()}</td>
+                                <td class="amount">0</td>
+                            </tr>
+                            ${(entry.allowances || []).map((a: any) => `
+                                <tr>
+                                    <td>${a.name}</td>
+                                    <td class="amount">${a.amount.toLocaleString()}</td>
+                                    <td class="amount">0</td>
+                                </tr>
+                            `).join('')}
+                            ${(entry.deductions || []).map((d: any) => `
+                                <tr>
+                                    <td>${d.name}</td>
+                                    <td class="amount">0</td>
+                                    <td class="amount">${d.amount.toLocaleString()}</td>
+                                </tr>
+                            `).join('')}
+                            <tr class="total-row">
+                                <td>TOTALS</td>
+                                <td class="amount">${(entry.basicSalary + entry.totalAllowances).toLocaleString()}</td>
+                                <td class="amount">${entry.totalDeductions.toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="background: #1e293b; color: white; padding: 15px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: bold; font-size: 16px;">NET PAYABLE</span>
+                        <span style="font-size: 20px; font-weight: 800;">KES ${entry.netPay.toLocaleString()}</span>
+                    </div>
+
+                    <div class="signature-space">
+                        <div class="signature-box">Employee Signature</div>
+                        <div class="signature-box">Authorized Signature</div>
+                    </div>
+
+                    <div class="footer">
+                        This is a computer generated document and does not require a physical stamp unless requested.
+                        <br/>&copy; ${new Date().getFullYear()} Elirama School Management System
+                    </div>
+                </body>
+            </html>
+        `;
+
+        win.document.write(payslipHTML);
+        win.document.close();
+        win.focus();
+        setTimeout(() => {
+            win.print();
+            // win.close();
+        }, 500);
+    };
+
     return (
         <div className="payroll-manager">
             <div className="tab-nav">
@@ -91,53 +201,59 @@ const PayrollManager: React.FC<PayrollManagerProps> = ({ staff, payrollEntries, 
                                 </tr>
                             </thead>
                             <tbody>
-                                {payrollEntries.length > 0 ? payrollEntries.filter(e => e.month === generateConfig.month && e.year === generateConfig.year).map((entry) => (
-                                    <tr key={entry.id}>
-                                        <td>
-                                            <div style={{ fontWeight: 500 }}>{entry.staff?.firstName || 'Unknown'} {entry.staff?.lastName || ''}</div>
-                                            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{entry.staff?.role || 'N/A'}</div>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>{(entry.basicSalary || 0).toLocaleString()}</td>
-                                        <td style={{ textAlign: 'right', color: 'var(--accent-green)' }}>+ {(entry.totalAllowances || 0).toLocaleString()}</td>
-                                        <td style={{ textAlign: 'right', color: 'var(--accent-red)' }}>- {(entry.totalDeductions || 0).toLocaleString()}</td>
-                                        <td style={{ textAlign: 'right', fontWeight: 600 }}>{(entry.netPay || 0).toLocaleString()}</td>
-                                        <td>
-                                            <span className={`badge ${entry.status === 'Locked' ? 'green' : entry.status === 'Approved' ? 'blue' : entry.status === 'Draft' ? 'neutral' : 'blue'}`}>
-                                                {entry.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ textAlign: 'right' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                                                {entry.status === 'Draft' && (
-                                                    <button className="btn-outline" style={{ padding: '4px 12px', fontSize: 12 }} onClick={() => onUpdateStatus(entry.id, 'Reviewed')}>
-                                                        Mark Reviewed
-                                                    </button>
-                                                )}
-                                                {entry.status === 'Reviewed' && isAdminOrPrincipal && (
-                                                    <button className="btn-primary" style={{ padding: '4px 12px', fontSize: 12 }} onClick={() => onUpdateStatus(entry.id, 'Approved')}>
-                                                        <SaveIcon style={{ fontSize: 14, marginRight: 4 }} /> Approve
-                                                    </button>
-                                                )}
-                                                {entry.status === 'Approved' && isAdminOrPrincipal && (
-                                                    <button className="btn-primary" style={{ padding: '4px 12px', fontSize: 12, background: 'var(--accent-red)' }} onClick={() => onUpdateStatus(entry.id, 'Locked')}>
-                                                        <LockIcon style={{ fontSize: 14, marginRight: 4 }} /> Lock & Post
-                                                    </button>
-                                                )}
-                                                {entry.status === 'Locked' && (
-                                                    <button className="btn-outline" style={{ padding: '4px 8px' }} title="View Payslip">
-                                                        <VisibilityIcon style={{ fontSize: 16 }} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )) : (
-                                    <tr>
-                                        <td colSpan={7} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
-                                            No payroll entries for this period. Click Generate to start.
-                                        </td>
-                                    </tr>
-                                )}
+                                {(() => {
+                                    const filtered = payrollEntries.filter(e => e.month === generateConfig.month && e.year === generateConfig.year);
+                                    if (filtered.length > 0) {
+                                        return filtered.map((entry) => (
+                                            <tr key={entry.id}>
+                                                <td>
+                                                    <div style={{ fontWeight: 500 }}>{entry.staff?.firstName || 'Unknown'} {entry.staff?.lastName || ''}</div>
+                                                    <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{entry.staff?.role || 'N/A'}</div>
+                                                </td>
+                                                <td style={{ textAlign: 'right' }}>{(entry.basicSalary || 0).toLocaleString()}</td>
+                                                <td style={{ textAlign: 'right', color: 'var(--accent-green)' }}>+ {(entry.totalAllowances || 0).toLocaleString()}</td>
+                                                <td style={{ textAlign: 'right', color: 'var(--accent-red)' }}>- {(entry.totalDeductions || 0).toLocaleString()}</td>
+                                                <td style={{ textAlign: 'right', fontWeight: 600 }}>{(entry.netPay || 0).toLocaleString()}</td>
+                                                <td>
+                                                    <span className={`badge ${entry.status === 'Locked' ? 'green' : entry.status === 'Approved' ? 'blue' : entry.status === 'Draft' ? 'neutral' : 'blue'}`}>
+                                                        {entry.status}
+                                                    </span>
+                                                </td>
+                                                <td style={{ textAlign: 'right' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                                                        {entry.status === 'Draft' && (
+                                                            <button className="btn-outline" style={{ padding: '4px 12px', fontSize: 12 }} onClick={() => onUpdateStatus(entry.id, 'Reviewed')}>
+                                                                Mark Reviewed
+                                                            </button>
+                                                        )}
+                                                        {entry.status === 'Reviewed' && isAdminOrPrincipal && (
+                                                            <button className="btn-primary" style={{ padding: '4px 12px', fontSize: 12 }} onClick={() => onUpdateStatus(entry.id, 'Approved')}>
+                                                                <SaveIcon style={{ fontSize: 14, marginRight: 4 }} /> Approve
+                                                            </button>
+                                                        )}
+                                                        {entry.status === 'Approved' && isAdminOrPrincipal && (
+                                                            <button className="btn-primary" style={{ padding: '4px 12px', fontSize: 12, background: 'var(--accent-red)' }} onClick={() => onUpdateStatus(entry.id, 'Locked')}>
+                                                                <LockIcon style={{ fontSize: 14, marginRight: 4 }} /> Lock & Post
+                                                            </button>
+                                                        )}
+                                                        {entry.status === 'Locked' && (
+                                                            <button className="btn-outline" style={{ padding: '4px 8px' }} title="Print Payslip" onClick={() => handlePrintPayslip(entry)}>
+                                                                <VisibilityIcon style={{ fontSize: 16 }} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ));
+                                    }
+                                    return (
+                                        <tr>
+                                            <td colSpan={7} style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>
+                                                No payroll entries for this period. Click Generate to start.
+                                            </td>
+                                        </tr>
+                                    );
+                                })()}
                             </tbody>
                         </table>
                     </div>
