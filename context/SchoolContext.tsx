@@ -348,7 +348,11 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     };
 
     const updateStudent = async (id: string, data: Partial<Student>) => {
-        const apiRes = await tryApi(`${API_URL}/students/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+        if (!id) {
+            showToast('Cannot update student: Missing ID', 'error');
+            return;
+        }
+        const apiRes = await tryApi(`${API_URL}/students/${encodeURIComponent(id)}`, { method: 'PUT', body: JSON.stringify(data) });
         if (apiRes) {
             const updated = await apiRes.json();
             setStudents(prev => prev.map(s => s.id === id ? updated : s));
@@ -357,7 +361,11 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     };
 
     const deleteStudent = async (id: string) => {
-        const apiRes = await tryApi(`${API_URL}/students/${id}`, { method: 'DELETE' });
+        if (!id) {
+            showToast('Cannot delete student: Missing ID', 'error');
+            return;
+        }
+        const apiRes = await tryApi(`${API_URL}/students/${encodeURIComponent(id)}`, { method: 'DELETE' });
         if (apiRes) {
             setStudents(prev => prev.filter(s => s.id !== id));
             setPayments(prev => prev.filter(p => p.studentId !== id));

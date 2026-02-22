@@ -64,5 +64,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(201).json(student);
     }
 
-    res.status(405).json({ error: 'Method not allowed' });
+    const logMsg = `\n[${new Date().toISOString()}] 405 ERROR: ${req.method} ${req.url}\nHeaders: ${JSON.stringify(req.headers)}\n`;
+    fs.appendFileSync(logPath, logMsg);
+    console.warn(`[405] Method ${req.method} not allowed on /api/students`);
+    res.status(405).json({ error: `Method ${req.method} not allowed` });
 }

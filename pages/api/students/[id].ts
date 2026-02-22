@@ -4,7 +4,13 @@ import { requireAuth, corsHeaders, checkPermission } from '../../../lib/auth';
 import { touchSync } from '../../../lib/sync';
 import { logAction } from '../../../lib/audit';
 
+import fs from 'fs';
+import path from 'path';
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    const logPath = path.join(process.cwd(), 'api_debug.log');
+    fs.appendFileSync(logPath, `[${new Date().toISOString()}] ${req.method} ${req.url} (ID: ${req.query.id})\nBody: ${JSON.stringify(req.body)}\nHeaders: ${JSON.stringify(req.headers)}\n\n`);
+
     corsHeaders(res);
     if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -85,6 +91,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
     }
 
-    res.setHeader('Allow', 'GET, PUT, DELETE');
-    res.status(405).json({ error: 'Method not allowed' });
+    const logMsg = `\n[${new Date().toISOString()}] 405 ERROR on /[id]: ${req.method} ${req.url}\nHeaders: ${JSON.stringify(req.headers)}\n`;
+    fs.appendFileSync(logPath, logMsg);
+    console.warn(`[405] Method ${req.method} not allowed on /api/students/${id}`);
+    res.status(405).json({ error: `Method ${req.method} not allowed` });
 }
