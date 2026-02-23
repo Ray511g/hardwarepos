@@ -1,0 +1,29 @@
+
+> elirama-web@0.0.0 build
+> prisma generate && next build
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Γ£ö Generated Prisma Client (v5.22.0) to .\node_modules\@prisma\client in 277ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Curious about the SQL queries Prisma ORM generates? Optimize helps you enhance your visibility: https://pris.ly/tip-2-optimize
+
+  Γû▓ Next.js 14.2.35
+  - Environments: .env
+
+   Linting and checking validity of types ...
+Failed to compile.
+
+./pages/api/hr/staff/index.ts:2:24
+Type error: Cannot find module '../../../lib/prisma' or its corresponding type declarations.
+
+  1 | import { NextApiRequest, NextApiResponse } from 'next';
+> 2 | import { prisma } from '../../../lib/prisma';
+    |                        ^
+  3 |
+  4 | export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  5 |     if (req.method === 'GET') {
+Next.js build worker exited with code: 1 and signal: null

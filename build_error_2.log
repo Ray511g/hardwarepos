@@ -1,0 +1,125 @@
+
+> elirama-web@0.0.0 build
+> prisma generate && next build
+
+Environment variables loaded from .env
+Prisma schema loaded from prisma\schema.prisma
+
+Γ£ö Generated Prisma Client (v5.22.0) to .\node_modules\@prisma\client in 267ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Help us improve the Prisma ORM for everyone. Share your feedback in a short 2-min survey: https://pris.ly/orm/survey/release-5-22
+
+  Γû▓ Next.js 14.2.35
+  - Environments: .env
+
+   Linting and checking validity of types ...
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Collecting page data ...
+   Generating static pages (0/40) ...
+   Generating static pages (10/40) 
+   Generating static pages (20/40) 
+   Generating static pages (30/40) 
+ Γ£ô Generating static pages (40/40)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (pages)                              Size     First Load JS
+Γöî Γùï /                                      455 B           262 kB
+Γö£   /_app                                  0 B             225 kB
+Γö£ Γùï /404                                   182 B           225 kB
+Γö£ Γùï /about                                 2.11 kB         261 kB
+Γö£ Γùï /admin                                 406 B           272 kB
+Γö£ ╞Æ /api/admin/system-health               0 B             225 kB
+Γö£ ╞Æ /api/approvals                         0 B             225 kB
+Γö£ ╞Æ /api/approvals/[id]                    0 B             225 kB
+Γö£ ╞Æ /api/attendance                        0 B             225 kB
+Γö£ ╞Æ /api/audit                             0 B             225 kB
+Γö£ ╞Æ /api/auth/login                        0 B             225 kB
+Γö£ ╞Æ /api/cbc/learning-areas                0 B             225 kB
+Γö£ ╞Æ /api/cbc/scores                        0 B             225 kB
+Γö£ ╞Æ /api/cbc/scores/bulk                   0 B             225 kB
+Γö£ ╞Æ /api/commercial/credit                 0 B             225 kB
+Γö£ ╞Æ /api/commercial/po                     0 B             225 kB
+Γö£ ╞Æ /api/debug-db                          0 B             225 kB
+Γö£ ╞Æ /api/exams                             0 B             225 kB
+Γö£ ╞Æ /api/exams/[id]                        0 B             225 kB
+Γö£ ╞Æ /api/fees                              0 B             225 kB
+Γö£ ╞Æ /api/fees/[id]                         0 B             225 kB
+Γö£ ╞Æ /api/fees/apply                        0 B             225 kB
+Γö£ ╞Æ /api/fees/revert                       0 B             225 kB
+Γö£ ╞Æ /api/fees/structure                    0 B             225 kB
+Γö£ ╞Æ /api/finance/accounts                  0 B             225 kB
+Γö£ ╞Æ /api/finance/budgets                   0 B             225 kB
+Γö£ ╞Æ /api/finance/expenses                  0 B             225 kB
+Γö£ ╞Æ /api/finance/payroll                   0 B             225 kB
+Γö£ ╞Æ /api/finance/stats                     0 B             225 kB
+Γö£ ╞Æ /api/finance/suppliers                 0 B             225 kB
+Γö£ ╞Æ /api/health                            0 B             225 kB
+Γö£ ╞Æ /api/hr/payroll/run                    0 B             225 kB
+Γö£ ╞Æ /api/hr/staff                          0 B             225 kB
+Γö£ ╞Æ /api/notifications                     0 B             225 kB
+Γö£ ╞Æ /api/results                           0 B             225 kB
+Γö£ ╞Æ /api/roles                             0 B             225 kB
+Γö£ ╞Æ /api/settings                          0 B             225 kB
+Γö£ ╞Æ /api/settings/reset                    0 B             225 kB
+Γö£ ╞Æ /api/students                          0 B             225 kB
+Γö£ ╞Æ /api/students/[id]                     0 B             225 kB
+Γö£ ╞Æ /api/sync/all                          0 B             225 kB
+Γö£ ╞Æ /api/sync/status                       0 B             225 kB
+Γö£ ╞Æ /api/teachers                          0 B             225 kB
+Γö£ ╞Æ /api/teachers/[id]                     0 B             225 kB
+Γö£ ╞Æ /api/test-db                           0 B             225 kB
+Γö£ ╞Æ /api/timetable                         0 B             225 kB
+Γö£ ╞Æ /api/timetable/[id]                    0 B             225 kB
+Γö£ ╞Æ /api/timetable/bulk                    0 B             225 kB
+Γö£ ╞Æ /api/users                             0 B             225 kB
+Γö£ ╞Æ /api/users/[id]                        0 B             225 kB
+Γö£ ╞Æ /api/users/[id]/reset-password         0 B             225 kB
+Γö£ ╞Æ /api/users/change-password             0 B             225 kB
+Γö£ Γùï /app/About (389 ms)                    2.1 kB          253 kB
+Γö£ Γùï /app/Admin                             1.82 kB         269 kB
+Γö£ Γùï /app/ApprovalCenter (411 ms)           2.32 kB         253 kB
+Γö£ Γùï /app/Attendance (399 ms)               369 B           255 kB
+Γö£ Γùï /app/Commercial                        508 B           254 kB
+Γö£ Γùï /app/Communication (378 ms)            197 B           255 kB
+Γö£ Γùï /app/Dashboard (373 ms)                311 B           254 kB
+Γö£ Γùï /app/Exams (395 ms)                    445 B           254 kB
+Γö£ Γùï /app/Fees                              585 B           276 kB
+Γö£ Γùï /app/Grades (377 ms)                   1.23 kB         252 kB
+Γö£ Γùï /app/HRManagement                      417 B           253 kB
+Γö£ Γùï /app/Login                             999 B           252 kB
+Γö£ Γùï /app/Manual                            3.25 kB         254 kB
+Γö£ Γùï /app/Profile                           1.51 kB         252 kB
+Γö£ Γùï /app/Reports                           704 B           262 kB
+Γö£ Γùï /app/Results                           312 B           260 kB
+Γö£ Γùï /app/Students                          447 B           254 kB
+Γö£ Γùï /app/Teachers                          370 B           254 kB
+Γö£ Γùï /app/Timetable                         314 B           259 kB
+Γö£ Γùï /approvals                             2.45 kB         261 kB
+Γö£ Γùï /attendance                            551 B           263 kB
+Γö£ Γùï /commercial                            438 B           262 kB
+Γö£ Γùï /communication                         410 B           264 kB
+Γö£ Γùï /exams                                 406 B           262 kB
+Γö£ Γùï /fees                                  549 B           284 kB
+Γö£ Γùï /grades                                1.28 kB         260 kB
+Γö£ Γùï /hr                                    429 B           262 kB
+Γö£ Γùï /login                                 1.13 kB         252 kB
+Γö£ Γùï /manual                                2.61 kB         262 kB
+Γö£ Γùï /profile                               1.66 kB         261 kB
+Γö£ Γùï /reports                               409 B           270 kB
+Γö£ Γùï /results                               408 B           269 kB
+Γö£ Γùï /students                              549 B           263 kB
+Γö£ Γùï /teachers                              406 B           262 kB
+Γöö Γùï /timetable                             413 B           267 kB
++ First Load JS shared by all              233 kB
+  Γö£ chunks/framework-840cff9d6bb95703.js   44.8 kB
+  Γö£ chunks/main-d514106b9c8b0334.js        34 kB
+  Γö£ chunks/pages/_app-94ba8e095a3c828d.js  145 kB
+  Γöö other shared chunks (total)            9.24 kB
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+
