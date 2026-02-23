@@ -84,8 +84,15 @@ export default function AddStudentModal({ onClose, student }: Props) {
                         </div>
                         <div className="form-row">
                             <div className="form-group">
-                                <label htmlFor="admissionNumber">Admission Number *</label>
-                                <input id="admissionNumber" name="admissionNumber" className="form-control" required value={form.admissionNumber} onChange={e => update('admissionNumber', e.target.value)} />
+                                <label htmlFor="admissionNumber">Admission Number</label>
+                                <input
+                                    id="admissionNumber"
+                                    name="admissionNumber"
+                                    className="form-control"
+                                    disabled
+                                    placeholder={student ? form.admissionNumber : "Auto-generated upon submission"}
+                                    value={student ? form.admissionNumber : ""}
+                                />
                             </div>
                             <div className="form-group">
                                 <label htmlFor="gender">Gender *</label>
@@ -127,10 +134,6 @@ export default function AddStudentModal({ onClose, student }: Props) {
                         <div className="form-group">
                             <label htmlFor="address">Address</label>
                             <input id="address" name="address" className="form-control" value={form.address} onChange={e => update('address', e.target.value)} />
-                        </div>
-                        <div className="form-group">
-                            <label htmlFor="totalFees">Total Fees (KSh)</label>
-                            <input id="totalFees" name="totalFees" type="number" className="form-control" value={form.totalFees} onChange={e => update('totalFees', Number(e.target.value))} />
                         </div>
                     </div>
                     <div className="modal-footer">

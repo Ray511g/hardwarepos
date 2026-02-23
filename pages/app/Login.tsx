@@ -31,53 +31,62 @@ export default function Login() {
 
     return (
         <div className="login-page">
-            <div className="login-card">
-                <div className="login-header">
-                    <div className="login-logo">
-                        {settings.logo ? (
-                            <img src={settings.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                        ) : (
-                            (settings.schoolName || 'S')[0]
-                        )}
-                    </div>
-                    <h1>{settings.schoolName || 'School Management System'}</h1>
-                    <p>{settings.motto || 'Academic Excellence'}</p>
+            <div className="login-side-image">
+                <div className="login-side-content">
+                    <h2>Empowering the Future of Education</h2>
+                    <p>Experience a seamless, secure, and modern way to manage school records, finances, and academic excellence with the Elirama ERP system.</p>
                 </div>
+            </div>
 
-                {error && (
-                    <div className="login-error">
-                        <ErrorIcon style={{ fontSize: 18 }} />
-                        {error}
+            <div className="login-side-form">
+                <div className="login-card">
+                    <div className="login-header">
+                        <div className="login-logo">
+                            {settings.logo ? (
+                                <img src={settings.logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            ) : (
+                                (settings.schoolName || 'S')[0]
+                            )}
+                        </div>
+                        <h1>Welcome Back</h1>
+                        <p>Please sign in to your {settings.schoolName || 'School Management System'} account</p>
                     </div>
-                )}
 
-                <form className="login-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label>Email or Username</label>
-                        <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter your email or username"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            className="form-control"
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <button type="submit" className="login-btn" disabled={loading}>
-                        {loading ? 'Signing in...' : 'Sign In'}
-                    </button>
-                </form>
+                    {error && (
+                        <div className="login-error">
+                            <ErrorIcon style={{ fontSize: 18 }} />
+                            {error}
+                        </div>
+                    )}
+
+                    <form className="login-form" onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label>Email or Username</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Enter your email or username"
+                                value={email}
+                                onChange={e => setEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label>Password</label>
+                            <input
+                                type="password"
+                                className="form-control"
+                                placeholder="Enter your password"
+                                value={password}
+                                onChange={e => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <button type="submit" className="login-btn" disabled={loading}>
+                            {loading ? 'Signing in...' : 'Sign In'}
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );
