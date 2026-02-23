@@ -196,7 +196,7 @@ export default function Attendance() {
                     <div className="attendance-filters">
                         <div className="form-group">
                             <label htmlFor="attendance-date">Date</label>
-                            <input id="attendance-date" type="date" className="form-control" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
+                            <input id="attendance-date" name="attendance-date" type="date" className="form-control" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="attendance-grade">Grade</label>
@@ -276,11 +276,11 @@ export default function Attendance() {
                         </div>
                         <div className="form-group">
                             <label htmlFor="reportDate">Date</label>
-                            <input id="reportDate" type="date" className="filter-select" value={reportDate} onChange={e => setReportDate(e.target.value)} />
+                            <input id="reportDate" name="reportDate" type="date" className="filter-select" value={reportDate} onChange={e => setReportDate(e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="reportStudent">Student Name</label>
-                            <input id="reportStudent" type="text" className="filter-select" placeholder="Search student..." value={reportStudent} onChange={e => setReportStudent(e.target.value)} />
+                            <input id="reportStudent" name="reportStudent" type="text" className="filter-select" placeholder="Search student..." value={reportStudent} onChange={e => setReportStudent(e.target.value)} />
                         </div>
                     </div>
 

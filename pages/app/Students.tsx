@@ -82,6 +82,8 @@ export default function Students() {
                 <div className="search-input-wrapper">
                     <SearchIcon className="search-icon" />
                     <input
+                        id="searchStudents"
+                        name="searchStudents"
                         type="text"
                         className="search-input"
                         placeholder="Search by name or admission number..."
@@ -90,6 +92,8 @@ export default function Students() {
                     />
                 </div>
                 <select
+                    id="gradeFilter"
+                    name="gradeFilter"
                     title="Filter students by grade"
                     className="filter-select"
                     value={gradeFilter}

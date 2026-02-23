@@ -82,8 +82,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                 <form onSubmit={handleSubmit} className="modal-body">
                     <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                         <div className="form-group">
-                            <label className="form-label">First Name</label>
+                            <label htmlFor="firstName" className="form-label">First Name</label>
                             <input
+                                id="firstName"
+                                name="firstName"
                                 type="text"
                                 className="form-control"
                                 value={formData.firstName}
@@ -92,8 +94,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Last Name</label>
+                            <label htmlFor="lastName" className="form-label">Last Name</label>
                             <input
+                                id="lastName"
+                                name="lastName"
                                 type="text"
                                 className="form-control"
                                 value={formData.lastName}
@@ -102,8 +106,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Staff Type</label>
+                            <label htmlFor="type" className="form-label">Staff Type</label>
                             <select
+                                id="type"
+                                name="type"
                                 className="form-control"
                                 value={formData.type}
                                 onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
@@ -113,8 +119,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                             </select>
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Job Role / Position</label>
+                            <label htmlFor="role" className="form-label">Job Role / Position</label>
                             <input
+                                id="role"
+                                name="role"
                                 type="text"
                                 className="form-control"
                                 placeholder="e.g. Accountant, Driver, Cook"
@@ -124,8 +132,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Phone Number</label>
+                            <label htmlFor="phone" className="form-label">Phone Number</label>
                             <input
+                                id="phone"
+                                name="phone"
                                 type="tel"
                                 className="form-control"
                                 value={formData.phone}
@@ -133,8 +143,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Email Address</label>
+                            <label htmlFor="email" className="form-label">Email Address</label>
                             <input
+                                id="email"
+                                name="email"
                                 type="email"
                                 className="form-control"
                                 value={formData.email}
@@ -149,8 +161,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                         </h3>
                         <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                             <div className="form-group">
-                                <label className="form-label">Basic Salary (KES)</label>
+                                <label htmlFor="basicSalary" className="form-label">Basic Salary (KES)</label>
                                 <input
+                                    id="basicSalary"
+                                    name="basicSalary"
                                     type="number"
                                     className="form-control"
                                     value={formData.basicSalary}
@@ -159,8 +173,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Salary Type</label>
+                                <label htmlFor="salaryType" className="form-label">Salary Type</label>
                                 <select
+                                    id="salaryType"
+                                    name="salaryType"
                                     className="form-control"
                                     value={formData.salaryType}
                                     onChange={(e) => setFormData({ ...formData, salaryType: e.target.value as any })}
@@ -170,8 +186,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Bank Name</label>
+                                <label htmlFor="bankName" className="form-label">Bank Name</label>
                                 <input
+                                    id="bankName"
+                                    name="bankName"
                                     type="text"
                                     className="form-control"
                                     value={formData.bankName}
@@ -179,8 +197,10 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                                 />
                             </div>
                             <div className="form-group">
-                                <label className="form-label">Account Number</label>
+                                <label htmlFor="accountNumber" className="form-label">Account Number</label>
                                 <input
+                                    id="accountNumber"
+                                    name="accountNumber"
                                     type="text"
                                     className="form-control"
                                     value={formData.accountNumber}

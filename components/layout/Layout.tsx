@@ -106,23 +106,6 @@ export default function Layout({ children }: LayoutProps) {
                         </div>
                     </div>
                     <div className="top-bar-right">
-                        <div className="system-metrics-widget">
-                            <div className="metric-item">
-                                <span className="metric-label">CPU</span>
-                                <div className="metric-track">
-                                    <div className="metric-fill" style={{ width: '42%', background: 'var(--accent-blue)' }}></div>
-                                </div>
-                                <span className="metric-value">42%</span>
-                            </div>
-                            <div className="metric-item">
-                                <span className="metric-label">RAM</span>
-                                <div className="metric-track">
-                                    <div className="metric-fill" style={{ width: '68%', background: 'var(--accent-purple)' }}></div>
-                                </div>
-                                <span className="metric-value">5.4GB</span>
-                            </div>
-                        </div>
-
                         <div className="top-bar-actions">
                             <div className="icon-badge-wrapper" onClick={() => setShowNotifications(!showNotifications)}>
                                 <NotificationsIcon className="top-bar-icon" />

@@ -209,9 +209,6 @@ export default function Timetable() {
                             {teachers.map(t => <option key={t.id} value={t.id}>{t.firstName} {t.lastName}</option>)}
                         </select>
                     )}
-                    <button className="btn-outline" onClick={() => (window as any).location.href = '/app/Admin?tab=timetable'} style={{ marginRight: 10 }}>
-                        <AddIcon style={{ fontSize: 18 }} /> Slot Entry
-                    </button>
                     {settings.autoTimetableEnabled && (
                         <button className="btn-primary purple" onClick={() => generateAutoTimetable()} style={{ marginRight: 10 }}>
                             Auto Generate

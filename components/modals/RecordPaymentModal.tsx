@@ -57,8 +57,10 @@ export default function RecordPaymentModal({ onClose, payment }: Props) {
                     <div className="modal-body">
                         {!payment && (
                             <div className="form-group">
-                                <label>Student *</label>
+                                <label htmlFor="studentSearch">Student *</label>
                                 <input
+                                    id="studentSearch"
+                                    name="studentSearch"
                                     type="text"
                                     className="form-control"
                                     placeholder="Search by name..."
@@ -67,6 +69,8 @@ export default function RecordPaymentModal({ onClose, payment }: Props) {
                                     style={{ marginBottom: 8 }}
                                 />
                                 <select
+                                    id="studentId"
+                                    name="studentId"
                                     className="form-control"
                                     required
                                     value={form.studentId}
@@ -85,8 +89,8 @@ export default function RecordPaymentModal({ onClose, payment }: Props) {
 
                         {payment && (
                             <div className="form-group">
-                                <label>Student</label>
-                                <input className="form-control" value={payment.studentName} disabled title="Selected student" />
+                                <label htmlFor="studentDisplay">Student</label>
+                                <input id="studentDisplay" name="studentDisplay" className="form-control" value={payment.studentName} disabled title="Selected student" />
                             </div>
                         )}
 
@@ -109,12 +113,14 @@ export default function RecordPaymentModal({ onClose, payment }: Props) {
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Amount (KSh) *</label>
-                                <input type="number" className="form-control" required min={1} value={form.amount || ''} onChange={e => setForm({ ...form, amount: Number(e.target.value) })} placeholder="Enter amount" title="Payment Amount" />
+                                <label htmlFor="amount">Amount (KSh) *</label>
+                                <input id="amount" name="amount" type="number" className="form-control" required min={1} value={form.amount || ''} onChange={e => setForm({ ...form, amount: Number(e.target.value) })} placeholder="Enter amount" title="Payment Amount" />
                             </div>
                             <div className="form-group">
-                                <label>Payment Method *</label>
+                                <label htmlFor="method">Payment Method *</label>
                                 <select
+                                    id="method"
+                                    name="method"
                                     className="form-control"
                                     value={form.method}
                                     onChange={e => setForm({ ...form, method: e.target.value as any })}
@@ -130,8 +136,10 @@ export default function RecordPaymentModal({ onClose, payment }: Props) {
 
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Term *</label>
+                                <label htmlFor="term">Term *</label>
                                 <select
+                                    id="term"
+                                    name="term"
                                     className="form-control"
                                     value={form.term}
                                     onChange={e => setForm({ ...form, term: e.target.value })}
@@ -143,19 +151,19 @@ export default function RecordPaymentModal({ onClose, payment }: Props) {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label>Date *</label>
-                                <input type="date" className="form-control" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required title="Payment Date" />
+                                <label htmlFor="date">Date *</label>
+                                <input id="date" name="date" type="date" className="form-control" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required title="Payment Date" />
                             </div>
                         </div>
 
                         <div className="form-group">
-                            <label>Reference / Transaction ID</label>
-                            <input className="form-control" value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} placeholder="e.g. MPESA transaction code" />
+                            <label htmlFor="reference">Reference / Transaction ID</label>
+                            <input id="reference" name="reference" className="form-control" value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} placeholder="e.g. MPESA transaction code" />
                         </div>
                     </div>
                     <div className="modal-footer">
                         <button type="button" className="btn-outline" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn-primary green">{payment ? 'Update Payment' : 'Record Payment'}</button>
+                        <button type="submit" id="submitPayment" name="submitPayment" className="btn-primary green">{payment ? 'Update Payment' : 'Record Payment'}</button>
                     </div>
                 </form>
             </div>
