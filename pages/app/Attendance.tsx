@@ -259,8 +259,8 @@ export default function Attendance() {
                 <div className="reports-section">
                     <div className="attendance-filters" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
                         <div className="form-group">
-                            <label>Term</label>
-                            <select className="filter-select" value={reportTerm} onChange={e => setReportTerm(e.target.value)}>
+                            <label htmlFor="reportTerm">Term</label>
+                            <select id="reportTerm" title="Select term for report" className="filter-select" value={reportTerm} onChange={e => setReportTerm(e.target.value)}>
                                 <option value="">All Terms</option>
                                 <option value="Term 1">Term 1</option>
                                 <option value="Term 2">Term 2</option>
@@ -268,19 +268,19 @@ export default function Attendance() {
                             </select>
                         </div>
                         <div className="form-group">
-                            <label>Grade</label>
-                            <select className="filter-select" value={reportGrade} onChange={e => setReportGrade(e.target.value)}>
+                            <label htmlFor="reportGrade">Grade</label>
+                            <select id="reportGrade" title="Select grade for report" className="filter-select" value={reportGrade} onChange={e => setReportGrade(e.target.value)}>
                                 <option value="">All Grades</option>
                                 {activeGrades.map(g => <option key={g} value={g}>{g}</option>)}
                             </select>
                         </div>
                         <div className="form-group">
-                            <label>Date</label>
-                            <input type="date" className="filter-select" value={reportDate} onChange={e => setReportDate(e.target.value)} />
+                            <label htmlFor="reportDate">Date</label>
+                            <input id="reportDate" type="date" className="filter-select" value={reportDate} onChange={e => setReportDate(e.target.value)} />
                         </div>
                         <div className="form-group">
-                            <label>Student Name</label>
-                            <input type="text" className="filter-select" placeholder="Search student..." value={reportStudent} onChange={e => setReportStudent(e.target.value)} />
+                            <label htmlFor="reportStudent">Student Name</label>
+                            <input id="reportStudent" type="text" className="filter-select" placeholder="Search student..." value={reportStudent} onChange={e => setReportStudent(e.target.value)} />
                         </div>
                     </div>
 

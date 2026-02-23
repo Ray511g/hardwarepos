@@ -74,22 +74,22 @@ export default function AddStudentModal({ onClose, student }: Props) {
                     <div className="modal-body">
                         <div className="form-row">
                             <div className="form-group">
-                                <label>First Name *</label>
-                                <input className="form-control" required value={form.firstName} onChange={e => update('firstName', e.target.value)} />
+                                <label htmlFor="firstName">First Name *</label>
+                                <input id="firstName" name="firstName" className="form-control" required value={form.firstName} onChange={e => update('firstName', e.target.value)} />
                             </div>
                             <div className="form-group">
-                                <label>Last Name *</label>
-                                <input className="form-control" required value={form.lastName} onChange={e => update('lastName', e.target.value)} />
+                                <label htmlFor="lastName">Last Name *</label>
+                                <input id="lastName" name="lastName" className="form-control" required value={form.lastName} onChange={e => update('lastName', e.target.value)} />
                             </div>
                         </div>
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Admission Number *</label>
-                                <input className="form-control" required value={form.admissionNumber} onChange={e => update('admissionNumber', e.target.value)} />
+                                <label htmlFor="admissionNumber">Admission Number *</label>
+                                <input id="admissionNumber" name="admissionNumber" className="form-control" required value={form.admissionNumber} onChange={e => update('admissionNumber', e.target.value)} />
                             </div>
                             <div className="form-group">
-                                <label>Gender *</label>
-                                <select className="form-control" value={form.gender} onChange={e => update('gender', e.target.value)}>
+                                <label htmlFor="gender">Gender *</label>
+                                <select id="gender" name="gender" className="form-control" value={form.gender} onChange={e => update('gender', e.target.value)}>
                                     <option value="Male">Male</option>
                                     <option value="Female">Female</option>
                                 </select>
@@ -97,41 +97,40 @@ export default function AddStudentModal({ onClose, student }: Props) {
                         </div>
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Grade *</label>
-                                <select className="form-control" value={form.grade} onChange={e => {
+                                <label htmlFor="grade">Grade *</label>
+                                <select id="grade" name="grade" className="form-control" value={form.grade} onChange={e => {
                                     const grade = e.target.value;
-                                    // Only update fees if it's a new student or explicitly changing grade
                                     setForm(prev => ({ ...prev, grade, totalFees: gradeFees[grade] || prev.totalFees }));
                                 }}>
                                     {activeGrades.map(g => <option key={g} value={g}>{g}</option>)}
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label>Date of Birth</label>
-                                <input type="date" className="form-control" value={form.dateOfBirth} onChange={e => update('dateOfBirth', e.target.value)} />
+                                <label htmlFor="dateOfBirth">Date of Birth</label>
+                                <input id="dateOfBirth" name="dateOfBirth" type="date" className="form-control" value={form.dateOfBirth} onChange={e => update('dateOfBirth', e.target.value)} />
                             </div>
                         </div>
                         <div className="form-group">
-                            <label>Parent/Guardian Name *</label>
-                            <input className="form-control" required value={form.parentName} onChange={e => update('parentName', e.target.value)} />
+                            <label htmlFor="parentName">Parent/Guardian Name *</label>
+                            <input id="parentName" name="parentName" className="form-control" required value={form.parentName} onChange={e => update('parentName', e.target.value)} />
                         </div>
                         <div className="form-row">
                             <div className="form-group">
-                                <label>Parent Phone *</label>
-                                <input className="form-control" required value={form.parentPhone} onChange={e => update('parentPhone', e.target.value)} />
+                                <label htmlFor="parentPhone">Parent Phone *</label>
+                                <input id="parentPhone" name="parentPhone" className="form-control" required value={form.parentPhone} onChange={e => update('parentPhone', e.target.value)} />
                             </div>
                             <div className="form-group">
-                                <label>Parent Email</label>
-                                <input type="email" className="form-control" value={form.parentEmail} onChange={e => update('parentEmail', e.target.value)} />
+                                <label htmlFor="parentEmail">Parent Email</label>
+                                <input id="parentEmail" name="parentEmail" type="email" className="form-control" value={form.parentEmail} onChange={e => update('parentEmail', e.target.value)} />
                             </div>
                         </div>
                         <div className="form-group">
-                            <label>Address</label>
-                            <input className="form-control" value={form.address} onChange={e => update('address', e.target.value)} />
+                            <label htmlFor="address">Address</label>
+                            <input id="address" name="address" className="form-control" value={form.address} onChange={e => update('address', e.target.value)} />
                         </div>
                         <div className="form-group">
-                            <label>Total Fees (KSh)</label>
-                            <input type="number" className="form-control" value={form.totalFees} onChange={e => update('totalFees', Number(e.target.value))} />
+                            <label htmlFor="totalFees">Total Fees (KSh)</label>
+                            <input id="totalFees" name="totalFees" type="number" className="form-control" value={form.totalFees} onChange={e => update('totalFees', Number(e.target.value))} />
                         </div>
                     </div>
                     <div className="modal-footer">
