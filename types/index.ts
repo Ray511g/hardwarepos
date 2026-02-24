@@ -337,3 +337,24 @@ export interface Budget {
     allocated: number;
     spent: number;
 }
+
+export interface PromissoryNote {
+    id: string;
+    noteNumber: string;
+    studentId: string;
+    guardianName: string;
+    amount: number;
+    issueDate: string;
+    maturityDate: string;
+    status: 'ACTIVE' | 'OVERDUE' | 'SETTLED' | 'DEFAULTED';
+}
+
+export interface SchoolServiceOrder {
+    id: string;
+    studentId: string;
+    serviceType: string;
+    amount: number;
+    recurring: boolean;
+    frequency?: string;
+    status: 'ACTIVE' | 'SUSPENDED' | 'COMPLETED';
+}

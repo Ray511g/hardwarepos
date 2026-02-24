@@ -251,23 +251,8 @@ export default function Admin() {
                                 key={module.id}
                                 className={`admin-nav-item ${activeTab === module.id ? 'active' : ''}`}
                                 onClick={() => setActiveTab(module.id as any)}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 12,
-                                    padding: '12px 20px',
-                                    border: 'none',
-                                    background: activeTab === module.id ? 'var(--bg-primary)' : 'transparent',
-                                    color: activeTab === module.id ? 'var(--primary-color)' : 'var(--text-primary)',
-                                    cursor: 'pointer',
-                                    width: '100%',
-                                    textAlign: 'left',
-                                    transition: 'all 0.2s ease',
-                                    borderLeft: activeTab === module.id ? '4px solid var(--primary-color)' : '4px solid transparent',
-                                    fontWeight: activeTab === module.id ? 600 : 400
-                                }}
                             >
-                                {React.cloneElement(module.icon, { style: { fontSize: 20, opacity: activeTab === module.id ? 1 : 0.6 } })}
+                                {React.cloneElement(module.icon)}
                                 {module.label}
                             </button>
                         ))}
@@ -288,7 +273,7 @@ export default function Admin() {
                 </aside>
 
                 <div className="admin-main">
-                    <div className="admin-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
+                    <div className="admin-grid-2">
                         {activeTab === 'settings' && (
                             <>
                                 <div className="admin-section">
@@ -586,16 +571,14 @@ export default function Admin() {
                                     </div>
                                 </div>
 
-                                <div className="admin-section" style={{ gridColumn: 'span 2', background: '#fff5f5' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <h3 style={{ margin: 0, color: '#c53030' }}><SecurityIcon style={{ fontSize: 22 }} /> Danger Zone</h3>
-                                            <p style={{ margin: '4px 0 0', fontSize: 13, color: '#742a2a' }}>Caution: These actions are permanent and cannot be undone.</p>
-                                        </div>
-                                        <button className="btn-primary" style={{ background: '#c53030', borderColor: '#c53030' }} onClick={() => { if (window.confirm('CRITICAL WARNING: Clear everything?')) clearAllData(); }}>
-                                            Clear All System Data
-                                        </button>
+                                <div className="danger-zone">
+                                    <div>
+                                        <h3 className="danger-zone-title"><SecurityIcon style={{ fontSize: 22 }} /> Danger Zone</h3>
+                                        <p>Caution: These actions are permanent and cannot be undone.</p>
                                     </div>
+                                    <button className="btn-primary" style={{ background: '#c53030', borderColor: '#c53030' }} onClick={() => { if (window.confirm('CRITICAL WARNING: Clear everything?')) clearAllData(); }}>
+                                        Clear All System Data
+                                    </button>
                                 </div>
                             </>
                         )}

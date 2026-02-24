@@ -7,16 +7,26 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import ListAltIcon from '@mui/icons-material/ListAlt';
 import SearchIcon from '@mui/icons-material/Search';
+import AddPromissoryNoteModal from '../../components/modals/AddPromissoryNoteModal';
+import AddServiceOrderModal from '../../components/modals/AddServiceOrderModal';
+import { useSchool } from '../../context/SchoolContext';
 
 export default function CommercialPage() {
     const { user } = useAuth();
+    const { students } = useSchool();
     const [activeTab, setActiveTab] = useState('credit');
     const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [showNoteModal, setShowNoteModal] = useState(false);
+    const [showServiceModal, setShowServiceModal] = useState(false);
 
     const fetchData = async () => {
         setLoading(true);
-        const endpoint = activeTab === 'credit' ? '/api/commercial/credit' : '/api/commercial/po';
+        let endpoint = '/api/commercial/credit';
+        if (activeTab === 'procurement') endpoint = '/api/commercial/po';
+        if (activeTab === 'notes') endpoint = '/api/commercial/notes';
+        if (activeTab === 'services') endpoint = '/api/commercial/services';
+
         try {
             const res = await fetch(endpoint);
             if (res.ok) {
@@ -28,9 +38,7 @@ export default function CommercialPage() {
     };
 
     useEffect(() => {
-        if (activeTab === 'credit' || activeTab === 'procurement') {
-            fetchData();
-        }
+        fetchData();
     }, [activeTab]);
 
     return (
@@ -89,7 +97,11 @@ export default function CommercialPage() {
                         <SearchIcon style={{ fontSize: 18, color: 'var(--text-muted)', marginRight: 10 }} />
                         <input type="text" placeholder="Search entries..." style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', width: '100%', outline: 'none' }} />
                     </div>
-                    <button className="btn-primary" onClick={() => alert('New Entry Form would open here')}>
+                    <button className="btn-primary" onClick={() => {
+                        if (activeTab === 'notes') setShowNoteModal(true);
+                        else if (activeTab === 'services') setShowServiceModal(true);
+                        else alert(`New ${activeTab} Form would open here`);
+                    }}>
                         <AddIcon style={{ fontSize: 18, marginRight: 8 }} /> Create {activeTab.toUpperCase()}
                     </button>
                 </div>
@@ -155,18 +167,72 @@ export default function CommercialPage() {
                                     </tbody>
                                 </>
                             )}
-                            {['notes', 'services'].includes(activeTab) && (
-                                <tbody>
-                                    <tr><td colSpan={6} style={{ textAlign: 'center', padding: 100, color: 'var(--text-muted)' }}>
-                                        <div style={{ marginBottom: 15 }}>Module Under Active Development</div>
-                                        <button className="btn-outline">Enable System Preview</button>
-                                    </td></tr>
-                                </tbody>
+                            {activeTab === 'notes' && (
+                                <>
+                                    <thead>
+                                        <tr>
+                                            <th>Note #</th>
+                                            <th>Guardian</th>
+                                            <th>Amount</th>
+                                            <th>Issue Date</th>
+                                            <th>Maturity</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data.length === 0 ? (
+                                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40 }}>No promissory notes found</td></tr>
+                                        ) : data.map(item => (
+                                            <tr key={item.id}>
+                                                <td style={{ fontWeight: 600 }}>{item.noteNumber}</td>
+                                                <td>{item.guardianName}</td>
+                                                <td>KSh {item.amount.toLocaleString()}</td>
+                                                <td>{new Date(item.issueDate).toLocaleDateString()}</td>
+                                                <td>{new Date(item.maturityDate).toLocaleDateString()}</td>
+                                                <td><span className={`status-pill ${item.status.toLowerCase()}`}>{item.status}</span></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </>
+                            )}
+                            {activeTab === 'services' && (
+                                <>
+                                    <thead>
+                                        <tr>
+                                            <th>Student</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                            <th>Recurring</th>
+                                            <th>Next Billing</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data.length === 0 ? (
+                                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40 }}>No service orders found</td></tr>
+                                        ) : data.map(item => {
+                                            const student = students.find(s => s.id === item.studentId);
+                                            return (
+                                                <tr key={item.id}>
+                                                    <td style={{ fontWeight: 600 }}>{student ? `${student.firstName} ${student.lastName}` : 'Unknown Student'}</td>
+                                                    <td>{item.serviceType}</td>
+                                                    <td>KSh {item.amount.toLocaleString()}</td>
+                                                    <td>{item.recurring ? `Yes (${item.frequency})` : 'No'}</td>
+                                                    <td>{item.nextBillingDate ? new Date(item.nextBillingDate).toLocaleDateString() : 'N/A'}</td>
+                                                    <td><span className={`status-pill ${item.status.toLowerCase()}`}>{item.status}</span></td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </>
                             )}
                         </table>
                     )}
                 </div>
             </div>
+
+            {showNoteModal && <AddPromissoryNoteModal onClose={() => setShowNoteModal(false)} onAdd={fetchData} />}
+            {showServiceModal && <AddServiceOrderModal onClose={() => setShowServiceModal(false)} onAdd={fetchData} />}
         </div>
     );
 }
