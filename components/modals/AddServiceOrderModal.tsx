@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useSchool } from '../../context/SchoolContext';
 
 interface Props {
@@ -8,7 +9,7 @@ interface Props {
 }
 
 export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
-    const { students } = useSchool();
+    const { students, tryApi } = useSchool();
     const [form, setForm] = useState({
         studentId: '',
         serviceType: 'TRANSPORT',
@@ -20,12 +21,11 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const res = await fetch('/api/commercial/services', {
+        const res = await tryApi('/api/commercial/services', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(form)
         });
-        if (res.ok) {
+        if (res) {
             const data = await res.json();
             onAdd(data);
             onClose();
@@ -34,15 +34,24 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-container animate-in" style={{ maxWidth: 500 }} onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
-                    <h2>Create Service Order</h2>
-                    <button className="modal-close" onClick={onClose} aria-label="Close modal"><CloseIcon /></button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div className="stat-icon" style={{ padding: 8, backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                            <LocalShippingIcon />
+                        </div>
+                        <div>
+                            <h2 className="modal-title">New Service Enrollment</h2>
+                            <p className="text-muted text-xs">Provision transport, boarding, or meal plans</p>
+                        </div>
+                    </div>
+                    <button className="action-btn" onClick={onClose} aria-label="Close modal" title="Close"><CloseIcon /></button>
                 </div>
+
                 <form onSubmit={handleSubmit}>
                     <div className="modal-body">
                         <div className="form-group">
-                            <label htmlFor="studentId">Student *</label>
+                            <label htmlFor="studentId" className="form-label">Student *</label>
                             <select
                                 id="studentId"
                                 className="form-control"
@@ -58,9 +67,9 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
                             </select>
                         </div>
 
-                        <div className="form-row">
+                        <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                             <div className="form-group">
-                                <label htmlFor="serviceType">Service Type *</label>
+                                <label htmlFor="serviceType" className="form-label">Service Type *</label>
                                 <select
                                     id="serviceType"
                                     className="form-control"
@@ -69,54 +78,55 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
                                     title="Service Type"
                                     onChange={e => setForm({ ...form, serviceType: e.target.value })}
                                 >
-                                    <option value="TRANSPORT">Transport</option>
-                                    <option value="HOSTEL">Hostel / Boarding</option>
-                                    <option value="MEAL_PLAN">Meal Plan</option>
+                                    <option value="TRANSPORT">Transport Service</option>
+                                    <option value="HOSTEL">Boarding / Hostel</option>
+                                    <option value="MEAL_PLAN">Meal Plan / Canteen</option>
                                     <option value="UNIFORM">Uniform Bundle</option>
                                     <option value="SPECIAL_PROGRAM">Special Program / Club</option>
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="amount">Amount (KSh) *</label>
+                                <label htmlFor="amount" className="form-label">Billing Amount (KES) *</label>
                                 <input
                                     id="amount"
                                     type="number"
                                     className="form-control"
                                     required
                                     value={form.amount}
-                                    onChange={e => setForm({ ...form, amount: Number(e.target.value) })}
+                                    onChange={e => setForm({ ...form, amount: Number(e.target.value) || 0 })}
                                 />
                             </div>
                         </div>
 
-                        <div className="form-row" style={{ alignItems: 'center', gap: 20 }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                                <input
-                                    type="checkbox"
-                                    checked={form.recurring}
-                                    onChange={e => setForm({ ...form, recurring: e.target.checked })}
-                                />
-                                Recurring Service
-                            </label>
-                            {form.recurring && (
-                                <div className="form-group" style={{ flex: 1 }}>
-                                    <label htmlFor="frequency">Frequency</label>
-                                    <select
-                                        id="frequency"
-                                        className="form-control"
-                                        value={form.frequency}
-                                        title="Frequency"
-                                        onChange={e => setForm({ ...form, frequency: e.target.value })}
-                                    >
-                                        <option value="MONTHLY">Monthly</option>
-                                        <option value="TERMLY">Termly</option>
-                                    </select>
-                                </div>
-                            )}
+                        <div className="form-row" style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: 8 }}>
+                            <input
+                                id="recurring"
+                                type="checkbox"
+                                checked={form.recurring}
+                                onChange={e => setForm({ ...form, recurring: e.target.checked })}
+                                style={{ width: 18, height: 18, cursor: 'pointer' }}
+                            />
+                            <label htmlFor="recurring" style={{ cursor: 'pointer', fontSize: 14 }}>Enable Recurring Billing</label>
                         </div>
 
+                        {form.recurring && (
+                            <div className="form-group">
+                                <label htmlFor="frequency" className="form-label">Billing cycle</label>
+                                <select
+                                    id="frequency"
+                                    className="form-control"
+                                    value={form.frequency}
+                                    title="Frequency"
+                                    onChange={e => setForm({ ...form, frequency: e.target.value })}
+                                >
+                                    <option value="MONTHLY">Monthly Billing</option>
+                                    <option value="TERMLY">Once Every Term</option>
+                                </select>
+                            </div>
+                        )}
+
                         <div className="form-group">
-                            <label htmlFor="nextBillingDate">Next Billing Date</label>
+                            <label htmlFor="nextBillingDate" className="form-label">First Billing Date</label>
                             <input
                                 id="nextBillingDate"
                                 type="date"
@@ -127,8 +137,8 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn-outline" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn-primary">Create Order</button>
+                        <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+                        <button type="submit" className="btn btn-primary">Enroll Student</button>
                     </div>
                 </form>
             </div>

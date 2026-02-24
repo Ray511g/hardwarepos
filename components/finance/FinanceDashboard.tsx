@@ -11,7 +11,10 @@ interface FinanceDashboardProps {
 }
 
 const FinanceDashboard: React.FC<FinanceDashboardProps> = ({ stats }) => {
-    if (!stats) return <div className="p-20 text-center">Loading Stats...</div>;
+    // Default values for cards and data to avoid 'Loading' screen
+    const s = stats?.stats || {};
+    const cashFlow = stats?.cashFlow || [];
+    const budgets = stats?.budgets || [];
 
     const cards = [
         { label: 'Total Income', value: stats?.stats?.totalIncome || 0, icon: <TrendingUpIcon />, color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)' },

@@ -43,27 +43,39 @@ const ExpenditureManager: React.FC = () => {
     const canPay = hasPermission('finance', 'PAY');
 
     return (
-        <div className="expenditure-manager animate-in">
-            <div className="finance-toolbar">
-                <div>
-                    <h2 className="section-title">Expenditure Controls</h2>
-                    <p className="text-muted text-xs">Request and approve school expenses</p>
+        <div className="finance-content animate-in">
+            <div className="finance-nav-row">
+                <div className="search-box-container">
+                    <SearchIcon className="search-box-icon" />
+                    <input
+                        type="text"
+                        className="form-control search-input-pl"
+                        placeholder="Search expenditures..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        title="Search within expenses"
+                        aria-label="Search"
+                    />
                 </div>
-                {!showForm && (
-                    <button className="btn btn-primary" onClick={() => setShowForm(true)} title="Create a new fund request" aria-label="Raise Request">
-                        <AddIcon className="mr-2" style={{ fontSize: 18 }} />
-                        Raise Request
-                    </button>
-                )}
+                <div className="finance-toolbar-right">
+                    {!showForm && (
+                        <button className="btn btn-primary" onClick={() => setShowForm(true)} title="Create a new fund request" aria-label="Raise Request">
+                            <AddIcon className="mr-2" style={{ fontSize: 18 }} /> Raise Request
+                        </button>
+                    )}
+                </div>
             </div>
 
             {showForm && (
-                <div className="admin-section animate-in" style={{ marginBottom: 24, border: '1px solid #3b82f6' }}>
-                    <h3 className="section-title" style={{ marginBottom: 20 }}>New Expense Request</h3>
-                    <form onSubmit={handleSubmit}>
-                        <div className="grid-3">
+                <div className="modal-container animate-in" style={{ marginBottom: 32, maxWidth: '100%' }}>
+                    <div className="modal-header">
+                        <h3 className="modal-title">New Expense Request</h3>
+                        <button className="action-btn" onClick={() => setShowForm(false)} title="Cancel"><CancelIcon /></button>
+                    </div>
+                    <form onSubmit={handleSubmit} className="modal-body">
+                        <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 20 }}>
                             <div className="form-group">
-                                <label htmlFor="expCat">Category / Purpose</label>
+                                <label htmlFor="expCat" className="form-label">Category / Purpose</label>
                                 <select
                                     id="expCat"
                                     className="form-control"
@@ -81,7 +93,7 @@ const ExpenditureManager: React.FC = () => {
                                 </select>
                             </div>
                             <div className="form-group">
-                                <label htmlFor="expAmt">Amount (KES)</label>
+                                <label htmlFor="expAmt" className="form-label">Amount (KES)</label>
                                 <input
                                     id="expAmt"
                                     type="number"
@@ -93,122 +105,98 @@ const ExpenditureManager: React.FC = () => {
                                 />
                             </div>
                             <div className="form-group">
-                                <label htmlFor="expSupplier">Supplier (Optional)</label>
+                                <label htmlFor="expSupplier" className="form-label">Supplier (Optional)</label>
                                 <select
                                     id="expSupplier"
                                     className="form-control"
                                     value={form.supplierId}
                                     onChange={e => setForm({ ...form, supplierId: e.target.value })}
-                                    title="Associate with a registered supplier"
+                                    title="Reference a supplier"
                                 >
-                                    <option value="">N/A / Walk-in</option>
-                                    {suppliers.map(s => (
-                                        <option key={s.id} value={s.id}>{s.name}</option>
-                                    ))}
+                                    <option value="">N/A</option>
+                                    {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                 </select>
                             </div>
                         </div>
-                        <div className="form-group" style={{ marginTop: 16 }}>
-                            <label htmlFor="expDesc">Detailed Description</label>
+                        <div className="form-group" style={{ marginTop: 20 }}>
+                            <label htmlFor="expDesc" className="form-label">Detailed Description</label>
                             <textarea
                                 id="expDesc"
                                 className="form-control"
+                                rows={2}
                                 value={form.description}
                                 onChange={e => setForm({ ...form, description: e.target.value })}
-                                placeholder="What the funds will be used for..."
-                                title="Explain the need for funds"
+                                title="Describe the need for this expense"
                                 required
-                                rows={3}
-                            ></textarea>
+                            />
                         </div>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
-                            <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)} title="Cancel request">Cancel</button>
-                            <button type="submit" className="btn btn-primary" title="Submit request for internal approval">Submit Request</button>
+                        <div className="modal-footer" style={{ padding: '20px 0 0 0', marginTop: 20 }}>
+                            <button type="button" className="btn btn-outline" onClick={() => setShowForm(false)}>Discard</button>
+                            <button type="submit" className="btn btn-primary">Submit for Approval</button>
                         </div>
                     </form>
                 </div>
             )}
 
-            {!showForm && (
-                <>
-                    <div className="finance-nav-row">
-                        <div className="search-box-container">
-                            <SearchIcon className="search-box-icon" />
-                            <input
-                                type="text"
-                                className="form-control search-input-pl"
-                                placeholder="Search by description or category..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                title="Search through fund requests"
-                                aria-label="Search Expenses"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="table-container">
-                        <table className="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Requestor</th>
-                                    <th className="text-right">Amount</th>
-                                    <th>Status</th>
-                                    <th className="text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredExpenses.length > 0 ? filteredExpenses.map(exp => (
-                                    <tr key={exp.id}>
-                                        <td>{new Date(exp.createdAt).toLocaleDateString()}</td>
-                                        <td>
-                                            <div className="data-table-name">{exp.category}</div>
-                                            <div className="text-muted text-xs">{exp.description}</div>
-                                            {exp.supplierId && (
-                                                <div style={{ fontSize: 10, color: '#3b82f6', marginTop: 4 }}>
-                                                    Supplier: {suppliers.find(s => s.id === exp.supplierId)?.name || 'Unknown'}
-                                                </div>
-                                            )}
-                                        </td>
-                                        <td>{exp.requestedBy}</td>
-                                        <td className="text-right" style={{ fontWeight: 700 }}>KES {exp.amount.toLocaleString()}</td>
-                                        <td>
-                                            <span className={`badge ${exp.status === 'Paid' ? 'green' : exp.status === 'Approved' ? 'blue' : exp.status === 'Pending' ? 'orange' : 'red'}`}>
-                                                {exp.status}
-                                            </span>
-                                        </td>
-                                        <td className="text-right">
-                                            <div className="action-buttons-flex" style={{ justifyContent: 'flex-end' }}>
-                                                {exp.status === 'Pending' && canApprove && (
-                                                    <>
-                                                        <button className="action-btn" onClick={() => actOnExpenditure(exp.id, 'APPROVE')} title="Approve this fund request" aria-label="Approve">
-                                                            <CheckCircleIcon style={{ fontSize: 18, color: '#10b981' }} />
-                                                        </button>
-                                                        <button className="action-btn" onClick={() => actOnExpenditure(exp.id, 'REJECT')} title="Reject this fund request" aria-label="Reject">
-                                                            <CancelIcon style={{ fontSize: 18, color: '#ef4444' }} />
-                                                        </button>
-                                                    </>
-                                                )}
-                                                {exp.status === 'Approved' && canPay && (
-                                                    <button className="action-btn" onClick={() => actOnExpenditure(exp.id, 'PAY')} title="Process disbursement" aria-label="Pay">
-                                                        <PaymentsIcon style={{ fontSize: 18, color: '#3b82f6' }} />
-                                                    </button>
-                                                )}
-                                                {exp.status === 'Paid' && <FilePresentIcon style={{ fontSize: 18, opacity: 0.3 }} />}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                )) : (
-                                    <tr>
-                                        <td colSpan={6} className="p-20 text-center text-muted">No expense requests found.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </>
-            )}
+            <div className="table-container">
+                <table className="data-table">
+                    <thead>
+                        <tr>
+                            <th>Requested By</th>
+                            <th>Description</th>
+                            <th>Category</th>
+                            <th className="text-right">Amount</th>
+                            <th>Status</th>
+                            <th className="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredExpenses.length === 0 ? (
+                            <tr><td colSpan={6} className="p-40 text-center text-muted">No expenditure requests found</td></tr>
+                        ) : filteredExpenses.map(e => (
+                            <tr key={e.id}>
+                                <td>
+                                    <div className="data-table-name">{e.requestedByName}</div>
+                                    <div className="text-xs text-muted">{new Date(e.createdAt).toLocaleDateString()}</div>
+                                </td>
+                                <td>{e.description}</td>
+                                <td><span className="badge blue">{e.category}</span></td>
+                                <td className="text-right" style={{ fontWeight: 600 }}>KSh {e.amount.toLocaleString()}</td>
+                                <td>
+                                    <span className={`badge ${e.status === 'PAID' ? 'green' :
+                                            e.status === 'APPROVED' ? 'blue' :
+                                                e.status === 'PENDING' ? 'orange' : 'red'
+                                        }`}>
+                                        {e.status}
+                                    </span>
+                                </td>
+                                <td className="text-right">
+                                    <div className="action-buttons-flex" style={{ justifyContent: 'flex-end' }}>
+                                        {e.status === 'PENDING' && canApprove && (
+                                            <button className="action-btn" style={{ color: '#10b981' }} onClick={() => actOnExpenditure(e.id, 'APPROVE')} title="Approve Request">
+                                                <CheckCircleIcon style={{ fontSize: 20 }} />
+                                            </button>
+                                        )}
+                                        {e.status === 'APPROVED' && canPay && (
+                                            <button className="action-btn" style={{ color: '#3b82f6' }} onClick={() => actOnExpenditure(e.id, 'PAY')} title="Mark as Paid">
+                                                <PaymentsIcon style={{ fontSize: 20 }} />
+                                            </button>
+                                        )}
+                                        {e.status === 'PENDING' && canApprove && (
+                                            <button className="action-btn" style={{ color: '#ef4444' }} onClick={() => actOnExpenditure(e.id, 'REJECT')} title="Decline Request">
+                                                <CancelIcon style={{ fontSize: 20 }} />
+                                            </button>
+                                        )}
+                                        <button className="action-btn" title="View Document">
+                                            <FilePresentIcon style={{ fontSize: 20 }} />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 };

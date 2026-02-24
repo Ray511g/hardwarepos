@@ -8,22 +8,24 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useSchool } from '../../context/SchoolContext';
 import AddStaffModal from '../../components/modals/AddStaffModal';
+import SearchIcon from '@mui/icons-material/Search';
 
 export default function HRManagementPage() {
     const { user } = useAuth();
-    const { showToast } = useSchool();
+    const { showToast, tryApi, refreshData } = useSchool();
     const [activeTab, setActiveTab] = useState('staff');
     const [staff, setStaff] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [runningPayroll, setRunningPayroll] = useState(false);
     const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const fetchStaff = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/hr/staff');
-            if (res.ok) {
+            const res = await tryApi('/api/hr/staff');
+            if (res) {
                 const json = await res.json();
                 setStaff(json);
             }
@@ -43,9 +45,8 @@ export default function HRManagementPage() {
 
         setRunningPayroll(true);
         try {
-            const res = await fetch('/api/hr/payroll/run', {
+            const res = await tryApi('/api/hr/payroll/run', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     month,
                     year,
@@ -53,15 +54,13 @@ export default function HRManagementPage() {
                 })
             });
 
-            if (res.ok) {
+            if (res) {
                 showToast('Payroll initiated and sent for approval', 'success');
                 setActiveTab('payroll');
-            } else {
-                const error = await res.json();
-                showToast(error.message || 'Payroll failed', 'error');
+                refreshData();
             }
         } catch (e) {
-            showToast('Network error during payroll', 'error');
+            showToast('Error during payroll execution', 'error');
         } finally {
             setRunningPayroll(false);
         }
@@ -71,67 +70,89 @@ export default function HRManagementPage() {
         try {
             const method = selectedStaff ? 'PUT' : 'POST';
             const url = selectedStaff ? `/api/hr/staff/${selectedStaff.id}` : '/api/hr/staff';
-            const res = await fetch(url, {
+            const res = await tryApi(url, {
                 method,
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(staffData)
             });
 
-            if (res.ok) {
+            if (res) {
                 showToast(`Staff member ${selectedStaff ? 'updated' : 'added'} successfully`, 'success');
                 fetchStaff();
                 setIsAddStaffOpen(false);
                 setSelectedStaff(null);
-            } else {
-                showToast('Failed to save staff member', 'error');
+                refreshData();
             }
         } catch (e) {
-            showToast('Network error', 'error');
+            showToast('Network error while saving staff', 'error');
         }
     };
 
+    const filteredStaff = staff.filter(s =>
+        `${s.firstName} ${s.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.designation?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
-        <div className="page-container">
+        <div className="finance-page animate-in">
             <div className="page-header">
-                <div className="page-header-left">
+                <div className="header-content">
                     <h1>HR & Payroll Management</h1>
-                    <p className="subtitle">Staff Lifecycle, Salary Administration, and Compliance</p>
-                </div>
-                <div className="page-header-right">
-                    {activeTab === 'payroll' && (
-                        <button className="btn-primary" onClick={runPayroll} disabled={runningPayroll}>
-                            <PaymentsIcon style={{ fontSize: 18, marginRight: 8 }} /> {runningPayroll ? 'Processing...' : 'Run New Payroll'}
-                        </button>
-                    )}
-                    {activeTab === 'staff' && (
-                        <button className="btn-primary" onClick={() => { setSelectedStaff(null); setIsAddStaffOpen(true); }}>
-                            <AddIcon style={{ fontSize: 18, marginRight: 8 }} /> Add Staff Member
-                        </button>
-                    )}
+                    <p className="text-muted">Staff Lifecycle, Salary Administration, and Compliance</p>
                 </div>
             </div>
 
-            <div className="tabs-container" style={{ marginBottom: 20 }}>
-                <div className="tabs">
-                    <button className={`tab-btn ${activeTab === 'staff' ? 'active' : ''}`} onClick={() => setActiveTab('staff')}>
-                        <BadgeIcon style={{ fontSize: 18, marginRight: 8 }} /> Personnel Directory
+            <div className="tab-nav-container">
+                <div className="tab-nav scrollable">
+                    <button className={`tab-btn ${activeTab === 'staff' ? 'active' : ''}`} onClick={() => setActiveTab('staff')} title="Personnel Directory" aria-label="Staff Directory Tab">
+                        <BadgeIcon /> <span>Staff Directory</span>
                     </button>
-                    <button className={`tab-btn ${activeTab === 'payroll' ? 'active' : ''}`} onClick={() => setActiveTab('payroll')}>
-                        <PaymentsIcon style={{ fontSize: 18, marginRight: 8 }} /> Payroll Processing
+                    <button className={`tab-btn ${activeTab === 'payroll' ? 'active' : ''}`} onClick={() => setActiveTab('payroll')} title="Payroll Processing" aria-label="Payroll Tab">
+                        <PaymentsIcon /> <span>Payroll Processing</span>
                     </button>
-                    <button className={`tab-btn ${activeTab === 'leave' ? 'active' : ''}`} onClick={() => setActiveTab('leave')}>
-                        <DateRangeIcon style={{ fontSize: 18, marginRight: 8 }} /> Leave & Attendance
+                    <button className={`tab-btn ${activeTab === 'leave' ? 'active' : ''}`} onClick={() => setActiveTab('leave')} title="Leave & Attendance" aria-label="Leave Tab">
+                        <DateRangeIcon /> <span>Leave Management</span>
                     </button>
-                    <button className={`tab-btn ${activeTab === 'loans' ? 'active' : ''}`} onClick={() => setActiveTab('loans')}>
-                        <AccountBalanceIcon style={{ fontSize: 18, marginRight: 8 }} /> Staff Loans
+                    <button className={`tab-btn ${activeTab === 'loans' ? 'active' : ''}`} onClick={() => setActiveTab('loans')} title="Staff Loans" aria-label="Loans Tab">
+                        <AccountBalanceIcon /> <span>Staff Loans</span>
                     </button>
                 </div>
             </div>
 
-            <div className="card">
-                {activeTab === 'staff' && (
-                    <div className="table-wrapper">
-                        {loading ? <div className="loading-shimmer" style={{ height: 300 }}></div> : (
+            <div className="finance-content">
+                <div className="finance-nav-row">
+                    {activeTab === 'staff' ? (
+                        <>
+                            <div className="search-box-container">
+                                <SearchIcon className="search-box-icon" />
+                                <input
+                                    type="text"
+                                    className="form-control search-input-pl"
+                                    placeholder="Search staff..."
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    title="Search within staff directory"
+                                    aria-label="Search Staff"
+                                />
+                            </div>
+                            <div className="finance-toolbar-right">
+                                <button className="btn btn-primary" onClick={() => { setSelectedStaff(null); setIsAddStaffOpen(true); }} title="Register a new staff member" aria-label="Add Staff">
+                                    <AddIcon className="mr-2" style={{ fontSize: 18 }} /> Add Staff Member
+                                </button>
+                            </div>
+                        </>
+                    ) : activeTab === 'payroll' ? (
+                        <div className="finance-toolbar-right" style={{ marginLeft: 'auto' }}>
+                            <button className="btn btn-primary" onClick={runPayroll} disabled={runningPayroll} title="Execute payroll for this month" aria-label="Run Payroll">
+                                <PaymentsIcon className="mr-2" style={{ fontSize: 18 }} /> {runningPayroll ? 'Processing...' : 'Run New Payroll'}
+                            </button>
+                        </div>
+                    ) : null}
+                </div>
+
+                <div className="table-container">
+                    {activeTab === 'staff' ? (
+                        loading ? <div className="p-40 text-center text-muted">Loading personnel...</div> : (
                             <table className="data-table">
                                 <thead>
                                     <tr>
@@ -139,64 +160,68 @@ export default function HRManagementPage() {
                                         <th>Role / Dept</th>
                                         <th>KRA / NSSF</th>
                                         <th>Salary Type</th>
-                                        <th>Basic Pay</th>
+                                        <th className="text-right">Basic Pay</th>
                                         <th>Status</th>
-                                        <th>Actions</th>
+                                        <th className="text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {staff.length === 0 ? <tr><td colSpan={7} style={{ textAlign: 'center', padding: 40 }}>No staff found</td></tr> : staff.map(s => (
+                                    {filteredStaff.length === 0 ? <tr><td colSpan={7} className="text-center p-40 text-muted">No staff found</td></tr> : filteredStaff.map(s => (
                                         <tr key={s.id}>
                                             <td>
-                                                <div style={{ fontWeight: 600 }}>{s.firstName} {s.lastName}</div>
-                                                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.email}</div>
+                                                <div className="data-table-name">{s.firstName} {s.lastName}</div>
+                                                <div className="text-muted text-xs">{s.email}</div>
                                             </td>
                                             <td>
                                                 <div>{s.designation || s.role}</div>
-                                                <div style={{ fontSize: 11, color: 'var(--accent-blue)' }}>{s.department || 'General'}</div>
+                                                <div className="text-muted text-xs" style={{ color: '#3b82f6' }}>{s.department || 'General'}</div>
                                             </td>
                                             <td>
-                                                <div style={{ fontSize: 12 }}>KRA: {s.kraPin || '-'}</div>
-                                                <div style={{ fontSize: 12 }}>NSSF: {s.nssfNumber || '-'}</div>
+                                                <div className="text-xs">KRA: {s.kraPin || '-'}</div>
+                                                <div className="text-xs">NSSF: {s.nssfNumber || '-'}</div>
                                             </td>
-                                            <td><span className="badge">{s.salaryType}</span></td>
-                                            <td style={{ fontWeight: 600 }}>KSh {s.basicSalary.toLocaleString()}</td>
-                                            <td><span className="status-pill active">{s.status}</span></td>
-                                            <td><button className="text-btn" onClick={() => { setSelectedStaff(s); setIsAddStaffOpen(true); }}>Edit Profile</button></td>
+                                            <td><span className="badge blue">{s.salaryType}</span></td>
+                                            <td className="text-right" style={{ fontWeight: 600 }}>KSh {s.basicSalary.toLocaleString()}</td>
+                                            <td><span className={`badge ${s.status === 'Active' ? 'green' : 'blue'}`}>{s.status}</span></td>
+                                            <td className="text-right">
+                                                <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => { setSelectedStaff(s); setIsAddStaffOpen(true); }}>Edit Profile</button>
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                        )}
-                    </div>
-                )}
-
-                {activeTab === 'payroll' && (
-                    <div className="empty-state" style={{ padding: 60 }}>
-                        <PaymentsIcon style={{ fontSize: 48, color: 'var(--text-muted)', marginBottom: 16 }} />
-                        <h3>Payroll Management Console</h3>
-                        <p>Select "Run New Payroll" to calculate this month's disbursements based on current scales.</p>
-                        <div style={{ marginTop: 20, fontSize: 12, color: 'var(--text-muted)' }}>
-                            * Posts to Finance automatically only after final Approval Clearing.
+                        )
+                    ) : activeTab === 'payroll' ? (
+                        <div className="p-60 text-center">
+                            <PaymentsIcon style={{ fontSize: 64, color: 'rgba(59, 130, 246, 0.2)', marginBottom: 20 }} />
+                            <h3>Payroll Management Console</h3>
+                            <p className="text-muted" style={{ maxWidth: 400, margin: '0 auto 24px' }}>
+                                Use the Button above to initiate a new payroll run. Past payrolls can be viewed in the Financial Reports section.
+                            </p>
+                            <div className="badge blue" style={{ fontSize: 12, padding: '8px 16px' }}>
+                                Payroll generates ledger entries automatically after final approval.
+                            </div>
                         </div>
-                    </div>
-                )}
-
-                {['leave', 'loans'].includes(activeTab) && (
-                    <div className="empty-state" style={{ padding: 60 }}>
-                        <TrendingUpIcon style={{ fontSize: 48, color: 'var(--text-muted)', marginBottom: 16 }} />
-                        <h3>Interactive Module Preview</h3>
-                        <p>This section is being synchronized with your institution's specific HR policy documents.</p>
-                    </div>
-                )}
+                    ) : (
+                        <div className="p-60 text-center">
+                            <TrendingUpIcon style={{ fontSize: 64, color: 'rgba(59, 130, 246, 0.2)', marginBottom: 20 }} />
+                            <h3>Interactive Module Sync</h3>
+                            <p className="text-muted">
+                                This section is being synchronized with your institution's specific policy documents.
+                            </p>
+                        </div>
+                    )}
+                </div>
             </div>
 
-            <AddStaffModal
-                isOpen={isAddStaffOpen}
-                onClose={() => { setIsAddStaffOpen(false); setSelectedStaff(null); }}
-                onAdd={handleAddStaff}
-                initialData={selectedStaff}
-            />
+            {isAddStaffOpen && (
+                <AddStaffModal
+                    isOpen={isAddStaffOpen}
+                    onClose={() => { setIsAddStaffOpen(false); setSelectedStaff(null); }}
+                    onAdd={handleAddStaff}
+                    initialData={selectedStaff}
+                />
+            )}
         </div>
     );
 }

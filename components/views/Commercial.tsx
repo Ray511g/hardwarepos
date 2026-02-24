@@ -13,12 +13,13 @@ import { useSchool } from '../../context/SchoolContext';
 
 export default function CommercialPage() {
     const { user } = useAuth();
-    const { students } = useSchool();
+    const { students, tryApi } = useSchool();
     const [activeTab, setActiveTab] = useState('credit');
     const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [showNoteModal, setShowNoteModal] = useState(false);
     const [showServiceModal, setShowServiceModal] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const fetchData = async () => {
         setLoading(true);
@@ -28,8 +29,8 @@ export default function CommercialPage() {
         if (activeTab === 'services') endpoint = '/api/commercial/services';
 
         try {
-            const res = await fetch(endpoint);
-            if (res.ok) {
+            const res = await tryApi(endpoint);
+            if (res) {
                 const json = await res.json();
                 setData(json);
             }
@@ -41,74 +42,101 @@ export default function CommercialPage() {
         fetchData();
     }, [activeTab]);
 
+    const filteredData = data.filter(item => {
+        const search = searchTerm.toLowerCase();
+        return (
+            (item.studentName?.toLowerCase().includes(search)) ||
+            (item.guardianName?.toLowerCase().includes(search)) ||
+            (item.poNumber?.toLowerCase().includes(search)) ||
+            (item.noteNumber?.toLowerCase().includes(search)) ||
+            (item.supplierName?.toLowerCase().includes(search))
+        );
+    });
+
     return (
-        <div className="page-container">
+        <div className="finance-page animate-in">
             <div className="page-header">
-                <div className="page-header-left">
+                <div className="header-content">
                     <h1>Commercial & Credit Control</h1>
-                    <p className="subtitle">Commitments, Credit Risk, and Procurement Management</p>
+                    <p className="text-muted">Commitments, Credit Risk, and Procurement Management</p>
                 </div>
             </div>
 
-            <div className="stats-grid" style={{ marginBottom: 24 }}>
-                <div className="stat-card blue">
-                    <div className="stat-card-header">
-                        <div className="stat-card-value">12</div>
-                        <AccountBalanceWalletIcon style={{ color: 'var(--accent-blue)' }} />
+            <div className="finance-stats-container">
+                <div className="stat-card">
+                    <div className="stat-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                        <AccountBalanceWalletIcon />
                     </div>
-                    <div className="stat-card-label">Active Credit Agreements</div>
+                    <div className="stat-info">
+                        <span className="stat-label">Active Credit Agreements</span>
+                        <span className="stat-value">12</span>
+                    </div>
                 </div>
-                <div className="stat-card orange">
-                    <div className="stat-card-header">
-                        <div className="stat-card-value">5</div>
-                        <AssignmentIcon style={{ color: 'var(--accent-orange)' }} />
+                <div className="stat-card">
+                    <div className="stat-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b' }}>
+                        <AssignmentIcon />
                     </div>
-                    <div className="stat-card-label">Pending Purchase Orders</div>
+                    <div className="stat-info">
+                        <span className="stat-label">Pending Purchase Orders</span>
+                        <span className="stat-value">5</span>
+                    </div>
                 </div>
-                <div className="stat-card red">
-                    <div className="stat-card-header">
-                        <div className="stat-card-value">KSh 1.2M</div>
-                        <ShoppingCartIcon style={{ color: 'var(--accent-red)' }} />
+                <div className="stat-card">
+                    <div className="stat-icon" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}>
+                        <ShoppingCartIcon />
                     </div>
-                    <div className="stat-card-label">Outstanding Commitment</div>
+                    <div className="stat-info">
+                        <span className="stat-label">Outstanding Commitment</span>
+                        <span className="stat-value">KSh 1.2M</span>
+                    </div>
                 </div>
             </div>
 
-            <div className="tabs-container" style={{ marginBottom: 20 }}>
-                <div className="tabs glass-overlay">
-                    <button className={`tab-btn ${activeTab === 'credit' ? 'active' : ''}`} onClick={() => setActiveTab('credit')}>
-                        <AccountBalanceWalletIcon style={{ fontSize: 18, marginRight: 8 }} /> Student Credit
+            <div className="tab-nav-container">
+                <div className="tab-nav scrollable">
+                    <button className={`tab-btn ${activeTab === 'credit' ? 'active' : ''}`} onClick={() => setActiveTab('credit')} title="View student credit agreements" aria-label="Student Credit Tab">
+                        <AccountBalanceWalletIcon /> <span>Student Credit</span>
                     </button>
-                    <button className={`tab-btn ${activeTab === 'notes' ? 'active' : ''}`} onClick={() => setActiveTab('notes')}>
-                        <ListAltIcon style={{ fontSize: 18, marginRight: 8 }} /> Promissory Notes
+                    <button className={`tab-btn ${activeTab === 'notes' ? 'active' : ''}`} onClick={() => setActiveTab('notes')} title="Manage promissory notes" aria-label="Promissory Notes Tab">
+                        <ListAltIcon /> <span>Promissory Notes</span>
                     </button>
-                    <button className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`} onClick={() => setActiveTab('services')}>
-                        <LocalShippingIcon style={{ fontSize: 18, marginRight: 8 }} /> Service Orders
+                    <button className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`} onClick={() => setActiveTab('services')} title="Recurring service orders" aria-label="Service Orders Tab">
+                        <LocalShippingIcon /> <span>Service Orders</span>
                     </button>
-                    <button className={`tab-btn ${activeTab === 'procurement' ? 'active' : ''}`} onClick={() => setActiveTab('procurement')}>
-                        <ShoppingCartIcon style={{ fontSize: 18, marginRight: 8 }} /> Procurement
+                    <button className={`tab-btn ${activeTab === 'procurement' ? 'active' : ''}`} onClick={() => setActiveTab('procurement')} title="Procurement and POs" aria-label="Procurement Tab">
+                        <ShoppingCartIcon /> <span>Procurement</span>
                     </button>
                 </div>
             </div>
 
-            <div className="commercial-content card">
-                <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '15px 20px', borderBottom: '1px solid var(--border-color)' }}>
-                    <div className="search-bar" style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-surface)', padding: '6px 15px', borderRadius: 8, width: 300 }}>
-                        <SearchIcon style={{ fontSize: 18, color: 'var(--text-muted)', marginRight: 10 }} />
-                        <input type="text" placeholder="Search entries..." style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', width: '100%', outline: 'none' }} />
+            <div className="finance-content">
+                <div className="finance-nav-row">
+                    <div className="search-box-container">
+                        <SearchIcon className="search-box-icon" />
+                        <input
+                            type="text"
+                            className="form-control search-input-pl"
+                            placeholder={`Search ${activeTab}...`}
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            title={`Search within ${activeTab}`}
+                            aria-label="Search"
+                        />
                     </div>
-                    <button className="btn-primary" onClick={() => {
-                        if (activeTab === 'notes') setShowNoteModal(true);
-                        else if (activeTab === 'services') setShowServiceModal(true);
-                        else alert(`New ${activeTab} Form would open here`);
-                    }}>
-                        <AddIcon style={{ fontSize: 18, marginRight: 8 }} /> Create {activeTab.toUpperCase()}
-                    </button>
+                    <div className="finance-toolbar-right">
+                        <button className="btn btn-primary" onClick={() => {
+                            if (activeTab === 'notes') setShowNoteModal(true);
+                            else if (activeTab === 'services') setShowServiceModal(true);
+                            else alert(`New ${activeTab} Form would open here`);
+                        }} title={`Create new ${activeTab} record`} aria-label={`Add ${activeTab}`}>
+                            <AddIcon className="mr-2" style={{ fontSize: 18 }} /> Create {activeTab.toUpperCase()}
+                        </button>
+                    </div>
                 </div>
 
-                <div className="table-wrapper">
+                <div className="table-container">
                     {loading ? (
-                        <div className="loading-shimmer" style={{ height: 300 }}></div>
+                        <div className="p-40 text-center text-muted">Loading data...</div>
                     ) : (
                         <table className="data-table">
                             {activeTab === 'credit' && (
@@ -120,20 +148,22 @@ export default function CommercialPage() {
                                             <th>Commitment</th>
                                             <th>Installments</th>
                                             <th>Status</th>
-                                            <th>Actions</th>
+                                            <th className="text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.length === 0 ? (
-                                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40 }}>No agreements found</td></tr>
-                                        ) : data.map(item => (
+                                        {filteredData.length === 0 ? (
+                                            <tr><td colSpan={6} className="text-center p-40 text-muted">No agreements found</td></tr>
+                                        ) : filteredData.map(item => (
                                             <tr key={item.id}>
-                                                <td style={{ fontWeight: 600 }}>{item.studentName}</td>
+                                                <td><div className="data-table-name">{item.studentName}</div></td>
                                                 <td>{item.guardianName || 'N/A'}</td>
                                                 <td>KSh {item.totalAmount.toLocaleString()}</td>
                                                 <td>{item.installments?.length || 0} Scheduled</td>
-                                                <td><span className={`status-pill ${item.status.toLowerCase()}`}>{item.status}</span></td>
-                                                <td><button className="text-btn">View Schedule</button></td>
+                                                <td><span className={`badge ${item.status === 'Active' ? 'green' : 'blue'}`}>{item.status}</span></td>
+                                                <td className="text-right">
+                                                    <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: 12 }}>View Schedule</button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -145,23 +175,25 @@ export default function CommercialPage() {
                                         <tr>
                                             <th>PO Number</th>
                                             <th>Supplier</th>
-                                            <th>Total</th>
+                                            <th className="text-right">Total</th>
                                             <th>Department</th>
                                             <th>Status</th>
-                                            <th>Actions</th>
+                                            <th className="text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.length === 0 ? (
-                                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40 }}>No purchase orders found</td></tr>
-                                        ) : data.map(item => (
+                                        {filteredData.length === 0 ? (
+                                            <tr><td colSpan={6} className="text-center p-40 text-muted">No purchase orders found</td></tr>
+                                        ) : filteredData.map(item => (
                                             <tr key={item.id}>
-                                                <td style={{ fontWeight: 600 }}>{item.poNumber}</td>
+                                                <td><div className="data-table-name">{item.poNumber}</div></td>
                                                 <td>{item.supplierName}</td>
-                                                <td>KSh {item.totalAmount.toLocaleString()}</td>
+                                                <td className="text-right">KSh {item.totalAmount.toLocaleString()}</td>
                                                 <td>{item.department}</td>
-                                                <td><span className={`status-pill ${item.status.toLowerCase()}`}>{item.status}</span></td>
-                                                <td><button className="text-btn">Details</button></td>
+                                                <td><span className={`badge ${item.status === 'Approved' ? 'green' : 'orange'}`}>{item.status}</span></td>
+                                                <td className="text-right">
+                                                    <button className="btn btn-outline" style={{ padding: '4px 10px', fontSize: 12 }}>Details</button>
+                                                </td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -173,23 +205,23 @@ export default function CommercialPage() {
                                         <tr>
                                             <th>Note #</th>
                                             <th>Guardian</th>
-                                            <th>Amount</th>
+                                            <th className="text-right">Amount</th>
                                             <th>Issue Date</th>
                                             <th>Maturity</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.length === 0 ? (
-                                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40 }}>No promissory notes found</td></tr>
-                                        ) : data.map(item => (
+                                        {filteredData.length === 0 ? (
+                                            <tr><td colSpan={6} className="text-center p-40 text-muted">No promissory notes found</td></tr>
+                                        ) : filteredData.map(item => (
                                             <tr key={item.id}>
-                                                <td style={{ fontWeight: 600 }}>{item.noteNumber}</td>
+                                                <td><div className="data-table-name">{item.noteNumber}</div></td>
                                                 <td>{item.guardianName}</td>
-                                                <td>KSh {item.amount.toLocaleString()}</td>
+                                                <td className="text-right">KSh {item.amount.toLocaleString()}</td>
                                                 <td>{new Date(item.issueDate).toLocaleDateString()}</td>
                                                 <td>{new Date(item.maturityDate).toLocaleDateString()}</td>
-                                                <td><span className={`status-pill ${item.status.toLowerCase()}`}>{item.status}</span></td>
+                                                <td><span className={`badge ${item.status === 'Active' ? 'green' : 'blue'}`}>{item.status}</span></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -201,25 +233,25 @@ export default function CommercialPage() {
                                         <tr>
                                             <th>Student</th>
                                             <th>Type</th>
-                                            <th>Amount</th>
+                                            <th className="text-right">Amount</th>
                                             <th>Recurring</th>
                                             <th>Next Billing</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {data.length === 0 ? (
-                                            <tr><td colSpan={6} style={{ textAlign: 'center', padding: 40 }}>No service orders found</td></tr>
-                                        ) : data.map(item => {
+                                        {filteredData.length === 0 ? (
+                                            <tr><td colSpan={6} className="text-center p-40 text-muted">No service orders found</td></tr>
+                                        ) : filteredData.map(item => {
                                             const student = students.find(s => s.id === item.studentId);
                                             return (
                                                 <tr key={item.id}>
-                                                    <td style={{ fontWeight: 600 }}>{student ? `${student.firstName} ${student.lastName}` : 'Unknown Student'}</td>
+                                                    <td><div className="data-table-name">{student ? `${student.firstName} ${student.lastName}` : 'Unknown Student'}</div></td>
                                                     <td>{item.serviceType}</td>
-                                                    <td>KSh {item.amount.toLocaleString()}</td>
+                                                    <td className="text-right">KSh {item.amount.toLocaleString()}</td>
                                                     <td>{item.recurring ? `Yes (${item.frequency})` : 'No'}</td>
                                                     <td>{item.nextBillingDate ? new Date(item.nextBillingDate).toLocaleDateString() : 'N/A'}</td>
-                                                    <td><span className={`status-pill ${item.status.toLowerCase()}`}>{item.status}</span></td>
+                                                    <td><span className={`badge ${item.status === 'Active' ? 'green' : 'blue'}`}>{item.status}</span></td>
                                                 </tr>
                                             );
                                         })}

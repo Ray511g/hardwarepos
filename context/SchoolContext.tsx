@@ -33,6 +33,7 @@ interface SchoolContextType {
     suppliers: Supplier[];
     accounts: ChartOfAccount[];
     journalEntries: JournalEntry[];
+    financeStats: any;
     toasts: Toast[];
     loading: boolean;
     // CBC State
@@ -189,6 +190,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
     const [accounts, setAccounts] = useState<ChartOfAccount[]>([]);
     const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+    const [financeStats, setFinanceStats] = useState<any>(null);
     const [roles, setRoles] = useState<Role[]>([]);
     const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
     const [systemUsers, setSystemUsers] = useState<User[]>([]);
@@ -281,6 +283,15 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
                 setAccounts(data.accounts || []);
                 setJournalEntries(data.journalEntries || []);
                 setRoles(data.roles);
+
+                // Fetch finance stats as part of the sync
+                const statsRes = await fetch(`${API_URL}/finance/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (statsRes.ok) {
+                    setFinanceStats(await statsRes.json());
+                }
+
                 lastSyncRef.current = data.lastUpdated;
             }
 
@@ -1151,6 +1162,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             suppliers,
             accounts,
             journalEntries,
+            financeStats,
             // CBC
             learningAreas,
             assessmentScores,
