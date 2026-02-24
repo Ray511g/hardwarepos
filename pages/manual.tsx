@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import ManualPage from './app/Manual';
+import ManualPage from '../components/views/Manual';
 
 export default function Manual() {
     const { isAuthenticated, isLoading } = useAuth();

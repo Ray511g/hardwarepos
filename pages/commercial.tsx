@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import CommercialPage from './app/Commercial';
+import CommercialPage from '../components/views/Commercial';
 
 export default function Commercial() {
     const { isAuthenticated, isLoading } = useAuth();

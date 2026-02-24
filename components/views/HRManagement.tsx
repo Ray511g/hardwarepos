@@ -7,6 +7,7 @@ import DateRangeIcon from '@mui/icons-material/DateRange';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { useSchool } from '../../context/SchoolContext';
+import AddStaffModal from '../../components/modals/AddStaffModal';
 
 export default function HRManagementPage() {
     const { user } = useAuth();
@@ -15,6 +16,8 @@ export default function HRManagementPage() {
     const [staff, setStaff] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [runningPayroll, setRunningPayroll] = useState(false);
+    const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
+    const [selectedStaff, setSelectedStaff] = useState<any>(null);
 
     const fetchStaff = async () => {
         setLoading(true);
@@ -64,6 +67,29 @@ export default function HRManagementPage() {
         }
     };
 
+    const handleAddStaff = async (staffData: any) => {
+        try {
+            const method = selectedStaff ? 'PUT' : 'POST';
+            const url = selectedStaff ? `/api/hr/staff/${selectedStaff.id}` : '/api/hr/staff';
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(staffData)
+            });
+
+            if (res.ok) {
+                showToast(`Staff member ${selectedStaff ? 'updated' : 'added'} successfully`, 'success');
+                fetchStaff();
+                setIsAddStaffOpen(false);
+                setSelectedStaff(null);
+            } else {
+                showToast('Failed to save staff member', 'error');
+            }
+        } catch (e) {
+            showToast('Network error', 'error');
+        }
+    };
+
     return (
         <div className="page-container">
             <div className="page-header">
@@ -78,7 +104,7 @@ export default function HRManagementPage() {
                         </button>
                     )}
                     {activeTab === 'staff' && (
-                        <button className="btn-primary" onClick={() => alert('Add Staff form would open here')}>
+                        <button className="btn-primary" onClick={() => { setSelectedStaff(null); setIsAddStaffOpen(true); }}>
                             <AddIcon style={{ fontSize: 18, marginRight: 8 }} /> Add Staff Member
                         </button>
                     )}
@@ -136,7 +162,7 @@ export default function HRManagementPage() {
                                             <td><span className="badge">{s.salaryType}</span></td>
                                             <td style={{ fontWeight: 600 }}>KSh {s.basicSalary.toLocaleString()}</td>
                                             <td><span className="status-pill active">{s.status}</span></td>
-                                            <td><button className="text-btn">Edit Profile</button></td>
+                                            <td><button className="text-btn" onClick={() => { setSelectedStaff(s); setIsAddStaffOpen(true); }}>Edit Profile</button></td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -164,6 +190,13 @@ export default function HRManagementPage() {
                     </div>
                 )}
             </div>
+
+            <AddStaffModal
+                isOpen={isAddStaffOpen}
+                onClose={() => { setIsAddStaffOpen(false); setSelectedStaff(null); }}
+                onAdd={handleAddStaff}
+                initialData={selectedStaff}
+            />
         </div>
     );
 }

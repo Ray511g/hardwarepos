@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import FeesPage from './app/Fees';
+import FeesPage from '../components/views/Fees';
 
 export default function Fees() {
     const { isAuthenticated, isLoading } = useAuth();

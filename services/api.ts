@@ -1,5 +1,5 @@
 // API service layer — connects frontend to the Next.js backend
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 function getToken(): string | null {
     return localStorage.getItem('elirama_token');

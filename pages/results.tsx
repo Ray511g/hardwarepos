@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import ResultsPage from './app/Results';
+import ResultsPage from '../components/views/Results';
 
 export default function Results() {
     const { isAuthenticated, isLoading } = useAuth();

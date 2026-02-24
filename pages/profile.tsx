@@ -1,6 +1,6 @@
 import React from 'react';
 import Layout from '../components/layout/Layout';
-import ProfilePage from './app/Profile';
+import ProfilePage from '../components/views/Profile';
 import { useAuth } from '../context/AuthContext';
 import { useRouter } from 'next/router';
 

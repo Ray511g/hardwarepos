@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import HRManagementPage from './app/HRManagement';
+import HRManagementPage from '../components/views/HRManagement';
 
 export default function HR() {
     const { isAuthenticated, isLoading } = useAuth();

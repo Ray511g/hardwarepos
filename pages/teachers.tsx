@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import TeachersPage from './app/Teachers';
+import TeachersPage from '../components/views/Teachers';
 
 export default function Teachers() {
     const { isAuthenticated, isLoading } = useAuth();

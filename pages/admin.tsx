@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import AdminPage from './app/Admin';
+import AdminPage from '../components/views/Admin';
 
 export default function Admin() {
     const { isAuthenticated, isLoading } = useAuth();

@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import ApprovalCenterPage from './app/ApprovalCenter';
+import ApprovalCenterPage from '../components/views/ApprovalCenter';
 
 export default function Approvals() {
     const { isAuthenticated, isLoading } = useAuth();

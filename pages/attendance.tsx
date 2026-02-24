@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useAuth } from '../context/AuthContext';
 import Layout from '../components/layout/Layout';
-import AttendancePage from './app/Attendance';
+import AttendancePage from '../components/views/Attendance';
 
 export default function Attendance() {
     const { isAuthenticated, isLoading } = useAuth();
