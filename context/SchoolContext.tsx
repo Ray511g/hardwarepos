@@ -327,7 +327,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         return () => clearInterval(interval);
     }, [fetchData]);
 
-    const refreshData = () => fetchData();
+    const refreshData = () => fetchData(true);
 
     // Helper: try API call, fall back to local operation
     async function tryApi(url: string, options: RequestInit = {}): Promise<Response | null> {
@@ -501,6 +501,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
                 return s;
             }));
             showToast(`Payment of KSh ${payment.amount.toLocaleString()} recorded`, 'success');
+            refreshData();
         }
     };
 
@@ -521,6 +522,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
                 }));
             }
             showToast('Payment updated successfully', 'success');
+            refreshData();
         }
     };
 
@@ -541,6 +543,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
                 }));
 
                 showToast('Payment deleted and fee balance adjusted', 'info');
+                refreshData();
             }
         }
     };
@@ -824,6 +827,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             const data = await apiRes.json();
             setSuppliers(prev => [...prev, data]);
             showToast('Supplier registered successfully');
+            refreshData();
         }
     };
 
@@ -833,6 +837,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             const data = await apiRes.json();
             setSuppliers(prev => prev.map(s => s.id === id ? data : s));
             showToast('Supplier profile updated');
+            refreshData();
         }
     };
 
@@ -841,6 +846,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         if (apiRes) {
             setSuppliers(prev => prev.filter(s => s.id !== id));
             showToast('Supplier removed from registry', 'info');
+            refreshData();
         }
     };
 
@@ -850,6 +856,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             const data = await apiRes.json();
             setAccounts(prev => [...prev, data]);
             showToast('Account added to Chart of Accounts');
+            refreshData();
         }
     };
 
@@ -859,6 +866,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             const data = await apiRes.json();
             setAccounts(prev => prev.map(a => a.id === id ? data : a));
             showToast('Chart of Accounts updated');
+            refreshData();
         }
     };
 
@@ -867,6 +875,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         if (apiRes) {
             setAccounts(prev => prev.filter(a => a.id !== id));
             showToast('Account deleted', 'info');
+            refreshData();
         }
     };
 
@@ -876,6 +885,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             const data = await apiRes.json();
             setJournalEntries(prev => [...prev, data]);
             showToast('Journal entry recorded and pending approval');
+            refreshData();
         }
     };
 
@@ -901,6 +911,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             const data = await apiRes.json();
             setExpenses(prev => [...prev, data]);
             showToast('Expense request submitted');
+            refreshData();
         }
     };
 
@@ -953,6 +964,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             const data = await apiRes.json();
             setFeeStructures(prev => prev.map(f => f.id === id ? data : f));
             showToast('Fee item updated in draft');
+            refreshData();
         }
     };
 
@@ -961,6 +973,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         if (apiRes) {
             setFeeStructures(prev => prev.filter(f => f.id !== id));
             showToast('Fee item removed from draft');
+            refreshData();
         }
     };
 

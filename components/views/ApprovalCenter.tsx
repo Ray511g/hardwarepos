@@ -9,7 +9,7 @@ import { useSchool } from '../../context/SchoolContext';
 
 export default function ApprovalCenterPage() {
     const { user } = useAuth();
-    const { tryApi, showToast } = useSchool();
+    const { tryApi, showToast, refreshData } = useSchool();
     const [requests, setRequests] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('PENDING');
@@ -52,6 +52,7 @@ export default function ApprovalCenterPage() {
             if (res) {
                 showToast(`Request ${action.toLowerCase()} successfully`, 'success');
                 fetchRequests();
+                refreshData();
             }
         } catch (error) {
             showToast('Failed to process approval action', 'error');
