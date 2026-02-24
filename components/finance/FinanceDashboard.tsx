@@ -5,7 +5,6 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import GroupIcon from '@mui/icons-material/Group';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import PieChartIcon from '@mui/icons-material/PieChart';
-import '../../styles/finance.css';
 
 interface FinanceDashboardProps {
     stats: any;

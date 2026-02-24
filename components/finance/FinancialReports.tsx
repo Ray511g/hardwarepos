@@ -3,7 +3,6 @@ import { useSchool } from '../../context/SchoolContext';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PrintIcon from '@mui/icons-material/Print';
-import '../../styles/finance.css';
 
 type ReportType = 'P&L' | 'BalanceSheet' | 'TrialBalance' | 'Aging';
 

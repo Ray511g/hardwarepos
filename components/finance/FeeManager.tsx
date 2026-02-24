@@ -15,7 +15,6 @@ import RecordPaymentModal from '../modals/RecordPaymentModal';
 import ReceiptModal from '../modals/ReceiptModal';
 import FeeStructureModal from '../modals/FeeStructureModal';
 import Pagination from '../common/Pagination';
-import '../../styles/finance.css';
 
 const FeeManager: React.FC = () => {
     const { students, payments, settings, updateGradeFees, deletePayment } = useSchool();

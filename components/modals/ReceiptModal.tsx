@@ -3,7 +3,6 @@ import { useSchool } from '../../context/SchoolContext';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import DownloadIcon from '@mui/icons-material/Download';
-import '../../styles/finance.css';
 
 interface FeePayment {
     id: string;

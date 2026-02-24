@@ -7,7 +7,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import AddStaffModal from '../modals/AddStaffModal';
 import { Staff } from '../../types';
-import '../../styles/finance.css';
 
 interface PayrollManagerProps {
     staff: Staff[];

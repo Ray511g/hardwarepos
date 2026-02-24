@@ -1,5 +1,6 @@
-npm notice
-npm notice New minor version of npm available! 11.6.2 -> 11.10.1
-npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.10.1
-npm notice To update run: npm install -g npm@11.10.1
-npm notice
+components/finance/GeneralLedger.tsx(272,78): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(props: { component: ElementType<any, keyof IntrinsicElements>; } & SvgIconOwnProps & CommonProps & Omit<any, "children" | ... 10 more ... | "viewBox">): Element', gave the following error.
+    Property 'component' is missing in type '{ style: { fontSize: number; opacity: number; }; title: string; }' but required in type '{ component: ElementType<any, keyof IntrinsicElements>; }'.
+  Overload 2 of 2, '(props: DefaultComponentProps<SvgIconTypeMap<{}, "svg">>): Element', gave the following error.
+    Type '{ style: { fontSize: number; opacity: number; }; title: string; }' is not assignable to type 'IntrinsicAttributes & SvgIconOwnProps & CommonProps & Omit<Omit<SVGProps<SVGSVGElement>, "ref"> & { ...; }, "children" | ... 10 more ... | "viewBox">'.
+      Property 'title' does not exist on type 'IntrinsicAttributes & SvgIconOwnProps & CommonProps & Omit<Omit<SVGProps<SVGSVGElement>, "ref"> & { ...; }, "children" | ... 10 more ... | "viewBox">'.

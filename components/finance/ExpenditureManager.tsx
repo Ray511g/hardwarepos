@@ -7,7 +7,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import FilePresentIcon from '@mui/icons-material/FilePresent';
-import '../../styles/finance.css';
 
 const ExpenditureManager: React.FC = () => {
     const { user, hasPermission } = useAuth();

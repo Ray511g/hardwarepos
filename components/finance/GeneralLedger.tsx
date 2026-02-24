@@ -9,7 +9,6 @@ import AddIcon from '@mui/icons-material/Add';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UndoIcon from '@mui/icons-material/Undo';
 import LockIcon from '@mui/icons-material/Lock';
-import '../../styles/finance.css';
 
 const GeneralLedger: React.FC = () => {
     const { user: authUser } = useAuth();
@@ -269,7 +268,7 @@ const GeneralLedger: React.FC = () => {
                                                     <UndoIcon style={{ fontSize: 16 }} />
                                                 </button>
                                             )}
-                                            {entry.status === 'Reversed' && <LockIcon style={{ fontSize: 16, opacity: 0.3 }} title="Entry Locked" />}
+                                            {entry.status === 'Reversed' && <LockIcon style={{ fontSize: 16, opacity: 0.3 }} titleAccess="Entry Locked" />}
                                         </div>
                                     </td>
                                 </tr>

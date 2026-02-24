@@ -7,7 +7,6 @@ import EditIcon from '@mui/icons-material/Edit';
 import SearchIcon from '@mui/icons-material/Search';
 import PhoneIcon from '@mui/icons-material/Phone';
 import BusinessIcon from '@mui/icons-material/Business';
-import '../../styles/finance.css';
 
 const SupplierManager: React.FC = () => {
     const { suppliers, addSupplier, updateSupplier, deleteSupplier } = useSchool();

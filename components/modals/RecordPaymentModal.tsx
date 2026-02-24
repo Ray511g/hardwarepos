@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useSchool } from '../../context/SchoolContext';
 import { FeePayment } from '../../types';
 import CloseIcon from '@mui/icons-material/Close';
-import '../../styles/finance.css';
 
 interface Props {
     onClose: () => void;

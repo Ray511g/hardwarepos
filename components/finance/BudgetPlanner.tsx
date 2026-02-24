@@ -3,7 +3,6 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import AddIcon from '@mui/icons-material/Add';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningIcon from '@mui/icons-material/Warning';
-import '../../styles/finance.css';
 
 interface BudgetPlannerProps {
     budgets: any[];
