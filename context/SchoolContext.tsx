@@ -346,9 +346,28 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         fetchData(true).finally(() => setLoading(false));
     }, [fetchData]);
 
+    // Real-time Sync: Polling + Focus/Visibility reset
     useEffect(() => {
-        const interval = setInterval(() => fetchData(false), 10000); // Poll every 10 seconds instead of 1s
-        return () => clearInterval(interval);
+        // Fast polling for near-instant updates across devices
+        const interval = setInterval(() => fetchData(false), 2500);
+
+        // Immediate sync when tab becomes visible or receives focus
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                fetchData(false);
+            }
+        };
+
+        const handleFocus = () => fetchData(false);
+
+        window.addEventListener('visibilitychange', handleVisibilityChange);
+        window.addEventListener('focus', handleFocus);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('visibilitychange', handleVisibilityChange);
+            window.removeEventListener('focus', handleFocus);
+        };
     }, [fetchData]);
 
     const refreshData = () => fetchData(true);
