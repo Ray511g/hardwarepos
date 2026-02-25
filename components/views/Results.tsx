@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/router';
 import { useSchool, generateId } from '../../context/SchoolContext';
 import { GRADES, StudentResult, PerformanceLevel, Exam } from '../../types';
 import SearchIcon from '@mui/icons-material/Search';
 import SaveIcon from '@mui/icons-material/Save';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import HistoryIcon from '@mui/icons-material/History';
 import ReportFormModal from '../../components/modals/ReportFormModal';
 import CBCProgressReportModal from '../../components/modals/CBCProgressReportModal';
 import Pagination from '../../components/common/Pagination';
@@ -26,10 +29,26 @@ const getLevelColor = (level: PerformanceLevel) => {
 };
 
 export default function Results() {
-    const { students, exams, results, saveBulkResults, showToast, learningAreas, assessmentScores, saveBulkAssessmentScores, activeGrades } = useSchool();
+    const { students, exams, results, saveBulkResults, addResult, showToast, learningAreas, assessmentScores, saveAssessmentScore, saveBulkAssessmentScores, activeGrades } = useSchool();
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<'exams' | 'cbc'>('exams');
     const [selectedGrade, setSelectedGrade] = useState('');
     const [selectedExamId, setSelectedExamId] = useState('');
+
+    useEffect(() => {
+        if (router.query.grade) setSelectedGrade(router.query.grade as string);
+        if (router.query.examId) {
+            setSelectedExamId(router.query.examId as string);
+            setActiveTab('exams');
+        }
+    }, [router.query]);
+
+    // Automatically load results when selections change
+    useEffect(() => {
+        if (selectedExamId || selectedAssessmentId) {
+            handleLoadResults();
+        }
+    }, [selectedExamId, selectedAssessmentId]);
 
     // CBC Hierarchy Selection
     const [selectedAreaId, setSelectedAreaId] = useState('');
@@ -205,11 +224,34 @@ export default function Results() {
             </div>
 
             {(selectedExam || selectedAssessmentId) && (
-                <div className="card glass-card" style={{ marginTop: 24 }}>
+                <div className="card glass-card" style={{ marginTop: 24, borderLeft: '4px solid var(--accent-blue)' }}>
                     <div className="section-header-horizontal">
                         <div className="title-group">
-                            <h3 className="card-title">Score Entry: {activeTab === 'exams' ? selectedExam?.name : selectedAssessment?.name}</h3>
-                            <p className="card-subtitle">Showing {paginatedStudents.length} learners for {selectedGrade}</p>
+                            <h3 className="card-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                {activeTab === 'exams' ? (
+                                    <>
+                                        <AssignmentIcon style={{ color: 'var(--accent-blue)' }} />
+                                        Score Entry: {selectedExam?.name}
+                                    </>
+                                ) : (
+                                    <>
+                                        <AssignmentIcon style={{ color: 'var(--accent-purple)' }} />
+                                        CBC Entry: {selectedAssessment?.name}
+                                    </>
+                                )}
+                            </h3>
+                            <div style={{ display: 'flex', gap: 15, marginTop: 4, color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                                {activeTab === 'exams' && selectedExam && (
+                                    <>
+                                        <span><strong>Subject:</strong> {selectedExam.subject}</span>
+                                        <span><strong>Term:</strong> {selectedExam.term}</span>
+                                        <span><strong>Date:</strong> {new Date(selectedExam.date).toLocaleDateString()}</span>
+                                        <span><strong>Total Marks:</strong> {selectedExam.totalMarks}</span>
+                                    </>
+                                )}
+                                <span><strong>Grade:</strong> {selectedGrade}</span>
+                                <span><strong>Learners:</strong> {gradeStudents.length}</span>
+                            </div>
                         </div>
                         <div className="legend-strip">
                             <span className="badge green">EE: 80-100</span>
@@ -281,9 +323,42 @@ export default function Results() {
                                                 </div>
                                             </td>
                                             <td>
-                                                <button className="icon-btn-sm" onClick={() => setViewingStudentId(student.id)} title="Generate Report">
-                                                    <FileDownloadIcon fontSize="small" />
-                                                </button>
+                                                <div className="table-actions">
+                                                    <button
+                                                        className="icon-btn-sm success"
+                                                        onClick={async () => {
+                                                            if (activeTab === 'exams') {
+                                                                await addResult({
+                                                                    studentId: student.id,
+                                                                    studentName: `${student.firstName} ${student.lastName}`,
+                                                                    examId: selectedExamId,
+                                                                    subject: selectedExam?.subject || '',
+                                                                    marks: res.marks || 0,
+                                                                    level: level || 'BE',
+                                                                    remarks: res.remarks || ''
+                                                                });
+                                                            } else {
+                                                                await saveAssessmentScore({
+                                                                    studentId: student.id,
+                                                                    assessmentItemId: selectedAssessmentId,
+                                                                    score: res.marks || 0,
+                                                                    level: level || 'BE',
+                                                                    remarks: res.remarks || '',
+                                                                    id: generateId(),
+                                                                    criteriaId: ''
+                                                                } as any);
+                                                            }
+                                                            showToast(`Saved result for ${student.firstName}`);
+                                                        }}
+                                                        title="Save Individual Record"
+                                                        disabled={activeTab === 'exams' ? !selectedExamId : !selectedAssessmentId}
+                                                    >
+                                                        <SaveIcon fontSize="small" />
+                                                    </button>
+                                                    <button className="icon-btn-sm" onClick={() => setViewingStudentId(student.id)} title="Download Report Form">
+                                                        <FileDownloadIcon fontSize="small" />
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
                                     );

@@ -139,6 +139,15 @@ export default function Exams() {
                                     </td>
                                     <td>
                                         <div className="table-actions">
+                                            <button
+                                                className="table-action-btn"
+                                                title="Enter Results"
+                                                onClick={() => {
+                                                    window.location.href = `/results?examId=${exam.id}&grade=${encodeURIComponent(exam.grade)}`;
+                                                }}
+                                            >
+                                                <AssignmentIcon style={{ fontSize: 16, color: 'var(--accent-blue)' }} />
+                                            </button>
                                             <button className="table-action-btn" title="Edit" onClick={() => handleEdit(exam)}>
                                                 <EditIcon style={{ fontSize: 16 }} />
                                             </button>
