@@ -10,18 +10,45 @@ import { useSchool } from '../../context/SchoolContext';
 import AddStaffModal from '../../components/modals/AddStaffModal';
 import PayrollManager from '../finance/PayrollManager';
 import SearchIcon from '@mui/icons-material/Search';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 export default function HRManagementPage() {
     const { user } = useAuth();
     const {
         staff, addStaff, updateStaff, payrollEntries,
-        showToast, tryApi, refreshData, loading
+        showToast, tryApi, refreshData, loading,
+        settings, updateSettings
     } = useSchool();
     const [activeTab, setActiveTab] = useState('staff');
     const [runningPayroll, setRunningPayroll] = useState(false);
     const [isAddStaffOpen, setIsAddStaffOpen] = useState(false);
     const [selectedStaff, setSelectedStaff] = useState<any>(null);
     const [searchTerm, setSearchTerm] = useState('');
+
+    const [statSettings, setStatSettings] = useState({
+        nssfRate: settings?.nssfRate || 0.06,
+        nssfMax: settings?.nssfMax || 2160,
+        housingLevyRate: settings?.housingLevyRate || 0.015,
+        personalRelief: settings?.personalRelief || 2400
+    });
+
+    useEffect(() => {
+        if (settings) {
+            setStatSettings({
+                nssfRate: settings.nssfRate,
+                nssfMax: settings.nssfMax,
+                housingLevyRate: settings.housingLevyRate,
+                personalRelief: settings.personalRelief
+            });
+        }
+    }, [settings]);
+
+    const saveStatSettings = async () => {
+        const success = await updateSettings(statSettings);
+        if (success) {
+            showToast('Compliance rates updated successfully', 'success');
+        }
+    };
 
     const runPayroll = async () => {
         const month = new Date().getMonth() + 1;
@@ -90,6 +117,9 @@ export default function HRManagementPage() {
                     </button>
                     <button className={`tab-btn ${activeTab === 'loans' ? 'active' : ''}`} onClick={() => setActiveTab('loans')} title="Staff Loans" aria-label="Loans Tab">
                         <AccountBalanceIcon /> <span>Staff Loans</span>
+                    </button>
+                    <button className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`} onClick={() => setActiveTab('settings')} title="Compliance & Rates" aria-label="Settings Tab">
+                        <SettingsIcon /> <span>Compliance</span>
                     </button>
                 </div>
             </div>
@@ -172,6 +202,75 @@ export default function HRManagementPage() {
                             payrollEntries={payrollEntries}
                             user={user}
                         />
+                    ) : activeTab === 'settings' ? (
+                        <div className="p-40">
+                            <div className="card" style={{ maxWidth: 800, margin: '0 auto' }}>
+                                <div className="card-header" style={{ marginBottom: 24 }}>
+                                    <h3 style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <SettingsIcon style={{ color: '#3b82f6' }} /> Statutory Deduction & Tax Settings
+                                    </h3>
+                                    <p className="text-muted text-sm">Configure institution-wide rates for automated payroll processing</p>
+                                </div>
+
+                                <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32 }}>
+                                    <div className="form-group">
+                                        <label>NSSF Contribution Rate (%)</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="form-control"
+                                            value={statSettings.nssfRate * 100}
+                                            onChange={(e) => setStatSettings({ ...statSettings, nssfRate: parseFloat(e.target.value) / 100 })}
+                                            placeholder="e.g. 6"
+                                        />
+                                        <p className="text-xs text-muted mt-2">Default 6% for Tier I & II combined</p>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Max NSSF Deduction (KES)</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            value={statSettings.nssfMax}
+                                            onChange={(e) => setStatSettings({ ...statSettings, nssfMax: parseFloat(e.target.value) })}
+                                            placeholder="e.g. 2160"
+                                        />
+                                        <p className="text-xs text-muted mt-2">Maximum cap for employee contribution</p>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Housing Levy Rate (%)</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            className="form-control"
+                                            value={statSettings.housingLevyRate * 100}
+                                            onChange={(e) => setStatSettings({ ...statSettings, housingLevyRate: parseFloat(e.target.value) / 100 })}
+                                            placeholder="e.g. 1.5"
+                                        />
+                                        <p className="text-xs text-muted mt-2">Deducted from gross salary</p>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label>Personal Tax Relief (KES)</label>
+                                        <input
+                                            type="number"
+                                            className="form-control"
+                                            value={statSettings.personalRelief}
+                                            onChange={(e) => setStatSettings({ ...statSettings, personalRelief: parseFloat(e.target.value) })}
+                                            placeholder="e.g. 2400"
+                                        />
+                                        <p className="text-xs text-muted mt-2">Monthly standard tax relief</p>
+                                    </div>
+                                </div>
+
+                                <div style={{ marginTop: 40, borderTop: '1px solid var(--border-color)', paddingTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
+                                    <button className="btn btn-primary" onClick={saveStatSettings}>
+                                        Save Statutory Rates
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     ) : (
                         <div className="p-60 text-center">
                             <TrendingUpIcon style={{ fontSize: 64, color: 'rgba(59, 130, 246, 0.2)', marginBottom: 20 }} />

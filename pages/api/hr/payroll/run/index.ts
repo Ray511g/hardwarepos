@@ -20,6 +20,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             where: { status: 'Active' }
         });
 
+        const settings = await prisma.settings.findUnique({
+            where: { id: 'global' }
+        });
+
         const entries = [];
         let totalNet = 0;
 
@@ -27,7 +31,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const result = calculatePayroll({
                 basicSalary: staff.basicSalary,
                 allowances: (staff.allowances as any[]) || [],
-                deductions: (staff.deductions as any[]) || []
+                deductions: (staff.deductions as any[]) || [],
+                settings: settings ? {
+                    nssfRate: settings.nssfRate,
+                    nssfMax: settings.nssfMax,
+                    personalRelief: settings.personalRelief,
+                    housingLevyRate: settings.housingLevyRate
+                } : undefined
             });
 
             const entry = await prisma.payrollEntry.create({
@@ -36,11 +46,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     month,
                     year,
                     basicSalary: staff.basicSalary,
-                    totalAllowances: staff.basicSalary > 0 ? result.grossSalary - staff.basicSalary : 0,
+                    totalAllowances: result.grossSalary - staff.basicSalary,
                     totalDeductions: result.totalDeductions,
                     tax: result.paye,
                     nssf: result.nssf,
                     nhif: result.nhif,
+                    housingLevy: result.housingLevy || 0,
                     netPay: result.netPay,
                     status: 'Draft'
                 }

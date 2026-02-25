@@ -2,16 +2,28 @@ export interface PayrollInputs {
     basicSalary: number;
     allowances: { name: string; amount: number }[];
     deductions: { name: string; amount: number }[];
+    settings?: {
+        nssfRate: number;
+        nssfMax: number;
+        personalRelief: number;
+        housingLevyRate: number;
+    };
 }
 
 export function calculatePayroll(inputs: PayrollInputs) {
-    const grossSalary = inputs.basicSalary + inputs.allowances.reduce((acc, curr) => acc + curr.amount, 0);
+    const { basicSalary, allowances, deductions, settings } = inputs;
+    const nssfRate = settings?.nssfRate || 0.06;
+    const nssfMax = settings?.nssfMax || 2160;
+    const personalRelief = settings?.personalRelief || 2400;
+    const housingLevyRate = settings?.housingLevyRate || 0.015;
 
-    // 1. NSSF (Simplified 2024 Tiered)
-    // Tier I: 6% of up to 7,000 = 420
-    // Tier II: 6% of up to 36,000 deductions
-    // Max NSSF usually around 2,160 for employee
-    let nssf = Math.min(grossSalary * 0.06, 2160);
+    const grossSalary = basicSalary + allowances.reduce((acc, curr) => acc + curr.amount, 0);
+
+    // 1. NSSF
+    let nssf = Math.min(grossSalary * nssfRate, nssfMax);
+
+    // 2. Housing Levy
+    const housingLevy = grossSalary * housingLevyRate;
 
     // 2. NHIF (Simplified Scale)
     let nhif = 0;
@@ -57,7 +69,7 @@ export function calculatePayroll(inputs: PayrollInputs) {
     }
 
     const otherDeductions = inputs.deductions.reduce((acc, curr) => acc + curr.amount, 0);
-    const totalDeductions = paye + nssf + nhif + otherDeductions;
+    const totalDeductions = paye + nssf + nhif + housingLevy + otherDeductions;
     const netPay = grossSalary - totalDeductions;
 
     return {
@@ -65,6 +77,7 @@ export function calculatePayroll(inputs: PayrollInputs) {
         nssf,
         nhif,
         paye,
+        housingLevy,
         totalDeductions,
         netPay
     };

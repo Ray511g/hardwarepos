@@ -42,12 +42,12 @@ const PayrollManager: React.FC<PayrollManagerProps> = (props) => {
     });
 
     const onUpdateStatus = props.onUpdateStatus || (async (id: string, status: string) => {
-        const res = await context.tryApi(`/api/hr/payroll/status?id=${id}`, {
+        const res = await context.tryApi('/api/finance/payroll', {
             method: 'PUT',
-            body: JSON.stringify({ status })
+            body: JSON.stringify({ id, status })
         });
         if (res) {
-            context.showToast('Status updated', 'success');
+            context.showToast('Payroll status updated successfully', 'success');
             context.refreshData();
         }
     });

@@ -80,13 +80,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { month, year } = req.body;
         try {
             const staffMembers = await prisma.staff.findMany({ where: { status: 'Active' } });
+            const settings = await prisma.settings.findUnique({ where: { id: 'global' } });
             const entries = [];
 
             for (const staff of staffMembers) {
-                // Calculate allowances and deductions
-                const allowances = (staff.allowances as any[])?.reduce((sum, a) => sum + a.amount, 0) || 0;
-                const deductions = (staff.deductions as any[])?.reduce((sum, d) => sum + d.amount, 0) || 0;
-                const netPay = staff.basicSalary + allowances - deductions;
+                const result = calculatePayroll({
+                    basicSalary: staff.basicSalary,
+                    allowances: (staff.allowances as any[]) || [],
+                    deductions: (staff.deductions as any[]) || [],
+                    settings: settings ? {
+                        nssfRate: settings.nssfRate,
+                        nssfMax: settings.nssfMax,
+                        personalRelief: settings.personalRelief,
+                        housingLevyRate: settings.housingLevyRate
+                    } : undefined
+                });
 
                 const entry = await prisma.payrollEntry.upsert({
                     where: {
@@ -98,9 +106,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     },
                     update: {
                         basicSalary: staff.basicSalary,
-                        totalAllowances: allowances,
-                        totalDeductions: deductions,
-                        netPay: netPay,
+                        totalAllowances: result.grossSalary - staff.basicSalary,
+                        totalDeductions: result.totalDeductions,
+                        tax: result.paye,
+                        nssf: result.nssf,
+                        nhif: result.nhif,
+                        housingLevy: result.housingLevy || 0,
+                        netPay: result.netPay,
                         status: 'Draft'
                     },
                     create: {
@@ -108,9 +120,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         month,
                         year,
                         basicSalary: staff.basicSalary,
-                        totalAllowances: allowances,
-                        totalDeductions: deductions,
-                        netPay: netPay,
+                        totalAllowances: result.grossSalary - staff.basicSalary,
+                        totalDeductions: result.totalDeductions,
+                        tax: result.paye,
+                        nssf: result.nssf,
+                        nhif: result.nhif,
+                        housingLevy: result.housingLevy || 0,
+                        netPay: result.netPay,
                         status: 'Draft'
                     }
                 });

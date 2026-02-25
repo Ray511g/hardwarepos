@@ -153,6 +153,12 @@ model Settings {
   sssEnabled                    Boolean    @default(false)
   autoTimetableEnabled          Boolean    @default(false)
   manualTimetableBuilderEnabled Boolean    @default(true)
+  // Payroll & Statutory Settings
+  nssfRate                      Float      @default(0.06)
+  nssfMax                       Float      @default(2160)
+  nhifConfig                    Json? // To store tiered brackets
+  personalRelief                Float      @default(2400)
+  housingLevyRate               Float      @default(0.015)
   updatedAt                     DateTime   @updatedAt
   timeSlots                     TimeSlot[]
 }
@@ -425,6 +431,7 @@ model PayrollEntry {
   nhif            Float    @default(0)
   nssf            Float    @default(0)
   tax             Float    @default(0)
+  housingLevy     Float    @default(0)
   staff           Staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
   @@unique([staffId, month, year])

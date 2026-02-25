@@ -179,6 +179,11 @@ export interface SchoolSettings {
     manualTimetableBuilderEnabled: boolean;
     headOfSchoolTitle?: 'Headteacher' | 'Principal' | 'Chief Principal';
     sssNaming?: 'Form' | 'Grade';
+    nssfRate: number;
+    nssfMax: number;
+    housingLevyRate: number;
+    personalRelief: number;
+    nhifConfig?: any;
 }
 
 export type GradeLevel =

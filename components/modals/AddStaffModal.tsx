@@ -78,23 +78,23 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal animate-in" style={{ maxWidth: 700 }} onClick={e => e.stopPropagation()}>
-                <div className="modal-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div className="stat-icon" style={{ padding: 8, backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
-                            <PersonIcon />
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+                    <div className="modal-header">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <div className="stat-icon" style={{ padding: 8, backgroundColor: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6' }}>
+                                <PersonIcon />
+                            </div>
+                            <div>
+                                <h2 className="modal-title">{initialData ? 'Update Profile' : 'New Staff Registration'}</h2>
+                                <p className="text-muted text-xs">Enter personnel and remuneration details</p>
+                            </div>
                         </div>
-                        <div>
-                            <h2 className="modal-title">{initialData ? 'Update Profile' : 'New Staff Registration'}</h2>
-                            <p className="text-muted text-xs">Enter personnel and remuneration details</p>
-                        </div>
+                        <button type="button" className="modal-close" onClick={onClose} aria-label="Close modal" title="Close">
+                            <CloseIcon />
+                        </button>
                     </div>
-                    <button className="modal-close" onClick={onClose} aria-label="Close modal" title="Close">
-                        <CloseIcon />
-                    </button>
-                </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="modal-body custom-scrollbar" style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+                    <div className="modal-body custom-scrollbar" style={{ overflowY: 'auto', flex: 1, padding: '24px' }}>
                         <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                             <div className="form-group">
                                 <label htmlFor="firstName" className="form-label">First Name</label>
@@ -265,7 +265,7 @@ const AddStaffModal: React.FC<AddStaffModalProps> = ({ isOpen, onClose, onAdd, i
                         </div>
                     </div>
 
-                    <div className="modal-footer">
+                    <div className="modal-footer" style={{ flexShrink: 0 }}>
                         <button type="button" className="btn btn-outline" onClick={onClose}>Discard</button>
                         <button type="submit" className="btn btn-primary">
                             {initialData ? 'Save Changes' : 'Register Member'}
