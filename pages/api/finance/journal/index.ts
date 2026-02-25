@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '../../../lib/prisma';
-import { requireAuth, checkPermission } from '../../../lib/auth';
-import { logAction } from '../../../lib/audit';
+import { prisma } from '../../../../lib/prisma';
+import { requireAuth, checkPermission } from '../../../../lib/auth';
+import { logAction } from '../../../../lib/audit';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const user = requireAuth(req, res);
