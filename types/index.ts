@@ -15,6 +15,10 @@ export interface Student {
     feeBalance: number;
     totalFees: number;
     paidFees: number;
+    medicalConditions?: string;
+    bloodGroup?: string;
+    emergencyContact?: string;
+    allergies?: string;
 }
 
 export interface Staff {
@@ -368,3 +372,24 @@ export interface SchoolServiceOrder {
     frequency?: string;
     status: 'ACTIVE' | 'SUSPENDED' | 'COMPLETED';
 }
+
+export interface BehaviorRecord {
+    id: string;
+    studentId: string;
+    type: 'Merit' | 'Demerit' | 'Neutral';
+    category: string;
+    points: number;
+    description: string;
+    date: string;
+    staffId: string;
+    staffName: string;
+}
+
+export type IncidentCategory =
+    | 'Academics'
+    | 'Discipline'
+    | 'Leadership'
+    | 'Sportsmanship'
+    | 'Social'
+    | 'Hygiene'
+    | 'Other';

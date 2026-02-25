@@ -21,6 +21,10 @@ export default function AddStudentModal({ onClose, student }: Props) {
         parentPhone: '',
         parentEmail: '',
         address: '',
+        medicalConditions: '',
+        bloodGroup: '',
+        emergencyContact: '',
+        allergies: '',
         totalFees: gradeFees['Grade 1'] || 15000,
     });
 
@@ -37,6 +41,10 @@ export default function AddStudentModal({ onClose, student }: Props) {
                 parentPhone: student.parentPhone,
                 parentEmail: student.parentEmail || '',
                 address: student.address || '',
+                medicalConditions: student.medicalConditions || '',
+                bloodGroup: student.bloodGroup || '',
+                emergencyContact: student.emergencyContact || '',
+                allergies: student.allergies || '',
                 totalFees: student.totalFees,
             });
         }
@@ -130,6 +138,34 @@ export default function AddStudentModal({ onClose, student }: Props) {
                                 <label htmlFor="parentEmail">Parent Email</label>
                                 <input id="parentEmail" name="parentEmail" type="email" className="form-control" value={form.parentEmail} onChange={e => update('parentEmail', e.target.value)} />
                             </div>
+                        </div>
+                        <div className="form-group mb-4">
+                            <label htmlFor="medicalConditions">Medical Conditions</label>
+                            <input id="medicalConditions" name="medicalConditions" className="form-control" placeholder="e.g. Asthma, Diabetes" value={form.medicalConditions} onChange={e => update('medicalConditions', e.target.value)} />
+                        </div>
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="bloodGroup">Blood Group</label>
+                                <select id="bloodGroup" name="bloodGroup" className="form-control" value={form.bloodGroup} onChange={e => update('bloodGroup', e.target.value)}>
+                                    <option value="">Unknown</option>
+                                    <option value="A+">A+</option>
+                                    <option value="A-">A-</option>
+                                    <option value="B+">B+</option>
+                                    <option value="B-">B-</option>
+                                    <option value="O+">O+</option>
+                                    <option value="O-">O-</option>
+                                    <option value="AB+">AB+</option>
+                                    <option value="AB-">AB-</option>
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="allergies">Allergies</label>
+                                <input id="allergies" name="allergies" className="form-control" placeholder="e.g. Peanuts, Penicillin" value={form.allergies} onChange={e => update('allergies', e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="emergencyContact">Emergency Contact (Phone) *</label>
+                            <input id="emergencyContact" name="emergencyContact" className="form-control" placeholder="Contact number for emergencies" value={form.emergencyContact} onChange={e => update('emergencyContact', e.target.value)} />
                         </div>
                         <div className="form-group">
                             <label htmlFor="address">Address</label>

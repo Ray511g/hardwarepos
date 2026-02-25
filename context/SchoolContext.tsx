@@ -5,7 +5,8 @@ import {
     SchoolSettings, GradeLevel, GRADES, SUBJECTS, TERMS, PerformanceLevel, User, Role,
     FeeStructureItem, AuditLogItem, TimeSlot,
     LearningArea, Strand, SubStrand, AssessmentItem, AssessmentScore, Staff, // CBC
-    Supplier, ChartOfAccount, JournalEntry, Expenditure // Finance
+    Supplier, ChartOfAccount, JournalEntry, Expenditure, // Finance
+    BehaviorRecord, IncidentCategory
 } from '../types';
 import * as XLSX from 'xlsx';
 
@@ -39,6 +40,7 @@ interface SchoolContextType {
     // CBC State
     learningAreas: LearningArea[];
     assessmentScores: AssessmentScore[];
+    behavior: BehaviorRecord[];
     addStudent: (student: Omit<Student, 'id'>) => void;
     updateStudent: (id: string, data: Partial<Student>) => void;
     deleteStudent: (id: string) => void;
@@ -101,6 +103,8 @@ interface SchoolContextType {
     saveLearningArea: (area: Omit<LearningArea, 'id'>) => Promise<boolean>;
     saveAssessmentScore: (score: AssessmentScore) => Promise<boolean>;
     saveBulkAssessmentScores: (scores: AssessmentScore[]) => Promise<boolean>;
+    saveBehaviorRecord: (record: BehaviorRecord) => Promise<void>;
+    deleteBehaviorRecord: (id: string) => Promise<void>;
     isSyncing: boolean;
     serverStatus: 'connected' | 'disconnected' | 'checking';
     activeGrades: GradeLevel[];
@@ -199,6 +203,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     const [financeStats, setFinanceStats] = useState<any>(null);
     const [roles, setRoles] = useState<Role[]>([]);
     const [auditLogs, setAuditLogs] = useState<AuditLogItem[]>([]);
+    const [behavior, setBehavior] = useState<BehaviorRecord[]>([]);
     const [systemUsers, setSystemUsers] = useState<User[]>([]);
     const [toasts, setToasts] = useState<Toast[]>([]);
     const [loading, setLoading] = useState(true);
@@ -307,6 +312,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
                 setAccounts(data.accounts || []);
                 setJournalEntries(data.journalEntries || []);
                 setRoles(data.roles);
+                setBehavior(data.behavior || []);
 
                 // Fetch finance stats as part of the sync
                 const statsRes = await fetch(`${API_URL}/finance/stats`, {
@@ -605,6 +611,18 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const uploadResults = async (newResults: Omit<StudentResult, 'id'>[]) => {
+        const apiRes = await tryApi(`${API_URL}/results/bulk`, { method: 'POST', body: JSON.stringify(newResults) });
+        if (apiRes) {
+            const data = await apiRes.json();
+            setResults(prev => {
+                const filtered = prev.filter(p => !newResults.some(n => n.studentId === p.studentId && n.examId === p.examId));
+                return [...filtered, ...data];
+            });
+            showToast(`Uploaded ${newResults.length} results`, 'success');
+        }
+    };
+
     // CBC METHODS
     const saveLearningArea = async (area: Omit<LearningArea, 'id'>) => {
         const apiRes = await tryApi(`${API_URL}/cbc/learning-areas`, { method: 'POST', body: JSON.stringify(area) });
@@ -641,15 +659,28 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         return false;
     };
 
-    const uploadResults = async (newResults: Omit<StudentResult, 'id'>[]) => {
-        const apiRes = await tryApi(`${API_URL}/results/bulk`, { method: 'POST', body: JSON.stringify(newResults) });
+    const saveBehaviorRecord = async (record: BehaviorRecord) => {
+        const apiRes = await tryApi(`${API_URL}/behavior`, { method: 'POST', body: JSON.stringify(record) });
         if (apiRes) {
             const data = await apiRes.json();
-            setResults(prev => {
-                const filtered = prev.filter(p => !newResults.some(n => n.studentId === p.studentId && n.examId === p.examId));
-                return [...filtered, ...data];
+            setBehavior(prev => {
+                const idx = prev.findIndex(r => r.id === data.id);
+                if (idx >= 0) {
+                    const next = [...prev];
+                    next[idx] = data;
+                    return next;
+                }
+                return [...prev, data];
             });
-            showToast(`Uploaded ${newResults.length} results`, 'success');
+            showToast('Behavior record saved', 'success');
+        }
+    };
+
+    const deleteBehaviorRecord = async (id: string) => {
+        const apiRes = await tryApi(`${API_URL}/behavior/${id}`, { method: 'DELETE' });
+        if (apiRes) {
+            setBehavior(prev => prev.filter(r => r.id !== id));
+            showToast('Behavior record removed', 'info');
         }
     };
 
@@ -1276,12 +1307,15 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             accounts,
             journalEntries,
             financeStats,
+            behavior,
             // CBC
             learningAreas,
             assessmentScores,
             saveLearningArea,
             saveAssessmentScore,
             saveBulkAssessmentScores,
+            saveBehaviorRecord,
+            deleteBehaviorRecord,
             // Enterprise Finance
             addSupplier,
             updateSupplier,

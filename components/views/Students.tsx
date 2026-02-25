@@ -9,7 +9,9 @@ import PeopleIcon from '@mui/icons-material/People';
 import AddStudentModal from '../../components/modals/AddStudentModal';
 import Pagination from '../../components/common/Pagination';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import StarIcon from '@mui/icons-material/Star';
 import Student360Modal from '../../components/modals/Student360Modal';
+import AddBehaviorModal from '../../components/modals/AddBehaviorModal';
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,6 +23,7 @@ export default function Students() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingStudent, setEditingStudent] = useState<Student | null>(null);
     const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+    const [recordingBehavior, setRecordingBehavior] = useState<Student | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const router = React.useMemo(() => typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null, []);
@@ -150,6 +153,11 @@ export default function Students() {
                                                 <VisibilityIcon style={{ fontSize: 16, color: 'var(--accent-blue)' }} />
                                             </button>
                                             {hasPermission('students', 'EDIT') && (
+                                                <button className="table-action-btn" title="Record Behavior" onClick={() => setRecordingBehavior(student)}>
+                                                    <StarIcon style={{ fontSize: 16, color: '#f59e0b' }} />
+                                                </button>
+                                            )}
+                                            {hasPermission('students', 'EDIT') && (
                                                 <button className="table-action-btn" title="Edit" onClick={() => handleEdit(student)}>
                                                     <EditIcon style={{ fontSize: 16 }} />
                                                 </button>
@@ -177,6 +185,7 @@ export default function Students() {
 
             {showAddModal && <AddStudentModal student={editingStudent} onClose={handleCloseModal} />}
             {viewingStudent && <Student360Modal student={viewingStudent} onClose={() => setViewingStudent(null)} />}
+            {recordingBehavior && <AddBehaviorModal student={recordingBehavior} onClose={() => setRecordingBehavior(null)} />}
         </div>
     );
 }
