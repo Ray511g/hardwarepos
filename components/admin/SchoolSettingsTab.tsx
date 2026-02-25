@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import SchoolIcon from '@mui/icons-material/School';
 import SecurityIcon from '@mui/icons-material/Security';
+import SettingsIcon from '@mui/icons-material/Settings';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useSchool } from '../../context/SchoolContext';
-import { SchoolSettings } from '../../types';
+import { SchoolSettings, TERMS } from '../../types';
 
 interface Props {
     editing: boolean;
@@ -10,7 +12,7 @@ interface Props {
 }
 
 export const SchoolSettingsTab: React.FC<Props> = ({ editing, setEditing }) => {
-    const { settings, updateSettings, uploadStudents, uploadTeachers, uploadExams, clearAllData, downloadTemplate } = useSchool();
+    const { settings, updateSettings, uploadStudents, uploadTeachers, clearAllData, downloadTemplate } = useSchool();
     const [form, setForm] = useState<SchoolSettings>(settings);
 
     const handleSave = async () => {
@@ -18,225 +20,221 @@ export const SchoolSettingsTab: React.FC<Props> = ({ editing, setEditing }) => {
         if (success) setEditing(false);
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof SchoolSettings) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setForm(prev => ({ ...prev, [field]: reader.result as string }));
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
         <div className="admin-grid-2">
             <div className="admin-section">
-                <h3><SchoolIcon className="nav-icon" /> School Information</h3>
+                <h3><SettingsIcon className="nav-icon" /> Identity & Academic Cycle</h3>
                 <div className="card">
                     <div className="settings-form">
                         {editing ? (
-                            <>
-                                <div className="form-group">
-                                    <label htmlFor="school-logo">School Logo</label>
-                                    <div className="flex-row mt-8">
-                                        {form.logo && (
-                                            <img src={form.logo} className="preview-img" alt="Logo Preview" />
-                                        )}
-                                        <input
-                                            id="school-logo"
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={e => {
-                                                const file = e.target.files?.[0];
-                                                if (file) {
-                                                    const reader = new FileReader();
-                                                    reader.onloadend = () => setForm({ ...form, logo: reader.result as string });
-                                                    reader.readAsDataURL(file);
-                                                }
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="school-name">School Name</label>
-                                    <input
-                                        id="school-name"
-                                        type="text"
-                                        className="form-control"
-                                        value={form.schoolName}
-                                        onChange={e => setForm({ ...form, schoolName: e.target.value })}
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="school-motto">School Motto</label>
-                                    <input
-                                        id="school-motto"
-                                        type="text"
-                                        className="form-control"
-                                        value={form.motto}
-                                        onChange={e => setForm({ ...form, motto: e.target.value })}
-                                    />
-                                </div>
+                            <div className="grid-gap-15">
                                 <div className="grid-2">
                                     <div className="form-group">
-                                        <label htmlFor="school-phone">Official Phone</label>
-                                        <input
-                                            id="school-phone"
-                                            type="text"
-                                            className="form-control"
-                                            value={form.phone}
-                                            onChange={e => setForm({ ...form, phone: e.target.value })}
-                                        />
+                                        <label>School Logo</label>
+                                        <div className="flex-row mt-8">
+                                            {form.logo && <img src={form.logo} className="preview-img" alt="Logo" />}
+                                            <label className="btn-outline-sm pointer">
+                                                <CloudUploadIcon fontSize="small" /> Upload
+                                                <input type="file" hidden accept="image/*" onChange={e => handleFileChange(e, 'logo')} />
+                                            </label>
+                                        </div>
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="school-email">Official Email</label>
-                                        <input
-                                            id="school-email"
-                                            type="email"
-                                            className="form-control"
-                                            value={form.email}
-                                            onChange={e => setForm({ ...form, email: e.target.value })}
-                                        />
+                                        <label>Official Stamp</label>
+                                        <div className="flex-row mt-8">
+                                            {form.schoolStamp && <img src={form.schoolStamp} className="preview-img circular" alt="Stamp" />}
+                                            <label className="btn-outline-sm pointer">
+                                                <CloudUploadIcon fontSize="small" /> Upload
+                                                <input type="file" hidden accept="image/*" onChange={e => handleFileChange(e, 'schoolStamp')} />
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
+
                                 <div className="form-group">
-                                    <label htmlFor="school-address">Physical Address</label>
-                                    <textarea
-                                        id="school-address"
-                                        className="form-control"
-                                        rows={2}
-                                        value={form.address}
-                                        onChange={e => setForm({ ...form, address: e.target.value })}
-                                    />
+                                    <label>School Name</label>
+                                    <input type="text" className="form-control" value={form.schoolName} onChange={e => setForm({ ...form, schoolName: e.target.value })} />
                                 </div>
+                                <div className="form-group">
+                                    <label>School Motto</label>
+                                    <input type="text" className="form-control" value={form.motto} onChange={e => setForm({ ...form, motto: e.target.value })} />
+                                </div>
+
+                                <div className="grid-2">
+                                    <div className="form-group">
+                                        <label>Current Term</label>
+                                        <select className="form-control" value={form.currentTerm} onChange={e => setForm({ ...form, currentTerm: e.target.value })}>
+                                            {TERMS.map(t => <option key={t} value={t}>{t}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Academic Year</label>
+                                        <input type="number" className="form-control" value={form.currentYear} onChange={e => setForm({ ...form, currentYear: Number(e.target.value) })} />
+                                    </div>
+                                </div>
+
+                                <div className="grid-2">
+                                    <div className="form-group">
+                                        <label>Official Email</label>
+                                        <input type="email" className="form-control" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Mobile Phone</label>
+                                        <input type="text" className="form-control" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+                                    </div>
+                                </div>
+
                                 <div className="grid-3">
                                     <div className="form-group">
-                                        <label htmlFor="po-box">P.O. Box</label>
-                                        <input id="po-box" type="text" className="form-control" value={form.poBox || ''} onChange={e => setForm({ ...form, poBox: e.target.value })} />
+                                        <label>Fixed Telephone</label>
+                                        <input type="text" className="form-control" value={form.telephone || ''} onChange={e => setForm({ ...form, telephone: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="telephone">Telephone</label>
-                                        <input id="telephone" type="text" className="form-control" value={form.telephone || ''} onChange={e => setForm({ ...form, telephone: e.target.value })} />
+                                        <label>P.O. Box</label>
+                                        <input type="text" className="form-control" value={form.poBox || ''} onChange={e => setForm({ ...form, poBox: e.target.value })} />
                                     </div>
                                     <div className="form-group">
-                                        <label htmlFor="paybill">Paybill Number</label>
-                                        <input id="paybill" type="text" className="form-control" value={form.paybillNumber || ''} onChange={e => setForm({ ...form, paybillNumber: e.target.value })} />
+                                        <label>Paybill Number</label>
+                                        <input type="text" className="form-control" value={form.paybillNumber || ''} onChange={e => setForm({ ...form, paybillNumber: e.target.value })} />
                                     </div>
                                 </div>
 
                                 <div className="form-group">
-                                    <label>Academic Levels Enabled</label>
-                                    <div className="flex-row mt-8" style={{ flexWrap: 'wrap' }}>
-                                        <label className="flex-row pointer">
-                                            <input type="checkbox" checked={form.earlyYearsEnabled} onChange={e => setForm({ ...form, earlyYearsEnabled: e.target.checked })} />
-                                            <span className="fs-13">Early Years</span>
-                                        </label>
-                                        <label className="flex-row pointer">
-                                            <input type="checkbox" checked={form.primaryEnabled} onChange={e => setForm({ ...form, primaryEnabled: e.target.checked })} />
-                                            <span className="fs-13">Primary</span>
-                                        </label>
-                                        <label className="flex-row pointer">
-                                            <input type="checkbox" checked={form.jssEnabled} onChange={e => setForm({ ...form, jssEnabled: e.target.checked })} />
-                                            <span className="fs-13">Junior Secondary</span>
-                                        </label>
-                                        <label className="flex-row pointer">
-                                            <input type="checkbox" checked={form.sssEnabled} onChange={e => setForm({ ...form, sssEnabled: e.target.checked })} />
-                                            <span className="fs-13">Senior Secondary</span>
-                                        </label>
-                                    </div>
-                                </div>
-
-                                <div className="grid-2">
-                                    <div className="form-group">
-                                        <label htmlFor="headteacher-signature">Digital Signature ({form.headOfSchoolTitle || 'Headteacher'})</label>
-                                        <div className="flex-row mt-8">
-                                            {form.headteacherSignature && (
-                                                <img src={form.headteacherSignature} className="preview-img" alt="Headteacher Signature Preview" />
-                                            )}
-                                            <input
-                                                id="headteacher-signature"
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={e => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        const reader = new FileReader();
-                                                        reader.onloadend = () => setForm({ ...form, headteacherSignature: reader.result as string });
-                                                        reader.readAsDataURL(file);
-                                                    }
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="school-stamp">Official School Stamp</label>
-                                        <div className="flex-row mt-8">
-                                            {form.schoolStamp && (
-                                                <img src={form.schoolStamp} className="preview-img circular" alt="School Stamp Preview" />
-                                            )}
-                                            <input
-                                                id="school-stamp"
-                                                type="file"
-                                                accept="image/*"
-                                                onChange={e => {
-                                                    const file = e.target.files?.[0];
-                                                    if (file) {
-                                                        const reader = new FileReader();
-                                                        reader.onloadend = () => setForm({ ...form, schoolStamp: reader.result as string });
-                                                        reader.readAsDataURL(file);
-                                                    }
-                                                }}
-                                            />
-                                        </div>
-                                    </div>
+                                    <label>Physical Address</label>
+                                    <textarea className="form-control" rows={2} value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} />
                                 </div>
 
                                 <div className="flex-row mt-20">
-                                    <button className="btn-primary" onClick={handleSave}>Save Changes</button>
+                                    <button className="btn-primary" onClick={handleSave}>Save Settings</button>
                                     <button className="btn-outline" onClick={() => setEditing(false)}>Cancel</button>
                                 </div>
-                            </>
+                            </div>
                         ) : (
-                            <>
-                                <div className="setting-row">
-                                    <span className="setting-label">Logo</span>
-                                    <span className="setting-value">
-                                        {settings.logo ? <img src={settings.logo} className="preview-img-sm" alt="School Logo" /> : 'Not Set'}
-                                    </span>
+                            <div className="grid-gap-15">
+                                <div className="flex-row">
+                                    {settings.logo && <img src={settings.logo} height="60" alt="Logo" />}
+                                    {settings.schoolStamp && <img src={settings.schoolStamp} height="60" className="circular" alt="Stamp" />}
+                                    <div style={{ marginLeft: 15 }}>
+                                        <h2 className="m-0">{settings.schoolName}</h2>
+                                        <em className="opacity-60 fs-13">{settings.motto}</em>
+                                    </div>
                                 </div>
-                                <div className="setting-row">
-                                    <span className="setting-label">Official Stamp</span>
-                                    <span className="setting-value">
-                                        {settings.schoolStamp ? <img src={settings.schoolStamp} className="preview-img-sm circular" alt="School Stamp" /> : 'Not Set'}
-                                    </span>
+                                <hr style={{ margin: '10px 0', borderColor: 'rgba(255,255,255,0.05)' }} />
+                                <div className="grid-2">
+                                    <div className="setting-row">
+                                        <span className="setting-label">Academic Status</span>
+                                        <span className="setting-value">{settings.currentTerm} / {settings.currentYear}</span>
+                                    </div>
+                                    <div className="setting-row">
+                                        <span className="setting-label">Contact Details</span>
+                                        <span className="setting-value">{settings.phone} / {settings.email}</span>
+                                    </div>
+                                    <div className="setting-row">
+                                        <span className="setting-label">M-Pesa Paybill</span>
+                                        <span className="setting-value">{settings.paybillNumber || 'Not Configured'}</span>
+                                    </div>
+                                    <div className="setting-row">
+                                        <span className="setting-label">Location</span>
+                                        <span className="setting-value">{settings.address}</span>
+                                    </div>
                                 </div>
-                                <div className="setting-row"><span className="setting-label">School Name</span><span className="setting-value">{settings.schoolName}</span></div>
-                                <div className="setting-row"><span className="setting-label">Motto</span><span className="setting-value">{settings.motto}</span></div>
-                                <div className="setting-row"><span className="setting-label">Phone</span><span className="setting-value">{settings.phone}</span></div>
-                                <div className="setting-row"><span className="setting-label">Email</span><span className="setting-value">{settings.email}</span></div>
-                                <div className="setting-row">
-                                    <span className="setting-label">{settings.headOfSchoolTitle || 'Headteacher'} Signature</span>
-                                    <span className="setting-value">
-                                        {settings.headteacherSignature ? (
-                                            <img src={settings.headteacherSignature} className="preview-img-xs" alt="Signature" />
-                                        ) : <span className="fs-12 opacity-60">Not Set</span>}
-                                    </span>
-                                </div>
-                            </>
+                            </div>
                         )}
+                    </div>
+                </div>
+
+                <h3 className="mt-24"><SchoolIcon className="nav-icon" /> Academic Structures & Branding</h3>
+                <div className="card">
+                    <div className="settings-form">
+                        <div className="grid-2">
+                            <div className="form-group">
+                                <label>Levels Enabled</label>
+                                <div className="flex-row mt-8" style={{ flexWrap: 'wrap', gap: 15 }}>
+                                    {[
+                                        { key: 'earlyYearsEnabled', label: 'Early Years' },
+                                        { key: 'primaryEnabled', label: 'Primary' },
+                                        { key: 'jssEnabled', label: 'JSS' },
+                                        { key: 'sssEnabled', label: 'SSS' }
+                                    ].map(level => (
+                                        <label key={level.key} className="flex-row pointer fs-13">
+                                            <input type="checkbox" disabled={!editing} checked={(form as any)[level.key]} onChange={e => setForm({ ...form, [level.key]: e.target.checked })} />
+                                            {level.label}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Administrative Titles</label>
+                                <select className="form-control" disabled={!editing} value={form.headOfSchoolTitle || 'Headteacher'} onChange={e => setForm({ ...form, headOfSchoolTitle: e.target.value as any })}>
+                                    <option value="Headteacher">Headteacher</option>
+                                    <option value="Principal">Principal</option>
+                                    <option value="Chief Principal">Chief Principal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="grid-2 mt-20">
+                            <div className="form-group">
+                                <label>{form.headOfSchoolTitle || 'Headteacher'} Signature</label>
+                                <div className="flex-row mt-8">
+                                    {(editing ? form.headteacherSignature : settings.headteacherSignature) && (
+                                        <img src={editing ? form.headteacherSignature : settings.headteacherSignature} className="preview-img" alt="HT Signature" />
+                                    )}
+                                    {editing && (
+                                        <label className="btn-outline-sm pointer">
+                                            <CloudUploadIcon fontSize="small" /> Upload
+                                            <input type="file" hidden accept="image/*" onChange={e => handleFileChange(e, 'headteacherSignature')} />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="form-group">
+                                <label>Finance Officer Signature</label>
+                                <div className="flex-row mt-8">
+                                    {(editing ? form.financeSignature : settings.financeSignature) && (
+                                        <img src={editing ? form.financeSignature : settings.financeSignature} className="preview-img" alt="Finance Signature" />
+                                    )}
+                                    {editing && (
+                                        <label className="btn-outline-sm pointer">
+                                            <CloudUploadIcon fontSize="small" /> Upload
+                                            <input type="file" hidden accept="image/*" onChange={e => handleFileChange(e, 'financeSignature')} />
+                                        </label>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div className="admin-section">
-                <h3><SecurityIcon className="nav-icon" /> Data & Maintenance</h3>
+                <h3><CloudUploadIcon className="nav-icon" /> Data & Maintenance</h3>
                 <div className="card-grid">
                     <div className="card p-0" style={{ background: 'var(--bg-surface)' }}>
-                        <div className="card-header"><h4 className="m-0">Students</h4></div>
+                        <div className="card-header"><h4 className="m-0">Student Registry</h4></div>
                         <div className="card-body">
                             <div className="flex-row gap-10">
-                                <input type="file" id="upload-students" hidden accept=".xlsx, .xls, .csv" onChange={e => e.target.files?.[0] && uploadStudents(e.target.files[0])} />
-                                <button className="btn-primary flex-1" onClick={() => (document.getElementById('upload-students') as any)?.click()}>Upload</button>
+                                <input type="file" id="up-students" hidden accept=".xlsx, .xls, .csv" onChange={e => e.target.files?.[0] && uploadStudents(e.target.files[0])} />
+                                <button className="btn-primary flex-1" onClick={() => (document.getElementById('up-students') as any)?.click()}>Upload</button>
                                 <button className="btn-outline flex-1" onClick={() => (downloadTemplate('students'))}>Template</button>
                             </div>
                         </div>
                     </div>
                     <div className="card p-0" style={{ background: 'var(--bg-surface)' }}>
-                        <div className="card-header"><h4 className="m-0">Teachers</h4></div>
+                        <div className="card-header"><h4 className="m-0">Staff Registry</h4></div>
                         <div className="card-body">
                             <div className="flex-row gap-10">
-                                <input type="file" id="upload-teachers" hidden accept=".xlsx, .xls, .csv" onChange={e => e.target.files?.[0] && uploadTeachers(e.target.files[0])} />
-                                <button className="btn-primary flex-1" onClick={() => (document.getElementById('upload-teachers') as any)?.click()}>Upload</button>
+                                <input type="file" id="up-teachers" hidden accept=".xlsx, .xls, .csv" onChange={e => e.target.files?.[0] && uploadTeachers(e.target.files[0])} />
+                                <button className="btn-primary flex-1" onClick={() => (document.getElementById('up-teachers') as any)?.click()}>Upload</button>
                                 <button className="btn-outline flex-1" onClick={() => (downloadTemplate('teachers'))}>Template</button>
                             </div>
                         </div>
@@ -244,13 +242,25 @@ export const SchoolSettingsTab: React.FC<Props> = ({ editing, setEditing }) => {
                 </div>
 
                 <div className="danger-zone mt-24">
-                    <div>
-                        <h3 className="danger-zone-title">Danger Zone</h3>
-                        <p>Caution: These actions are permanent and cannot be undone.</p>
+                    <div className="flex-between">
+                        <div>
+                            <h3 className="danger-zone-title" style={{ margin: 0, color: '#ef4444' }}>Factory Reset</h3>
+                            <p className="fs-12 opacity-80" style={{ margin: '5px 0 0 0' }}>This will permanently wipe all institutional data, results, and accounts.</p>
+                        </div>
+                        <button className="btn-primary" style={{ background: '#ef4444' }} onClick={clearAllData}>
+                            PURGE ALL DATA
+                        </button>
                     </div>
-                    <button className="btn-primary" style={{ background: '#c53030' }} onClick={() => { if (window.confirm('Delete all data?')) clearAllData(); }}>
-                        Clear All Data
-                    </button>
+                </div>
+
+                <div className="card mt-24" style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px dashed var(--accent-blue)' }}>
+                    <div className="card-body flex-row">
+                        <SecurityIcon style={{ color: 'var(--accent-blue)' }} />
+                        <div>
+                            <h4 className="m-0">Institutional Security</h4>
+                            <p className="fs-12 opacity-80 m-0">System automatically logs all administrative changes for audit compliance.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

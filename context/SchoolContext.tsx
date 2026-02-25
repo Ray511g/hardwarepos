@@ -164,7 +164,8 @@ function loadFromStorage(): any {
 function saveToStorage(data: any) {
     if (typeof window === 'undefined') return;
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        const existing = loadFromStorage() || {};
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...data }));
     } catch (e) { console.warn('Failed to save to localStorage:', e); }
 }
 
@@ -210,6 +211,9 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         if (stored) {
             if (stored.settings) setSettings(stored.settings);
             if (stored.gradeFees) setGradeFees(stored.gradeFees);
+            if (stored.roles) setRoles(stored.roles);
+            if (stored.systemUsers) setSystemUsers(stored.systemUsers);
+            if (stored.feeStructures) setFeeStructures(stored.feeStructures);
         }
         hydratedRef.current = true;
     }, []);
@@ -217,8 +221,8 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     // Persist settings to localStorage whenever they change
     useEffect(() => {
         if (!hydratedRef.current) return;
-        saveToStorage({ settings, gradeFees });
-    }, [settings, gradeFees]);
+        saveToStorage({ settings, gradeFees, roles, systemUsers, feeStructures });
+    }, [settings, gradeFees, roles, systemUsers, feeStructures]);
 
     const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
         const id = generateId();
@@ -752,7 +756,17 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         if (apiRes) {
             const data = await apiRes.json();
             setSystemUsers(prev => [...prev, data]);
-            showToast(`User ${user.name} added successfully`, 'success');
+            showToast(`User ${user.name} added successfully (Real-time Sync)`);
+        } else {
+            const newUser: User = {
+                ...user,
+                id: generateId(),
+                status: 'Active',
+                lastLogin: 'Never',
+                updatedAt: new Date().toISOString()
+            } as User;
+            setSystemUsers(prev => [...prev, newUser]);
+            showToast(`User ${user.name} added (Local Mode)`);
         }
     };
 
@@ -761,14 +775,17 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         if (apiRes) {
             const data = await apiRes.json();
             setSystemUsers(prev => prev.map(u => (u.id === id ? data : u)));
-            showToast('User updated successfully', 'success');
+            showToast('User profile updated');
+        } else {
+            setSystemUsers(prev => prev.map(u => (u.id === id ? { ...u, ...updates } : u)));
+            showToast('User profile updated (Offline)');
         }
     };
 
     const deleteSystemUser = async (id: string) => {
         await tryApi(`${API_URL}/users/${id}`, { method: 'DELETE' });
         setSystemUsers(prev => prev.filter(u => u.id !== id));
-        showToast('User deleted successfully', 'info');
+        showToast('User account deactivated', 'info');
     };
 
     const resetUserPassword = (userId: string) => {
@@ -939,11 +956,14 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         if (apiRes) {
             const updated = await apiRes.json();
             setSettings(updated);
-            showToast('Settings updated successfully', 'success');
-            refreshData(); // Proactive re-sync
+            showToast('Institutional settings synchronized', 'success');
+            refreshData();
             return true;
         } else {
-            return false;
+            // Robust local fallback
+            setSettings(prev => ({ ...prev, ...data }));
+            showToast('Settings saved to local storage (Offline)', 'info');
+            return true; // Return true to allow UI to close editing mode
         }
     };
 
