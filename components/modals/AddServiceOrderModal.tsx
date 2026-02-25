@@ -9,7 +9,8 @@ interface Props {
 }
 
 export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
-    const { students, tryApi } = useSchool();
+    const { students, tryApi, showToast } = useSchool();
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         studentId: '',
         serviceType: 'TRANSPORT',
@@ -21,6 +22,7 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true);
         try {
             const res = await tryApi('/api/commercial/services', {
                 method: 'POST',
@@ -28,11 +30,15 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
             });
             if (res) {
                 const data = await res.json();
+                showToast('Service order created successfully', 'success');
                 onAdd(data);
                 onClose();
             }
         } catch (error) {
             console.error('Submission error:', error);
+            showToast('Failed to create service order', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -141,8 +147,10 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-primary">Enroll Student</button>
+                        <button type="button" className="btn btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                            {loading ? 'Processing...' : 'Enroll Student'}
+                        </button>
                     </div>
                 </form>
             </div>

@@ -34,7 +34,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     debit: parseFloat(debit) || 0,
                     credit: parseFloat(credit) || 0,
                     date: date ? new Date(date) : new Date(),
-                    reference
+                    reference,
+                    requestedBy: user.name
                 },
                 include: { account: true }
             });

@@ -15,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const method = req.method?.toUpperCase();
 
     if (method === 'GET') {
-        if (!checkPermission(user, 'fees', 'VIEW', res)) return;
+        if (!checkPermission(user, 'finance', 'VIEW', res)) return;
         try {
             const { studentId, grade, term, page = '1', limit = '50' } = req.query;
             const skip = (parseInt(page as string) - 1) * parseInt(limit as string);
@@ -52,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (method === 'POST') {
-        if (!checkPermission(user, 'fees', 'CREATE', res)) return;
+        if (!checkPermission(user, 'finance', 'CREATE', res)) return;
         try {
             let { studentId, amount, method: payMethod, reference, date, term, studentName, grade } = req.body;
             const payAmount = parseFloat(amount);

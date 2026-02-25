@@ -99,7 +99,7 @@ export default function Admin() {
     const MODULES = [
         { id: 'users', label: 'User Management' },
         { id: 'settings', label: 'School Settings' },
-        { id: 'fees', label: 'Finance & Fees' },
+        { id: 'finance', label: 'Finance & Fees' },
         { id: 'academic', label: 'Academic (Exams/Results)' },
         { id: 'students', label: 'Student Records' },
         { id: 'teachers', label: 'Teacher Management' },

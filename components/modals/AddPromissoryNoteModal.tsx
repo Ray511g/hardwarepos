@@ -10,8 +10,9 @@ interface Props {
 }
 
 export default function AddPromissoryNoteModal({ onClose, onAdd }: Props) {
-    const { students, tryApi } = useSchool();
+    const { students, tryApi, showToast } = useSchool();
     const { user } = useAuth();
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         studentId: '',
         guardianName: '',
@@ -22,14 +23,23 @@ export default function AddPromissoryNoteModal({ onClose, onAdd }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const res = await tryApi('/api/commercial/notes', {
-            method: 'POST',
-            body: JSON.stringify({ ...form, requestedBy: { id: user?.id, name: user?.name } })
-        });
-        if (res) {
-            const data = await res.json();
-            onAdd(data);
-            onClose();
+        setLoading(true);
+        try {
+            const res = await tryApi('/api/commercial/notes', {
+                method: 'POST',
+                body: JSON.stringify({ ...form, requestedBy: { id: user?.id, name: user?.name } })
+            });
+            if (res) {
+                const data = await res.json();
+                showToast('Promissory note recorded successfully', 'success');
+                onAdd(data);
+                onClose();
+            }
+        } catch (error) {
+            console.error('Submission error:', error);
+            showToast('Failed to record promissory note', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -122,8 +132,10 @@ export default function AddPromissoryNoteModal({ onClose, onAdd }: Props) {
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-primary">Record Note</button>
+                        <button type="button" className="btn btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                            {loading ? 'Processing...' : 'Record Note'}
+                        </button>
                     </div>
                 </form>
             </div>

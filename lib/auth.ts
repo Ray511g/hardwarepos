@@ -44,7 +44,13 @@ export function checkPermission(user: any, module: string, action: string, res?:
     if (user.role === 'Super Admin') return true;
 
     const permissions = user.permissions || {};
-    const modulePermissions = permissions[module];
+    let modulePermissions = permissions[module];
+
+    // Legacy compatibility for 'fees' and 'finance' module naming
+    if (!modulePermissions) {
+        if (module === 'finance') modulePermissions = permissions['fees'];
+        if (module === 'fees') modulePermissions = permissions['finance'];
+    }
 
     if (!modulePermissions) {
         if (res) res.status(403).json({ error: `Forbidden: Missing ${action} permission for ${module}` });

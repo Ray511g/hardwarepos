@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { id } = req.query;
 
     if (req.method === 'PUT') {
-        if (!checkPermission(user, 'fees', 'EDIT', res)) return;
+        if (!checkPermission(user, 'finance', 'EDIT', res)) return;
         try {
             const { amount, method, reference, date, term } = req.body;
             const oldPayment = await prisma.payment.findUnique({
@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (req.method === 'DELETE') {
-        if (!checkPermission(user, 'fees', 'DELETE', res)) return;
+        if (!checkPermission(user, 'finance', 'DELETE', res)) return;
         try {
             // Get payment details before deleting
             const payment = await prisma.payment.findUnique({

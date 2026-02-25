@@ -11,8 +11,9 @@ interface Props {
 }
 
 export default function AddPurchaseOrderModal({ onClose, onAdd }: Props) {
-    const { suppliers, tryApi } = useSchool();
+    const { suppliers, tryApi, showToast } = useSchool();
     const { user } = useAuth();
+    const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({
         supplierId: '',
         supplierName: '',
@@ -42,19 +43,28 @@ export default function AddPurchaseOrderModal({ onClose, onAdd }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const totalAmount = form.items.reduce((sum, i) => sum + i.total, 0);
-        const res = await tryApi('/api/commercial/po', {
-            method: 'POST',
-            body: JSON.stringify({
-                ...form,
-                totalAmount,
-                requestedBy: { id: user?.id, name: user?.name }
-            })
-        });
-        if (res) {
-            const data = await res.json();
-            onAdd(data);
-            onClose();
+        setLoading(true);
+        try {
+            const totalAmount = form.items.reduce((sum, i) => sum + i.total, 0);
+            const res = await tryApi('/api/commercial/po', {
+                method: 'POST',
+                body: JSON.stringify({
+                    ...form,
+                    totalAmount,
+                    requestedBy: { id: user?.id, name: user?.name }
+                })
+            });
+            if (res) {
+                const data = await res.json();
+                showToast('Purchase order generated successfully', 'success');
+                onAdd(data);
+                onClose();
+            }
+        } catch (error) {
+            console.error('Submission error:', error);
+            showToast('Failed to generate purchase order', 'error');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -176,9 +186,9 @@ export default function AddPurchaseOrderModal({ onClose, onAdd }: Props) {
                         </div>
                     </div>
                     <div className="modal-footer">
-                        <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
-                        <button type="submit" className="btn btn-primary">
-                            Generate Purchase Order
+                        <button type="button" className="btn btn-outline" onClick={onClose} disabled={loading}>Cancel</button>
+                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                            {loading ? 'Processing...' : 'Generate Purchase Order'}
                         </button>
                     </div>
                 </form>

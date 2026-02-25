@@ -41,7 +41,7 @@ const FinanceDashboard: React.FC<FinanceDashboardProps> = ({ stats }) => {
                 ))}
             </div>
 
-            <div className="admin-grid" style={{ marginTop: 24 }}>
+            <div className="admin-grid mt-20">
                 <div className="admin-section">
                     <h3 className="section-title">Monthly Cash Flow</h3>
                     <div className="chart-container">
@@ -69,7 +69,7 @@ const FinanceDashboard: React.FC<FinanceDashboardProps> = ({ stats }) => {
 
                 <div className="admin-section">
                     <h3 className="section-title">Budget Utilization Summary</h3>
-                    <div className="budget-list" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div className="budget-list">
                         {(stats?.budgets || []).length > 0 ? stats.budgets.map((b: any, i: number) => (
                             <div key={i} className="budget-item">
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 14 }}>

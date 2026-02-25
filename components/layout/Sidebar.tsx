@@ -106,10 +106,10 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         const modMap: Record<string, string> = {
             'MANAGE_STUDENTS': 'students',
             'MANAGE_TEACHERS': 'teachers',
-            'MANAGE_FINANCE': 'fees',
-            'MANAGE_COMMERCIAL': 'fees', // Map to fees/finance for now
-            'MANAGE_HR': 'academic', // Map to academic/hr
-            'MANAGE_WORKFLOW': 'fees',
+            'MANAGE_FINANCE': 'finance',
+            'MANAGE_COMMERCIAL': 'finance',
+            'MANAGE_HR': 'academic',
+            'MANAGE_WORKFLOW': 'finance',
             'MANAGE_ATTENDANCE': 'attendance',
             'MANAGE_EXAMS': 'exams',
             'MANAGE_REPORTS': 'academic',
