@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function AddTeacherModal({ onClose, teacher }: Props) {
-    const { addTeacher, updateTeacher, activeGrades } = useSchool();
+    const { addTeacher, updateTeacher, activeGrades, teachers, showToast } = useSchool();
     const [saving, setSaving] = useState(false);
     const [form, setForm] = useState({
         firstName: '',
@@ -43,8 +43,8 @@ export default function AddTeacherModal({ onClose, teacher }: Props) {
         e.preventDefault();
 
         // Client-side duplication check to prevent 409
-        if (!teacher && (useSchool().teachers || []).some(t => t.email.toLowerCase() === form.email.toLowerCase())) {
-            useSchool().showToast('A teacher with this email already exists in the system.', 'error');
+        if (!teacher && (teachers || []).some(t => t.email.toLowerCase() === form.email.toLowerCase())) {
+            showToast('A teacher with this email already exists in the system.', 'error');
             return;
         }
 
