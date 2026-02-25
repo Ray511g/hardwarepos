@@ -39,10 +39,12 @@ export default function AddCreditAgreementModal({ onClose, onAdd }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const totalAmount = form.installments.reduce((sum, i) => sum + (Number(i.amount) || 0), 0);
         const res = await tryApi('/api/commercial/credit', {
             method: 'POST',
             body: JSON.stringify({
                 ...form,
+                totalAmount,
                 requestedBy: { id: user?.id, name: user?.name }
             })
         });

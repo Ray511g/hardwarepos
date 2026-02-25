@@ -21,14 +21,18 @@ export default function AddServiceOrderModal({ onClose, onAdd }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const res = await tryApi('/api/commercial/services', {
-            method: 'POST',
-            body: JSON.stringify(form)
-        });
-        if (res) {
-            const data = await res.json();
-            onAdd(data);
-            onClose();
+        try {
+            const res = await tryApi('/api/commercial/services', {
+                method: 'POST',
+                body: JSON.stringify(form)
+            });
+            if (res) {
+                const data = await res.json();
+                onAdd(data);
+                onClose();
+            }
+        } catch (error) {
+            console.error('Submission error:', error);
         }
     };
 

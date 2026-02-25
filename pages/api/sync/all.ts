@@ -14,7 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const [
                 students, teachers, exams, settings, results,
                 users, timetable, feeStructures, roles,
-                staff, budgets, expenses, payrollEntries
+                staff, budgets, expenses, payrollEntries,
+                suppliers, accounts, journalEntries
             ] = await Promise.all([
                 prisma.student.findMany({ orderBy: { lastName: 'asc' } }),
                 prisma.teacher.findMany({ orderBy: { lastName: 'asc' } }),
@@ -28,7 +29,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 prisma.staff.findMany({ orderBy: { lastName: 'asc' } }),
                 prisma.budget.findMany({ orderBy: { year: 'desc' } }),
                 prisma.expenseRequest.findMany({ orderBy: { createdAt: 'desc' } }),
-                prisma.payrollEntry.findMany({ include: { staff: true }, orderBy: { createdAt: 'desc' } })
+                prisma.payrollEntry.findMany({ include: { staff: true }, orderBy: { createdAt: 'desc' } }),
+                prisma.supplier.findMany({ orderBy: { name: 'asc' } }),
+                prisma.account.findMany({ orderBy: { code: 'asc' } }),
+                prisma.journalEntry.findMany({ include: { account: true }, orderBy: { date: 'desc' }, take: 200 })
             ]);
 
             const syncStatus = await prisma.syncStatus.findUnique({ where: { id: 'global' } });
@@ -47,6 +51,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 budgets,
                 expenses,
                 payrollEntries,
+                suppliers,
+                accounts,
+                journalEntries,
                 lastUpdated: syncStatus?.lastUpdated
             });
 

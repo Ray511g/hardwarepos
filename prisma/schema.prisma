@@ -292,6 +292,8 @@ model JournalEntry {
   credit        Float    @default(0)
   reference     String?  // e.g., Receipt No or Expense ID
   date          DateTime @default(now())
+  status        String   @default("Approved") // Pending, Approved, Reversed
+  requestedBy   String?
   account       Account  @relation(fields: [accountId], references: [id])
   createdAt     DateTime @default(now())
 }

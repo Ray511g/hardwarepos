@@ -890,7 +890,10 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     };
 
     const approveJournalEntry = async (id: string) => {
-        const apiRes = await tryApi(`${API_URL}/finance/journal/approve?id=${id}`, { method: 'POST' });
+        const apiRes = await tryApi(`${API_URL}/finance/journal/approve`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
         if (apiRes) {
             showToast('Journal entry approved and posted');
             refreshData();
@@ -898,7 +901,10 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     };
 
     const reverseJournalEntry = async (id: string) => {
-        const apiRes = await tryApi(`${API_URL}/finance/journal/reverse?id=${id}`, { method: 'POST' });
+        const apiRes = await tryApi(`${API_URL}/finance/journal/reverse`, {
+            method: 'POST',
+            body: JSON.stringify({ id })
+        });
         if (apiRes) {
             showToast('Journal entry reversed', 'info');
             refreshData();
@@ -916,7 +922,10 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     };
 
     const actOnExpenditure = async (id: string, action: 'APPROVE' | 'REJECT' | 'PAY') => {
-        const apiRes = await tryApi(`${API_URL}/finance/expenses/act?id=${id}&action=${action}`, { method: 'POST' });
+        const apiRes = await tryApi(`${API_URL}/finance/expenses`, {
+            method: 'PUT',
+            body: JSON.stringify({ id, action })
+        });
         if (apiRes) {
             showToast(`Expense ${action.toLowerCase()} successfully`);
             refreshData();
