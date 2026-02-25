@@ -973,14 +973,20 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         const apiRes = await tryApi(`${API_URL}/settings`, { method: 'PUT', body: JSON.stringify(data) });
         if (apiRes) {
             const updated = await apiRes.json();
+
+            // Critical: Update context with the REAL data from server to ensure IDs (like timeSlots) are correct
             setSettings(updated);
+
+            // Broadcast to other tabs immediately
+            saveToStorage({ settings: updated });
+
             showToast('Institutional settings updated and broadcasted', 'success');
 
             // Proactive re-sync of all data using new settings (e.g. academic levels)
+            // Skip the status check to ensure we get exactly what was just saved
             await fetchData(true);
             return true;
         } else {
-            // Revert or keep local? We keep local as standard in this "it just works" app
             showToast('Settings saved to local storage (Offline)', 'info');
             return true;
         }

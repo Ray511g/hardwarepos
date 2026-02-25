@@ -153,7 +153,9 @@ export const UserManagementTab: React.FC = () => {
                                     <code className="fs-12">{u.username}</code>
                                 </td>
                                 <td>
-                                    <span className="badge blue-light" style={{ fontWeight: 500 }}>{u.role}</span>
+                                    <span className="badge blue-light" style={{ fontWeight: 500 }}>
+                                        {typeof u.role === 'string' ? u.role : (u.role as any)?.name || 'Staff'}
+                                    </span>
                                 </td>
                                 <td>
                                     <span className={`badge ${u.status === 'Active' ? 'green' : 'gray'}`}>{u.status || 'Active'}</span>

@@ -37,13 +37,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             const syncStatus = await prisma.syncStatus.findUnique({ where: { id: 'global' } });
 
+            const mappedUsers = users.map(u => ({
+                ...u,
+                role: u.role?.name || 'Teacher',
+                permissions: u.role?.permissions || {}
+            }));
+
             return res.status(200).json({
                 students,
                 teachers,
                 exams,
                 settings,
                 results,
-                users,
+                users: mappedUsers,
                 timetable,
                 feeStructures,
                 roles,

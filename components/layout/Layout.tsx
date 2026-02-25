@@ -152,7 +152,9 @@ export default function Layout({ children }: LayoutProps) {
                             </div>
                             <div className="user-info-text">
                                 <span className="user-name">{user?.name || 'User'}</span>
-                                <span className="user-role">{user?.role || 'Staff'}</span>
+                                <span className="user-role">
+                                    {typeof user?.role === 'string' ? user.role : (user?.role as any)?.name || 'Staff'}
+                                </span>
                             </div>
                         </div>
 

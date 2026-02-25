@@ -15,6 +15,11 @@ export const SchoolSettingsTab: React.FC<Props> = ({ editing, setEditing }) => {
     const { settings, updateSettings, uploadStudents, uploadTeachers, clearAllData, downloadTemplate } = useSchool();
     const [form, setForm] = useState<SchoolSettings>(settings);
 
+    // Synchronize local form whenever global settings are updated (from API or other tabs)
+    React.useEffect(() => {
+        setForm(settings);
+    }, [settings]);
+
     const handleSave = async () => {
         const success = await updateSettings(form);
         if (success) setEditing(false);

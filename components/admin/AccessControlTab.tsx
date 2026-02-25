@@ -98,9 +98,10 @@ export const AccessControlTab: React.FC = () => {
                                 <td className="fs-13">{r.description || 'General system access'}</td>
                                 <td>
                                     <div className="flex-row" style={{ flexWrap: 'wrap', gap: 6 }}>
-                                        {(Array.isArray(r.permissions) ? r.permissions : []).slice(0, 5).map(p => (
-                                            <span key={p} className="badge blue-light" style={{ fontSize: 10, borderRadius: 4 }}>{p}</span>
-                                        ))}
+                                        {(Array.isArray(r.permissions) ? r.permissions : []).slice(0, 5).map((p: any) => {
+                                            const label = typeof p === 'string' ? p : (p as any)?.label || JSON.stringify(p);
+                                            return <span key={typeof p === 'string' ? p : Math.random()} className="badge blue-light" style={{ fontSize: 10, borderRadius: 4 }}>{label}</span>
+                                        })}
                                         {(r.permissions?.length || 0) > 5 && <span className="fs-10 opacity-60">+{r.permissions.length - 5} more</span>}
                                     </div>
                                 </td>
