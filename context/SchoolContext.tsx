@@ -148,7 +148,11 @@ const defaultSettings: SchoolSettings = {
     sssEnabled: false,
     autoTimetableEnabled: false,
     manualTimetableBuilderEnabled: true,
-    headOfSchoolTitle: 'Headteacher'
+    headOfSchoolTitle: 'Headteacher',
+    nssfRate: 0.06,
+    nssfMax: 2160,
+    housingLevyRate: 0.015,
+    personalRelief: 2400
 };
 
 const STORAGE_KEY = 'elirama_school_data';

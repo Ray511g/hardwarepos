@@ -3,6 +3,7 @@ import { prisma } from '../../../lib/prisma';
 import { requireAuth, checkPermission } from '../../../lib/auth';
 import { logAction } from '../../../lib/audit';
 import { postTransaction } from '../../../utils/finance';
+import { calculatePayroll } from '../../../utils/payroll';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const user = requireAuth(req, res);
