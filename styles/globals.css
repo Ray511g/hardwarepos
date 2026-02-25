@@ -150,7 +150,7 @@
 
 .flex-col {
   display: flex;
-  flexDirection: column;
+  flex-direction: column;
 }
 
 .flex-between {
@@ -194,7 +194,7 @@
 }
 
 .font-bold {
-  fontWeight: 700;
+  font-weight: 700;
 }
 
 .text-sm {

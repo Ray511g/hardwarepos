@@ -1,0 +1,133 @@
+/* Premium UI Design System Extension */
+:root {
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    --glass-blur: blur(12px);
+
+    --accent-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* Base Glassmorphism Components */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: var(--radius-lg);
+}
+
+.premium-card {
+    background: hsla(var(--bg-h), var(--bg-s), 14%, 0.4);
+    border: 1px solid hsla(0, 0%, 100%, 0.05);
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    transition: var(--transition);
+}
+
+.premium-card:hover {
+    background: hsla(var(--bg-h), var(--bg-s), 16%, 0.6);
+    border-color: hsla(0, 0%, 100%, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Animated Progress Bars */
+.premium-progress {
+    height: 8px;
+    background: hsla(0, 0%, 100%, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.premium-progress-bar {
+    height: 100%;
+    background: var(--accent-gradient);
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Advanced Typography */
+.text-gradient {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+/* Micro-animations */
+@keyframes fadeInSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-up {
+    animation: fadeInSlideUp 0.4s ease-out forwards;
+}
+
+/* 360 View Specific Polish */
+.profile-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: var(--space-4);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.stat-item .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.stat-item .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+/* Enhanced Buttons */
+.btn-premium {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-premium:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.btn-premium.outline {
+    background: transparent;
+    border: 1px solid var(--accent-blue);
+    color: var(--accent-blue);
+}
+
+.btn-premium.outline:hover {
+    background: rgba(99, 102, 241, 0.1);
+}
