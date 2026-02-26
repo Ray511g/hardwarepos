@@ -395,3 +395,64 @@ export type IncidentCategory =
     | 'Social'
     | 'Hygiene'
     | 'Other';
+
+export interface InventoryItem {
+    id: string;
+    name: string;
+    category: string;
+    sku?: string;
+    quantity: number;
+    reorderLevel: number;
+    unitPrice: number;
+    lastRestocked: string;
+    updatedAt: string;
+}
+
+export interface InventoryTransaction {
+    id: string;
+    itemId: string;
+    type: 'IN' | 'OUT';
+    quantity: number;
+    reason?: string;
+    staffName?: string;
+    createdAt: string;
+}
+
+export interface Bus {
+    id: string;
+    plateNumber: string;
+    model?: string;
+    capacity?: number;
+    driverName?: string;
+    driverPhone?: string;
+    status: 'Active' | 'In Repair';
+    lastService?: string;
+}
+
+export interface Route {
+    id: string;
+    name: string;
+    busId?: string;
+    pickUpPoints?: any;
+    fare: number;
+}
+
+export interface Book {
+    id: string;
+    title: string;
+    author?: string;
+    isbn?: string;
+    category?: string;
+    totalCopies: number;
+    availableCopies: number;
+}
+
+export interface LibraryBorrow {
+    id: string;
+    bookId: string;
+    borrowerName: string;
+    borrowedDate: string;
+    dueDate: string;
+    returnedDate?: string;
+    status: 'BORROWED' | 'RETURNED' | 'OVERDUE';
+}

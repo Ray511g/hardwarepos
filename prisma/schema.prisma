@@ -579,3 +579,76 @@ model Supplier {
   kraPin        String   @unique
   paymentTerms  String   @default("Net 30")
 }
+
+model InventoryItem {
+  id            String                 @id @default(cuid())
+  name          String
+  category      String
+  sku           String?                @unique
+  quantity      Int                    @default(0)
+  reorderLevel  Int                    @default(5)
+  unitPrice     Float                  @default(0)
+  lastRestocked DateTime               @default(now())
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+  transactions  InventoryTransaction[]
+}
+
+model InventoryTransaction {
+  id        String        @id @default(cuid())
+  itemId    String
+  type      String // IN, OUT
+  quantity  Int
+  reason    String? // Purchase, Issue to Student, Damage
+  staffId   String?
+  staffName String?
+  createdAt DateTime      @default(now())
+  item      InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+}
+
+model Bus {
+  id           String    @id @default(cuid())
+  plateNumber  String    @unique
+  model        String?
+  capacity     Int?
+  driverName   String?
+  driverPhone  String?
+  status       String    @default("Active") // Active, In Repair
+  lastService  DateTime?
+  routes       Route[]
+}
+
+model Route {
+  id           String   @id @default(cuid())
+  name         String
+  busId        String?
+  pickUpPoints Json? // Array of points and times
+  fare         Float    @default(0)
+  bus          Bus?     @relation(fields: [busId], references: [id])
+}
+
+model Book {
+  id              String          @id @default(cuid())
+  title           String
+  author          String?
+  isbn            String?         @unique
+  category        String?
+  totalCopies     Int             @default(1)
+  availableCopies Int             @default(1)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  borrows         LibraryBorrow[]
+}
+
+model LibraryBorrow {
+  id           String    @id @default(cuid())
+  bookId       String
+  studentId    String?
+  staffId      String?
+  borrowerName String
+  borrowedDate DateTime  @default(now())
+  dueDate      DateTime
+  returnedDate DateTime?
+  status       String    @default("BORROWED") // BORROWED, RETURNED, OVERDUE
+  book         Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}

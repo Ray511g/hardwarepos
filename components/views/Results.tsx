@@ -10,6 +10,12 @@ import HistoryIcon from '@mui/icons-material/History';
 import ReportFormModal from '../../components/modals/ReportFormModal';
 import CBCProgressReportModal from '../../components/modals/CBCProgressReportModal';
 import Pagination from '../../components/common/Pagination';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+
+import { 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, 
+    PieChart, Pie, Legend
+} from 'recharts';
 
 const calculateLevel = (marks: number): PerformanceLevel => {
     if (marks >= 80) return 'EE';
@@ -18,21 +24,50 @@ const calculateLevel = (marks: number): PerformanceLevel => {
     return 'BE';
 };
 
-const getLevelColor = (level: PerformanceLevel) => {
+const getLevelColor = (level: PerformanceLevel | string) => {
     switch (level) {
-        case 'EE': return 'var(--accent-green)';
-        case 'ME': return 'var(--accent-blue)';
-        case 'AE': return 'var(--accent-orange)';
-        case 'BE': return 'var(--accent-red)';
-        default: return 'inherit';
+        case 'EE': return '#10b981';
+        case 'ME': return '#3b82f6';
+        case 'AE': return '#f59e0b';
+        case 'BE': return '#ef4444';
+        default: return '#94a3b8';
     }
 };
 
 export default function Results() {
     const { students, exams, results, saveBulkResults, addResult, showToast, learningAreas, assessmentScores, saveAssessmentScore, saveBulkAssessmentScores, activeGrades } = useSchool();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState<'exams' | 'cbc'>('exams');
+    const [activeTab, setActiveTab] = useState<'exams' | 'cbc' | 'analytics'>('exams');
     const [selectedGrade, setSelectedGrade] = useState('');
+
+    // Analytics Data Prep
+    const analyticsData = useMemo(() => {
+        if (!selectedGrade) return [];
+        const gradeResults = results.filter(r => {
+            const student = students.find(s => s.id === r.studentId);
+            return student?.grade === selectedGrade;
+        });
+
+        const distributions = [
+            { name: 'EE', value: gradeResults.filter(r => r.level === 'EE').length, color: '#10b981' },
+            { name: 'ME', value: gradeResults.filter(r => r.level === 'ME').length, color: '#3b82f6' },
+            { name: 'AE', value: gradeResults.filter(r => r.level === 'AE').length, color: '#f59e0b' },
+            { name: 'BE', value: gradeResults.filter(r => r.level === 'BE').length, color: '#ef4444' },
+        ];
+        return distributions;
+    }, [results, students, selectedGrade]);
+
+    const subjectPerformance = useMemo(() => {
+        if (!selectedGrade) return [];
+        const gradeExams = exams.filter(e => e.grade === selectedGrade);
+        return gradeExams.map(e => {
+            const examResults = results.filter(r => r.examId === e.id);
+            const avg = examResults.length ? examResults.reduce((s, r) => s + r.marks, 0) / examResults.length : 0;
+            return { subject: e.subject, average: Math.round(avg) };
+        });
+    }, [exams, results, selectedGrade]);
+
+    // ... rest of state remain same
     const [selectedExamId, setSelectedExamId] = useState('');
 
     // CBC Hierarchy Selection
@@ -178,7 +213,61 @@ export default function Results() {
             <div className="tabs-container">
                 <button className={`tab-btn ${activeTab === 'exams' ? 'active' : ''}`} onClick={() => setActiveTab('exams')}>Traditional Exams</button>
                 <button className={`tab-btn ${activeTab === 'cbc' ? 'active' : ''}`} onClick={() => setActiveTab('cbc')}>CBC Competencies</button>
+                <button className={`tab-btn ${activeTab === 'analytics' ? 'active' : ''}`} onClick={() => setActiveTab('analytics')}>Performance Insights</button>
             </div>
+
+            {activeTab === 'analytics' && (
+                <div className="analytics-viewport animate-in" style={{ marginTop: 24 }}>
+                    {!selectedGrade ? (
+                         <div className="glass-card p-40 text-center">
+                            <TrendingUpIcon style={{ fontSize: 64, opacity: 0.1, marginBottom: 16 }} />
+                            <h3>Select a Grade to view Analytics</h3>
+                         </div>
+                    ) : (
+                        <div className="analytics-grid" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.8fr', gap: 24 }}>
+                            <div className="chart-card glass-card">
+                                <h3 className="card-title">Grade Distribution ({selectedGrade})</h3>
+                                <div style={{ height: 300, width: '100%' }}>
+                                    <ResponsiveContainer>
+                                        <PieChart>
+                                            <Pie
+                                                data={analyticsData}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={60}
+                                                outerRadius={80}
+                                                paddingAngle={5}
+                                                dataKey="value"
+                                            >
+                                                {analyticsData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.color} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+
+                            <div className="chart-card glass-card">
+                                <h3 className="card-title">Subject Average Comparison</h3>
+                                <div style={{ height: 300, width: '100%' }}>
+                                    <ResponsiveContainer>
+                                        <BarChart data={subjectPerformance}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                            <XAxis dataKey="subject" />
+                                            <YAxis />
+                                            <Tooltip />
+                                            <Bar dataKey="average" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            )}
 
             <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', marginTop: 20 }}>
                 <div className="stat-card glass-card">
