@@ -45,6 +45,12 @@ const FinancialReports: React.FC = () => {
     const trialBalance = generateTrialBalance();
     const aging = generateAgingReport();
 
+    const pl = {
+        revenue: (accounts || []).filter(a => a.type === 'Revenue').reduce((sum, a) => sum + a.balance, 0),
+        expenses: (accounts || []).filter(a => a.type === 'Expense').reduce((sum, a) => sum + a.balance, 0),
+        get net() { return this.revenue - this.expenses; }
+    };
+
     return (
         <div className="financial-reports animate-in">
             <div className="finance-toolbar">
@@ -225,10 +231,6 @@ const FinancialReports: React.FC = () => {
                          <p className="text-muted text-center text-xs">Aged receivables analysis based on student invoice date and payment history.</p>
                     </div>
                 )}
-            </div>
-        </div>
-    );
-};
             </div>
         </div>
     );

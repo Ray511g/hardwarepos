@@ -13,7 +13,7 @@ export default function GlobalSearch() {
     const [query, setQuery] = useState('');
     const [isOpen, setIsOpen] = useState(false);
     const [results, setResults] = useState<any[]>([]);
-    const { students, teachers, staff, products, suppliers } = useSchool();
+    const { students, teachers, staff } = useSchool();
     const router = useRouter();
     const searchRef = useRef<HTMLDivElement>(null);
 
