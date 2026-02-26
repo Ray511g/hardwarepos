@@ -11,6 +11,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ClassIcon from '@mui/icons-material/Class';
 import AddTeacherModal from '../../components/modals/AddTeacherModal';
 import Pagination from '../../components/common/Pagination';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import { ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function Teachers() {
     const { teachers, deleteTeacher } = useSchool();
@@ -53,30 +55,68 @@ export default function Teachers() {
                 </div>
             </div>
 
-            <div className="stats-grid animate-up" style={{ gap: '20px', marginBottom: '32px' }}>
-                <div className="premium-card" style={{ padding: '24px' }}>
-                    <div className="stat-card-header" style={{ marginBottom: '16px' }}>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Total Faculty</div>
-                        <div className="stat-card-icon" style={{ color: 'var(--accent-purple)' }}><GroupIcon /></div>
+            <div className="premium-stats-grid animate-up">
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-purple)' }}>
+                            <GroupIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 80 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-purple)" fill="var(--accent-purple)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>{teachers?.length || 0}</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Registered Staff</div>
+                    <div className="premium-stat-label">Total Faculty</div>
+                    <div className="premium-stat-value">{teachers?.length || 0}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-purple)' }}></div>
+                        Registered Staff
+                    </div>
                 </div>
-                <div className="premium-card" style={{ padding: '24px' }}>
-                    <div className="stat-card-header" style={{ marginBottom: '16px' }}>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Duty</div>
-                        <div className="stat-card-icon" style={{ color: '#10b981' }}><CheckCircleIcon /></div>
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: '#10b981' }}>
+                            <CheckCircleIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 10 + 90 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="#10b981" fill="#10b981" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: '#10b981', marginBottom: '4px' }}>{active}</div>
-                    <div style={{ fontSize: '0.85rem', color: '#10b981' }}>Verified & Active</div>
+                    <div className="premium-stat-label">Active Duty</div>
+                    <div className="premium-stat-value">{active}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: '#10b981' }}></div>
+                        Verified & Active
+                    </div>
                 </div>
-                <div className="premium-card" style={{ padding: '24px' }}>
-                    <div className="stat-card-header" style={{ marginBottom: '16px' }}>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Curriculum Scope</div>
-                        <div className="stat-card-icon" style={{ color: 'var(--accent-blue)' }}><ClassIcon /></div>
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-blue)' }}>
+                            <ClassIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 30 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-blue)" fill="var(--accent-blue)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>{totalSubjects}</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Unique Subjects Taught</div>
+                    <div className="premium-stat-label">Curriculum Scope</div>
+                    <div className="premium-stat-value">{totalSubjects}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-blue)' }}></div>
+                        Unique Subjects
+                    </div>
                 </div>
             </div>
 

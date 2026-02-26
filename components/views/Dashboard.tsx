@@ -101,19 +101,21 @@ export default function Dashboard() {
                 </button>
             </header>
 
-            <div className="stats-mini-grid mb-40 animate-up" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px' }}>
+            <div className="premium-stats-grid animate-up">
                 {stats.map((stat, i) => (
-                    <div key={i} className="premium-card" style={{ padding: '24px' }}>
-                        <div className="flex-between mb-16">
-                            <div style={{ width: 44, height: 44, borderRadius: '12px', background: `${stat.color}15`, color: stat.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div key={i} className="premium-stat-card">
+                        <div className="premium-stat-card-top">
+                            <div className="premium-stat-icon-wrapper" style={{ color: stat.color }}>
                                 {stat.icon}
                             </div>
-                            <Sparkline data={stat.spark} color={stat.color} />
+                            <div className="premium-stat-chart-container">
+                                <Sparkline data={stat.spark} color={stat.color} />
+                            </div>
                         </div>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>{stat.label}</div>
-                        <div style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>{stat.value}</div>
-                        <div className="flex" style={{ gap: 6, alignItems: 'center', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: stat.color }}></span>
+                        <div className="premium-stat-label">{stat.label}</div>
+                        <div className="premium-stat-value">{stat.value}</div>
+                        <div className="premium-stat-footer">
+                            <div className="stat-indicator-dot" style={{ background: stat.color }}></div>
                             {stat.sub}
                         </div>
                     </div>

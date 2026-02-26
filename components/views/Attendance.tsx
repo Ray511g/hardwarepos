@@ -9,6 +9,9 @@ import SaveIcon from '@mui/icons-material/Save';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import PrintIcon from '@mui/icons-material/Print';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import GroupIcon from '@mui/icons-material/Group';
+import SchoolIcon from '@mui/icons-material/School';
+import EventNoteIcon from '@mui/icons-material/EventNote';
 import Pagination from '../../components/common/Pagination';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -167,34 +170,89 @@ export default function Attendance() {
 
             {activeTab === 'mark' ? (
                 <>
-                    <div className="stats-grid animate-up" style={{ gap: '16px', marginBottom: '24px' }}>
-                        <div className="premium-card" style={{ padding: '16px' }}>
-                            <div className="flex-between">
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#10b981' }}>{presentCount}</div>
-                                <CheckCircleIcon style={{ color: '#10b981', fontSize: 24 }} />
+                    <div className="premium-stats-grid animate-up">
+                        <div className="premium-stat-card">
+                            <div className="premium-stat-card-top">
+                                <div className="premium-stat-icon-wrapper" style={{ color: '#10b981' }}>
+                                    <CheckCircleIcon />
+                                </div>
+                                <div className="premium-stat-chart-container">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 70 }))}>
+                                            <Area type="monotone" dataKey="val" stroke="#10b981" fill="#10b981" fillOpacity={0.1} strokeWidth={2} />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', marginTop: '4px' }}>Present</div>
+                            <div className="premium-stat-label">Present</div>
+                            <div className="premium-stat-value">{presentCount}</div>
+                            <div className="premium-stat-footer">
+                                <div className="stat-indicator-dot" style={{ background: '#10b981' }}></div>
+                                Attending Today
+                            </div>
                         </div>
-                        <div className="premium-card" style={{ padding: '16px' }}>
-                            <div className="flex-between">
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f43f5e' }}>{absentCount}</div>
-                                <CancelIcon style={{ color: '#f43f5e', fontSize: 24 }} />
+
+                        <div className="premium-stat-card">
+                            <div className="premium-stat-card-top">
+                                <div className="premium-stat-icon-wrapper" style={{ color: '#f43f5e' }}>
+                                    <CancelIcon />
+                                </div>
+                                <div className="premium-stat-chart-container">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 10 + 5 }))}>
+                                            <Area type="monotone" dataKey="val" stroke="#f43f5e" fill="#f43f5e" fillOpacity={0.1} strokeWidth={2} />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', marginTop: '4px' }}>Absent</div>
+                            <div className="premium-stat-label">Absent</div>
+                            <div className="premium-stat-value">{absentCount}</div>
+                            <div className="premium-stat-footer">
+                                <div className="stat-indicator-dot" style={{ background: '#f43f5e' }}></div>
+                                Not in Class
+                            </div>
                         </div>
-                        <div className="premium-card" style={{ padding: '16px' }}>
-                            <div className="flex-between">
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f59e0b' }}>{lateCount}</div>
-                                <AccessTimeIcon style={{ color: '#f59e0b', fontSize: 24 }} />
+
+                        <div className="premium-stat-card">
+                            <div className="premium-stat-card-top">
+                                <div className="premium-stat-icon-wrapper" style={{ color: '#f59e0b' }}>
+                                    <AccessTimeIcon />
+                                </div>
+                                <div className="premium-stat-chart-container">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 15 + 10 }))}>
+                                            <Area type="monotone" dataKey="val" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.1} strokeWidth={2} />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', marginTop: '4px' }}>Late</div>
+                            <div className="premium-stat-label">Late</div>
+                            <div className="premium-stat-value">{lateCount}</div>
+                            <div className="premium-stat-footer">
+                                <div className="stat-indicator-dot" style={{ background: '#f59e0b' }}></div>
+                                Delayed Arrivals
+                            </div>
                         </div>
-                        <div className="premium-card" style={{ padding: '16px' }}>
-                            <div className="flex-between">
-                                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#06b6d4' }}>{excusedCount}</div>
-                                <InfoIcon style={{ color: '#06b6d4', fontSize: 24 }} />
+
+                        <div className="premium-stat-card">
+                            <div className="premium-stat-card-top">
+                                <div className="premium-stat-icon-wrapper" style={{ color: '#06b6d4' }}>
+                                    <InfoIcon />
+                                </div>
+                                <div className="premium-stat-chart-container">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 5 + 5 }))}>
+                                            <Area type="monotone" dataKey="val" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.1} strokeWidth={2} />
+                                        </AreaChart>
+                                    </ResponsiveContainer>
+                                </div>
                             </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', marginTop: '4px' }}>Excused</div>
+                            <div className="premium-stat-label">Excused</div>
+                            <div className="premium-stat-value">{excusedCount}</div>
+                            <div className="premium-stat-footer">
+                                <div className="stat-indicator-dot" style={{ background: '#06b6d4' }}></div>
+                                Authorized Absence
+                            </div>
                         </div>
                     </div>
 

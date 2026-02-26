@@ -8,6 +8,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import ScheduleExamModal from '../../components/modals/ScheduleExamModal';
 import Pagination from '../../components/common/Pagination';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 export default function Exams() {
     const { exams, deleteExam, activeGrades } = useSchool();
@@ -51,38 +53,89 @@ export default function Exams() {
                 </div>
             </div>
 
-            <div className="stats-grid">
-                <div className="stat-card blue">
-                    <div className="stat-card-header">
-                        <span className="stat-card-label">Total Exams</span>
-                        <AssignmentIcon className="stat-card-icon" />
+            <div className="premium-stats-grid animate-up">
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-blue)' }}>
+                            <AssignmentIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 80 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-blue)" fill="var(--accent-blue)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div className="stat-card-value">{exams.length}</div>
-                    <div className="stat-card-sub">All examinations</div>
+                    <div className="premium-stat-label">Total Exams</div>
+                    <div className="premium-stat-value">{exams.length}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-blue)' }}></div>
+                        Academic Assessments
+                    </div>
                 </div>
-                <div className="stat-card green">
-                    <div className="stat-card-header">
-                        <span className="stat-card-label">Scheduled</span>
-                        <AssignmentIcon className="stat-card-icon" />
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-orange)' }}>
+                            <AssignmentIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 10 + 20 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-orange)" fill="var(--accent-orange)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div className="stat-card-value">{scheduled}</div>
-                    <div className="stat-card-sub">Upcoming exams</div>
+                    <div className="premium-stat-label">Scheduled</div>
+                    <div className="premium-stat-value">{scheduled}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-orange)' }}></div>
+                        Upcoming Exams
+                    </div>
                 </div>
-                <div className="stat-card purple">
-                    <div className="stat-card-header">
-                        <span className="stat-card-label">Completed</span>
-                        <AssignmentIcon className="stat-card-icon" />
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-green)' }}>
+                            <CheckCircleIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 60 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-green)" fill="var(--accent-green)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div className="stat-card-value">{completed}</div>
-                    <div className="stat-card-sub">Finished exams</div>
+                    <div className="premium-stat-label">Completed</div>
+                    <div className="premium-stat-value">{completed}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-green)' }}></div>
+                        Past Examinations
+                    </div>
                 </div>
-                <div className="stat-card cyan">
-                    <div className="stat-card-header">
-                        <span className="stat-card-label">Results</span>
-                        <AssignmentIcon className="stat-card-icon" />
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-blue)' }}>
+                            <AssignmentIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 60 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-blue)" fill="var(--accent-blue)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
                     </div>
-                    <div className="stat-card-value">{completed}</div>
-                    <div className="stat-card-sub">Recorded results</div>
+                    <div className="premium-stat-label">Results</div>
+                    <div className="premium-stat-value">{completed}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-blue)' }}></div>
+                        Marking Progress
+                    </div>
                 </div>
             </div>
 

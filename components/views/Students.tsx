@@ -12,6 +12,12 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import StarIcon from '@mui/icons-material/Star';
 import Student360Modal from '../../components/modals/Student360Modal';
 import AddBehaviorModal from '../../components/modals/AddBehaviorModal';
+import GroupIcon from '@mui/icons-material/Group';
+import SchoolIcon from '@mui/icons-material/School';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import FemaleIcon from '@mui/icons-material/Female';
+import MaleIcon from '@mui/icons-material/Male';
+import { ResponsiveContainer, AreaChart, Area } from 'recharts';
 
 import { useAuth } from '../../context/AuthContext';
 
@@ -87,22 +93,89 @@ export default function Students() {
                 </div>
             </div>
 
-            <div className="stats-grid animate-up" style={{ gap: '20px', marginBottom: '32px' }}>
-                <div className="premium-card" style={{ padding: '20px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Total Students</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent-blue)', margin: '4px 0' }}>{stats.total}</div>
+            <div className="premium-stats-grid animate-up">
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-blue)' }}>
+                            <GroupIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 80 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-blue)" fill="var(--accent-blue)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div className="premium-stat-label">Total Students</div>
+                    <div className="premium-stat-value">{stats.total}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-blue)' }}></div>
+                        {stats.active} Active Members
+                    </div>
                 </div>
-                <div className="premium-card" style={{ padding: '20px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Students</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent-green)', margin: '4px 0' }}>{stats.active}</div>
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-green)' }}>
+                            <SchoolIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 10 + 90 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-green)" fill="var(--accent-green)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div className="premium-stat-label">Active Ratio</div>
+                    <div className="premium-stat-value">{stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}%</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-green)' }}></div>
+                        Current Enrollment
+                    </div>
                 </div>
-                <div className="premium-card" style={{ padding: '20px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Male</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>{stats.male}</div>
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-purple)' }}>
+                            <MaleIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 30 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-purple)" fill="var(--accent-purple)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div className="premium-stat-label">Male Students</div>
+                    <div className="premium-stat-value">{stats.male}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-purple)' }}></div>
+                        Total Count
+                    </div>
                 </div>
-                <div className="premium-card" style={{ padding: '20px' }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Female</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>{stats.female}</div>
+
+                <div className="premium-stat-card">
+                    <div className="premium-stat-card-top">
+                        <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-orange)' }}>
+                            <FemaleIcon />
+                        </div>
+                        <div className="premium-stat-chart-container">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={[...Array(6)].map((_, i) => ({ val: Math.random() * 20 + 30 }))}>
+                                    <Area type="monotone" dataKey="val" stroke="var(--accent-orange)" fill="var(--accent-orange)" fillOpacity={0.1} strokeWidth={2} />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                    <div className="premium-stat-label">Female Students</div>
+                    <div className="premium-stat-value">{stats.female}</div>
+                    <div className="premium-stat-footer">
+                        <div className="stat-indicator-dot" style={{ background: 'var(--accent-orange)' }}></div>
+                        Total Count
+                    </div>
                 </div>
             </div>
 
