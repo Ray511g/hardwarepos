@@ -23,7 +23,6 @@ export default function Attendance() {
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [selectedGrade, setSelectedGrade] = useState('');
     const [records, setRecords] = useState<Map<string, string>>(new Map());
-    const [searchQuery, setSearchQuery] = useState('');
     const [activeTab, setActiveTab] = useState<'mark' | 'reports' | 'insights'>('mark');
 
     // Report Filters
@@ -37,15 +36,11 @@ export default function Attendance() {
     const itemsPerPage = 10;
 
     const filteredStudents = useMemo(() => {
-        return students.filter(s =>
-            s.status === 'Active' &&
-            (!selectedGrade || s.grade === selectedGrade) &&
-            (`${s.firstName} ${s.lastName}`.toLowerCase().includes(searchQuery.toLowerCase()))
-        );
-    }, [students, selectedGrade, searchQuery]);
+        return students.filter(s => s.status === 'Active' && (!selectedGrade || s.grade === selectedGrade));
+    }, [students, selectedGrade]);
 
     // Initialize from existing attendance and check lock status
-    React.useEffect(() => {
+    useMemo(() => {
         const existing = attendance.filter(a => a.date === selectedDate && (!selectedGrade || a.grade === selectedGrade));
         const newMap = new Map<string, string>();
         existing.forEach(a => newMap.set(a.studentId, a.status));
@@ -81,15 +76,10 @@ export default function Attendance() {
         saveAttendance(attendanceRecords);
     };
 
-    const { presentCount, absentCount, lateCount, excusedCount } = useMemo(() => {
-        const vals = Array.from(records.values());
-        return {
-            presentCount: vals.filter(v => v === 'Present').length,
-            absentCount: vals.filter(v => v === 'Absent').length,
-            lateCount: vals.filter(v => v === 'Late').length,
-            excusedCount: vals.filter(v => v === 'Excused').length,
-        };
-    }, [records]);
+    const presentCount = Array.from(records.values()).filter(v => v === 'Present').length;
+    const absentCount = Array.from(records.values()).filter(v => v === 'Absent').length;
+    const lateCount = Array.from(records.values()).filter(v => v === 'Late').length;
+    const excusedCount = Array.from(records.values()).filter(v => v === 'Excused').length;
     const filteredAttendance = useMemo(() => {
         return attendance.filter(a => {
             return (!reportDate || a.date === reportDate) &&
@@ -103,26 +93,6 @@ export default function Attendance() {
         const start = (currentPage - 1) * itemsPerPage;
         return filteredAttendance.slice(start, start + itemsPerPage);
     }, [filteredAttendance, currentPage]);
-
-    const insightsData = useMemo(() => {
-        const overallRate = Math.round((attendance.filter(a => a.status === 'Present').length / (attendance.length || 1)) * 100);
-
-        const gradeRates = activeGrades.map(g => {
-            const gradeAtt = attendance.filter(a => a.grade === g);
-            return gradeAtt.length > 0 ? Math.round((gradeAtt.filter(a => a.status === 'Present').length / gradeAtt.length) * 100) : 0;
-        });
-        const bestGradeRate = Math.max(...gradeRates, 0);
-
-        const trendData = [...new Set(attendance.map(a => a.date))].sort().slice(-30).map(date => {
-            const dateAtt = attendance.filter(a => a.date === date);
-            return {
-                date,
-                presence: Math.round((dateAtt.filter(a => a.status === 'Present').length / dateAtt.length) * 100)
-            };
-        });
-
-        return { overallRate, bestGradeRate, trendData };
-    }, [attendance, activeGrades]);
 
     const printAttendanceSheet = () => {
         const schoolName = settings.schoolName;
@@ -286,36 +256,21 @@ export default function Attendance() {
                         </div>
                     </div>
 
-                    <div className="attendance-filters animate-up" style={{ background: 'var(--bg-surface-opaque)', padding: 16, borderRadius: 12, border: '1px solid var(--glass-border)' }}>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label htmlFor="attendance-date" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Date</label>
-                            <input id="attendance-date" name="attendance-date" type="date" className="filter-select" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
+                    <div className="attendance-filters">
+                        <div className="form-group">
+                            <label htmlFor="attendance-date">Date</label>
+                            <input id="attendance-date" name="attendance-date" type="date" className="form-control" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} />
                         </div>
-                        <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label htmlFor="attendance-grade" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Grade</label>
+                        <div className="form-group">
+                            <label htmlFor="attendance-grade">Grade</label>
                             <select id="attendance-grade" title="Select grade for attendance" className="filter-select" value={selectedGrade} onChange={e => setSelectedGrade(e.target.value)}>
                                 <option value="">All Grades</option>
                                 {activeGrades.map(g => <option key={g} value={g}>{g}</option>)}
                             </select>
                         </div>
-                        <div className="form-group" style={{ marginBottom: 0, flexGrow: 1 }}>
-                            <label htmlFor="attendance-search" style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>Search Student</label>
-                            <div style={{ position: 'relative' }}>
-                                <TrendingUpIcon style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', fontSize: 16, opacity: 0.5 }} />
-                                <input
-                                    id="attendance-search"
-                                    type="text"
-                                    className="filter-select"
-                                    style={{ paddingLeft: 36, width: '100%' }}
-                                    placeholder="Type name..."
-                                    value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                />
-                            </div>
-                        </div>
-                        <div className="attendance-actions" style={{ display: 'flex', gap: 8, alignSelf: 'flex-end' }}>
-                            <button className="btn-premium outline" style={{ padding: '8px 16px', fontSize: '0.8rem' }} onClick={() => markAll('Present')} disabled={isLocked}>Mark All Present</button>
-                            <button className="btn-outline danger" style={{ padding: '8px 16px', fontSize: '0.8rem' }} onClick={() => markAll('Absent')} disabled={isLocked}>Mark All Absent</button>
+                        <div className="attendance-actions">
+                            <button className="btn-primary green" onClick={() => markAll('Present')} disabled={isLocked}>Mark All Present</button>
+                            <button className="btn-primary red" onClick={() => markAll('Absent')} disabled={isLocked}>Mark All Absent</button>
                         </div>
                     </div>
 
@@ -327,15 +282,10 @@ export default function Attendance() {
                     )}
 
                     <div className="attendance-list-header animate-up" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                        <div>
-                            <h3 style={{ margin: 0, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <CalendarTodayIcon style={{ fontSize: 18, color: 'var(--accent-blue)' }} />
-                                Mark Attendance - {filteredStudents.length} Students
-                            </h3>
-                            <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', opacity: 0.6, fontWeight: 500 }}>
-                                {Array.from(records.keys()).filter(id => filteredStudents.some(s => s.id === id)).length} of {filteredStudents.length} marked found matching search
-                            </p>
-                        </div>
+                        <h3 style={{ margin: 0, fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <CalendarTodayIcon style={{ fontSize: 18, color: 'var(--accent-blue)' }} />
+                            Mark Attendance - {filteredStudents.length} Students
+                        </h3>
                         {!isLocked && (
                             <button className="btn-premium" onClick={handleSave}>
                                 <SaveIcon style={{ fontSize: 18 }} /> Save Changes
@@ -343,50 +293,33 @@ export default function Attendance() {
                         )}
                     </div>
 
-                    <div className="attendance-marking-list animate-up" style={{ display: 'grid', gap: 12 }}>
-                        {filteredStudents.length === 0 ? (
-                            <div className="empty-state">
-                                <GroupIcon className="empty-state-icon" />
-                                <h3>Attendance List Empty</h3>
-                                <p>No students match your current selection or search query. Please adjust your filters.</p>
-                            </div>
-                        ) : (
-                            filteredStudents.map(student => (
-                                <div key={student.id} className="premium-card flex-between" style={{ padding: '12px 20px', background: 'var(--bg-card-opaque)' }}>
-                                    <div className="flex-row" style={{ gap: 16 }}>
-                                        <div className="avatar-circle small" style={{ background: 'var(--accent-blue-bg)', color: 'var(--accent-blue)', fontWeight: 700, fontSize: '0.75rem' }}>
-                                            {student.firstName[0]}{student.lastName[0]}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontWeight: 600, fontSize: '0.9rem' }}>{student.firstName} {student.lastName}</div>
-                                            <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}>{student.grade} • #{student.id.slice(-4)}</div>
-                                        </div>
-                                    </div>
-                                    <div className="attendance-status-btns" style={{ gap: 8 }}>
-                                        {[
-                                            { label: 'Present', color: '#10b981' },
-                                            { label: 'Absent', color: '#f43f5e' },
-                                            { label: 'Late', color: '#f59e0b' },
-                                            { label: 'Excused', color: '#06b6d4' }
-                                        ].map(status => (
-                                            <button
-                                                key={status.label}
-                                                className={`attendance-status-btn-premium ${records.get(student.id) === status.label ? 'active' : ''}`}
-                                                onClick={() => !isLocked && setStatus(student.id, status.label)}
-                                                disabled={isLocked}
-                                                style={{
-                                                    '--active-color': status.color,
-                                                    opacity: isLocked && records.get(student.id) !== status.label ? 0.4 : 1
-                                                } as React.CSSProperties}
-                                            >
-                                                {status.label}
-                                            </button>
-                                        ))}
-                                    </div>
+                    {filteredStudents.length === 0 ? (
+                        <div className="empty-state">
+                            <p>No students found. Add students first to mark attendance.</p>
+                        </div>
+                    ) : (
+                        filteredStudents.map(student => (
+                            <div key={student.id} className="attendance-student-row">
+                                <div className="attendance-student-info">
+                                    <span style={{ fontWeight: 500 }}>{student.firstName} {student.lastName}</span>
+                                    <span className="badge blue">{student.grade}</span>
                                 </div>
-                            ))
-                        )}
-                    </div>
+                                <div className="attendance-status-btns">
+                                    {['Present', 'Absent', 'Late', 'Excused'].map(status => (
+                                        <button
+                                            key={status}
+                                            className={`attendance-status-btn ${status.toLowerCase()} ${records.get(student.id) === status ? 'active' : ''}`}
+                                            onClick={() => !isLocked && setStatus(student.id, status)}
+                                            disabled={isLocked}
+                                            style={{ opacity: isLocked && records.get(student.id) !== status ? 0.5 : 1 }}
+                                        >
+                                            {status}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </>
             ) : activeTab === 'reports' ? (
                 <div className="reports-section">
@@ -456,65 +389,69 @@ export default function Attendance() {
                     />
                 </div>
             ) : (
-                <div className="insights-section animate-up">
-                    <div className="premium-stats-grid" style={{ marginBottom: 30 }}>
-                        <div className="premium-stat-card">
-                            <div className="premium-stat-card-top">
-                                <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-blue)' }}>
-                                    <CheckCircleIcon />
-                                </div>
+                <div className="insights-section">
+                    <div className="stats-grid" style={{ marginBottom: 30 }}>
+                        <div className="stat-card blue">
+                            <div className="stat-card-header">
+                                <div className="stat-card-value">{Math.round((attendance.filter(a => a.status === 'Present').length / (attendance.length || 1)) * 100)}%</div>
+                                <CheckCircleIcon style={{ color: 'var(--accent-blue)', fontSize: 28 }} />
                             </div>
-                            <div className="premium-stat-label">Overall Presence Rate</div>
-                            <div className="premium-stat-value">{insightsData.overallRate}%</div>
-                            <div className="premium-stat-footer">Across all terms</div>
+                            <div className="stat-card-label">Overall Presence Rate</div>
                         </div>
-                        <div className="premium-stat-card">
-                            <div className="premium-stat-card-top">
-                                <div className="premium-stat-icon-wrapper" style={{ color: 'var(--accent-green)' }}>
-                                    <TrendingUpIcon />
+                        <div className="stat-card green">
+                            <div className="stat-card-header">
+                                <div className="stat-card-value">
+                                    {Math.max(...activeGrades.map(g => {
+                                        const gradeAtt = attendance.filter(a => a.grade === g);
+                                        return gradeAtt.length > 0 ? Math.round((gradeAtt.filter(a => a.status === 'Present').length / gradeAtt.length) * 100) : 0;
+                                    }))}%
                                 </div>
+                                <TrendingUpIcon style={{ color: 'var(--accent-green)', fontSize: 28 }} />
                             </div>
-                            <div className="premium-stat-label">Best Performing Grade</div>
-                            <div className="premium-stat-value">{insightsData.bestGradeRate}%</div>
-                            <div className="premium-stat-footer">Highest attendance</div>
+                            <div className="stat-card-label">Best Performing Grade</div>
                         </div>
                     </div>
 
-                    <div className="premium-card" style={{ height: 400, marginBottom: 24, padding: 24 }}>
-                        <h3 style={{ margin: '0 0 24px 0', fontSize: '1.2rem', fontWeight: 700 }}>Daily Attendance Trend (Last 30 Days)</h3>
-                        <div style={{ height: 300 }}>
+                    <div className="card" style={{ height: 400, marginBottom: 24 }}>
+                        <div className="card-header"><h3>Daily Attendance Trend (Last 30 Days)</h3></div>
+                        <div className="card-body">
                             <ResponsiveContainer width="100%" height="100%">
-                                <AreaChart data={insightsData.trendData}>
-                                    <defs>
-                                        <linearGradient id="attendanceGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="var(--accent-blue)" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="var(--accent-blue)" stopOpacity={0} />
-                                        </linearGradient>
-                                    </defs>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                                    <XAxis dataKey="date" fontSize={11} stroke="rgba(255,255,255,0.4)" axisLine={false} tickLine={false} />
-                                    <YAxis fontSize={11} stroke="rgba(255,255,255,0.4)" axisLine={false} tickLine={false} domain={[0, 100]} />
-                                    <Tooltip contentStyle={{ background: '#1a1f2e', border: '1px solid var(--glass-border)', borderRadius: '12px' }} />
-                                    <Area type="monotone" dataKey="presence" stroke="var(--accent-blue)" fillOpacity={1} fill="url(#attendanceGradient)" strokeWidth={3} />
+                                <AreaChart data={
+                                    [...new Set(attendance.map(a => a.date))].sort().slice(-30).map(date => {
+                                        const dateAtt = attendance.filter(a => a.date === date);
+                                        return {
+                                            date,
+                                            presence: Math.round((dateAtt.filter(a => a.status === 'Present').length / dateAtt.length) * 100)
+                                        };
+                                    })
+                                }>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                    <XAxis dataKey="date" fontSize={10} />
+                                    <YAxis fontSize={12} domain={[0, 100]} />
+                                    <Tooltip />
+                                    <Area type="monotone" dataKey="presence" stroke="#3b82f6" fillOpacity={0.1} fill="#3b82f6" />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
 
-                    <div className="premium-card" style={{ height: 400, padding: 24 }}>
-                        <h3 style={{ margin: '0 0 24px 0', fontSize: '1.2rem', fontWeight: 700 }}>Attendance by Grade</h3>
-                        <div style={{ height: 300 }}>
+                    <div className="card" style={{ height: 400 }}>
+                        <div className="card-header"><h3>Attendance Presence by Grade (%)</h3></div>
+                        <div className="card-body">
                             <ResponsiveContainer width="100%" height="100%">
-                                <BarChart
-                                    data={activeGrades.map(g => {
+                                <BarChart data={
+                                    activeGrades.map(g => {
                                         const gradeAtt = attendance.filter(a => a.grade === g);
                                         return {
                                             name: g,
                                             presence: gradeAtt.length > 0 ? Math.round((gradeAtt.filter(a => a.status === 'Present').length / gradeAtt.length) * 100) : 0
                                         };
-                                    })}
-                                >
-                                    <Tooltip contentStyle={{ background: '#1a1f2e', border: '1px solid var(--glass-border)', borderRadius: '12px' }} />
+                                    })
+                                }>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                                    <XAxis dataKey="name" fontSize={10} />
+                                    <YAxis fontSize={12} domain={[0, 100]} />
+                                    <Tooltip />
                                     <Bar dataKey="presence" fill="#10b981" radius={[4, 4, 0, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>

@@ -135,10 +135,9 @@ export default function Teachers() {
 
             <div className="data-table-wrapper">
                 {filtered.length === 0 ? (
-                    <div className="empty-state">
-                        <SchoolIcon className="empty-state-icon" />
-                        <h3>Faculty Records Empty</h3>
-                        <p>No faculty members match your current search or filter. Try clearing your search to see all members.</p>
+                    <div className="empty-state" style={{ padding: '80px 0' }}>
+                        <SchoolIcon className="empty-state-icon" style={{ fontSize: 64, color: 'var(--text-muted)' }} />
+                        <p className="fs-16 fw-500">No faculty members match your criteria</p>
                         <button className="btn-outline mt-15" onClick={() => setSearch('')}>Clear Search</button>
                     </div>
                 ) : (

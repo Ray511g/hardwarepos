@@ -205,15 +205,7 @@ export default function CommercialPage() {
                                     </thead>
                                     <tbody>
                                         {filteredData.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={6}>
-                                                    <div className="empty-state">
-                                                        <AccountBalanceWalletIcon className="empty-state-icon" />
-                                                        <h3>No Credit Agreements</h3>
-                                                        <p>We couldn't find any student credit agreements matching your search.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <tr><td colSpan={6} className="text-center p-40 text-muted">No agreements found</td></tr>
                                         ) : filteredData.map(item => (
                                             <tr key={item.id}>
                                                 <td><div className="data-table-name">{item.studentName || 'Unknown'}</div></td>
@@ -249,15 +241,7 @@ export default function CommercialPage() {
                                     </thead>
                                     <tbody>
                                         {filteredData.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={6}>
-                                                    <div className="empty-state">
-                                                        <ShoppingCartIcon className="empty-state-icon" />
-                                                        <h3>No Purchase Orders</h3>
-                                                        <p>No procurement records found for the current selection.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <tr><td colSpan={6} className="text-center p-40 text-muted">No purchase orders found</td></tr>
                                         ) : filteredData.map(item => (
                                             <tr key={item.id}>
                                                 <td><div className="data-table-name">{item.poNumber || 'N/A'}</div></td>
@@ -303,15 +287,7 @@ export default function CommercialPage() {
                                     </thead>
                                     <tbody>
                                         {filteredData.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={7}>
-                                                    <div className="empty-state">
-                                                        <ListAltIcon className="empty-state-icon" />
-                                                        <h3>No Promissory Notes</h3>
-                                                        <p>There are no promissory notes recorded in this category.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <tr><td colSpan={7} className="text-center p-40 text-muted">No promissory notes found</td></tr>
                                         ) : filteredData.map(item => (
                                             <tr key={item.id}>
                                                 <td><div className="data-table-name">{item.noteNumber || 'N/A'}</div></td>
@@ -358,15 +334,7 @@ export default function CommercialPage() {
                                     </thead>
                                     <tbody>
                                         {filteredData.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={7}>
-                                                    <div className="empty-state">
-                                                        <LocalShippingIcon className="empty-state-icon" />
-                                                        <h3>No Service Orders</h3>
-                                                        <p>No recurring or subscription service orders found.</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <tr><td colSpan={7} className="text-center p-40 text-muted">No service orders found</td></tr>
                                         ) : filteredData.map(item => {
                                             const student = students.find(s => s.id === item.studentId);
                                             return (

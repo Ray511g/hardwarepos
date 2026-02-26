@@ -296,10 +296,15 @@ export default function CBCProgressReportModal({ studentId, onClose }: Props) {
                         </div>
                     </div>
 
-                    <div className="paper-preview-container">
-                        <div className="paper-sheet">
-                            <div dangerouslySetInnerHTML={{ __html: reportHTML }} />
-                        </div>
+                    <div className="report-preview-container" style={{
+                        background: '#f8fafc',
+                        padding: 40,
+                        borderRadius: 16,
+                        border: '1px solid var(--border-color)',
+                        maxHeight: '60vh',
+                        overflowY: 'auto'
+                    }}>
+                        <div dangerouslySetInnerHTML={{ __html: reportHTML }} style={{ transform: 'scale(0.9)', transformOrigin: 'top center' }} />
                     </div>
                 </div>
 

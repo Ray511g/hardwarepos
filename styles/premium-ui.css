@@ -26,10 +26,6 @@
     border-radius: var(--radius-md);
     padding: var(--space-6);
     transition: var(--transition);
-    /* Stabilize text during hover */
-    backface-visibility: hidden;
-    transform: translateZ(0);
-    -webkit-font-smoothing: subpixel-antialiased;
 }
 
 .premium-card:hover {
@@ -56,7 +52,6 @@
 .text-gradient {
     background: var(--accent-gradient);
     -webkit-background-clip: text;
-    background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 700;
 }
@@ -120,8 +115,6 @@
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
-    backface-visibility: hidden;
-    transform: translateZ(0);
 }
 
 .btn-premium:hover {

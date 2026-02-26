@@ -179,7 +179,7 @@ export default function Students() {
                 </div>
             </div>
 
-            <div className="search-filter-bar animate-up" style={{ padding: '16px', borderRadius: '12px', marginBottom: '24px' }}>
+            <div className="search-filter-bar animate-up" style={{ background: 'rgba(255,255,255,0.02)', padding: '16px', borderRadius: '12px', marginBottom: '24px' }}>
                 <div className="search-input-wrapper" style={{ flex: 1 }}>
                     <SearchIcon className="search-icon" />
                     <input
@@ -187,7 +187,8 @@ export default function Students() {
                         name="searchStudents"
                         type="text"
                         className="search-input"
-                        placeholder="Search by name, admission no, or parent..."
+                        placeholder="Search by name or admission number..."
+                        style={{ background: 'transparent' }}
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                     />
@@ -195,8 +196,9 @@ export default function Students() {
                 <select
                     id="gradeFilter"
                     name="gradeFilter"
-                    title="Filter by Grade"
+                    title="Filter students by grade"
                     className="filter-select"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)' }}
                     value={gradeFilter}
                     onChange={e => setGradeFilter(e.target.value)}
                 >
@@ -209,8 +211,7 @@ export default function Students() {
                 {filtered.length === 0 ? (
                     <div className="empty-state">
                         <PeopleIcon className="empty-state-icon" />
-                        <h3>Records Inventory Empty</h3>
-                        <p>We couldn't find any students matching your current search or filter criteria. Try adjusting your search term.</p>
+                        <p>No students found</p>
                     </div>
                 ) : (
                     <table className="data-table">

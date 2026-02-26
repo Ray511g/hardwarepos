@@ -88,7 +88,7 @@ export default function Dashboard() {
     };
 
     return (
-        <div id="dashboard-main-content" className="page-container glass-overlay custom-scrollbar">
+        <div id="dashboard-main-content" className="page-container glass-overlay custom-scrollbar" style={{ overflowY: 'auto', maxHeight: '100vh', padding: '32px' }}>
             <header className="page-header mb-32" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="animate-up">
                     <h1 className="page-title text-gradient" style={{ fontSize: '2.5rem', marginBottom: '4px' }}>School Insights</h1>
@@ -96,6 +96,9 @@ export default function Dashboard() {
                         Welcome back, <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{user?.name || 'Administrator'}</span>
                     </p>
                 </div>
+                <button className="btn-premium animate-up" onClick={handleExportSummary} disabled={isExporting}>
+                    <FileDownloadIcon /> {isExporting ? 'Generating...' : 'Executive Report'}
+                </button>
             </header>
 
             <div className="premium-stats-grid animate-up">
