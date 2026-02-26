@@ -26,6 +26,7 @@ export default function Layout({ children }: LayoutProps) {
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [isDarkMode, setIsDarkMode] = useState(true);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
     useEffect(() => {
         const saved = localStorage.getItem('elirama_theme');
@@ -110,10 +111,12 @@ export default function Layout({ children }: LayoutProps) {
     };
 
     return (
-        <div className={`app-layout ${!isDarkMode ? 'light-theme' : ''}`}>
+        <div className={`app-layout ${!isDarkMode ? 'light-theme' : ''} ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
             <Sidebar
                 isOpen={sidebarOpen}
                 setIsOpen={setSidebarOpen}
+                isCollapsed={sidebarCollapsed}
+                setIsCollapsed={setSidebarCollapsed}
             />
             <main className="main-content">
                 <header className="top-bar">

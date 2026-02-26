@@ -23,6 +23,9 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import BadgeIcon from '@mui/icons-material/Badge';
 import InfoIcon from '@mui/icons-material/Info';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import Tooltip from '@mui/material/Tooltip';
 
 export const PERMISSIONS = [
     { code: 'MANAGE_STUDENTS', label: 'Students Module' },
@@ -64,9 +67,11 @@ const navItems = [
 interface SidebarProps {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
+    isCollapsed: boolean;
+    setIsCollapsed: (collapsed: boolean) => void;
 }
 
-export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
+export default function Sidebar({ isOpen, setIsOpen, isCollapsed, setIsCollapsed }: SidebarProps) {
     const { logout, user, hasPermission } = useAuth();
     const { serverStatus, settings } = useSchool();
     const router = useRouter();
@@ -131,8 +136,15 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             </button>
 
             {isOpen && <div className="sidebar-overlay open" onClick={() => setIsOpen(false)} />}
-
-            <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+            
+            <aside className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}>
+                <button 
+                    className="sidebar-squeeze-btn"
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                    title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+                >
+                    {isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+                </button>
                 <div className="sidebar-header">
                     <div className="sidebar-logo-container">
                         <div className="sidebar-logo">
@@ -144,7 +156,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                     </div>
                     <div className="sidebar-brand">
                         <h2>{settings?.schoolName || 'School Management System'}</h2>
-                        <p>{settings?.motto || 'Academic Excellence'}</p>
+                        {!isCollapsed && <p>{settings?.motto || 'Academic Excellence'}</p>}
                     </div>
                 </div>
 
@@ -157,9 +169,11 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                             className={`nav-item ${isActive(item.path) ? 'active' : ''}`}
                             onClick={() => setIsOpen(false)}
                         >
-                            <span className="nav-icon">{item.icon}</span>
-                            <span className="nav-label">{item.label}</span>
-                            {isActive(item.path) && <div className="active-indicator"></div>}
+                            <Tooltip title={isCollapsed ? item.label : ""} placement="right">
+                                <span className="nav-icon">{item.icon}</span>
+                            </Tooltip>
+                            {!isCollapsed && <span className="nav-label">{item.label}</span>}
+                            {isActive(item.path) && !isCollapsed && <div className="active-indicator"></div>}
                         </Link>
                     ))}
                 </nav>

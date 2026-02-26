@@ -179,7 +179,7 @@ export default function Attendance() {
     };
 
     return (
-        <div className="page-container glass-overlay" style={{ padding: '24px 32px' }}>
+        <div className="page-container glass-overlay">
             <div className="page-header animate-up" style={{ marginBottom: '24px' }}>
                 <div className="page-header-left">
                     <h1 className="text-gradient" style={{ fontSize: '2.5rem', marginBottom: '4px' }}>Attendance</h1>
@@ -351,7 +351,7 @@ export default function Attendance() {
                             </div>
                         ) : (
                             filteredStudents.map(student => (
-                                <div key={student.id} className="premium-card flex-between" style={{ padding: '12px 20px', background: 'var(--bg-card-opaque)' }}>
+                                <div key={student.id} className="premium-card flex-between" style={{ background: 'var(--bg-card-opaque)' }}>
                                     <div className="flex-row" style={{ gap: 16 }}>
                                         <div className="avatar-circle small" style={{ background: 'var(--accent-blue-bg)', color: 'var(--accent-blue)', fontWeight: 700, fontSize: '0.75rem' }}>
                                             {student.firstName[0]}{student.lastName[0]}
