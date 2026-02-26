@@ -45,6 +45,10 @@ model Student {
   parentPhone      String
   parentEmail      String?
   address          String?
+  medicalConditions String?
+  bloodGroup       String?
+  emergencyContact String?
+  allergies        String?
   status           String            @default("Active")
   enrollmentDate   String
   totalFees        Float             @default(0)

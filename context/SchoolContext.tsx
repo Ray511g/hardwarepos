@@ -355,7 +355,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
     // Real-time Sync: Polling + Focus/Visibility reset
     useEffect(() => {
         // Fast polling for near-instant updates across devices
-        const interval = setInterval(() => fetchData(false), 2500);
+        const interval = setInterval(() => fetchData(false), 10000);
 
         // Immediate sync when tab becomes visible or receives focus
         const handleVisibilityChange = () => {

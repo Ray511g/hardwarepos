@@ -87,9 +87,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const totalFees = parseFloat(data.totalFees || 0);
             const paidFees = parseFloat(data.paidFees || 0);
 
+            const {
+                firstName, lastName, gender, grade, dateOfBirth,
+                parentName, parentPhone, parentEmail, address,
+                medicalConditions, bloodGroup, emergencyContact, allergies,
+                enrollmentDate, status
+            } = req.body;
+
             const student = await prisma.student.create({
                 data: {
-                    ...data,
+                    firstName,
+                    lastName,
+                    gender,
+                    grade,
+                    dateOfBirth,
+                    parentName,
+                    parentPhone,
+                    parentEmail,
+                    address,
+                    medicalConditions,
+                    bloodGroup,
+                    emergencyContact,
+                    allergies,
+                    enrollmentDate,
+                    status: status || 'Active',
                     admissionNumber,
                     totalFees,
                     paidFees,

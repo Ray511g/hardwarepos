@@ -34,17 +34,32 @@ export default function Students() {
         }
     }, [router]);
 
-    const filtered = students.filter(s => {
-        const matchSearch = `${s.firstName} ${s.lastName} ${s.admissionNumber}`.toLowerCase().includes(search.toLowerCase());
-        const matchGrade = !gradeFilter || s.grade === gradeFilter;
-        return matchSearch && matchGrade;
-    });
+    const { filtered, stats } = React.useMemo(() => {
+        const filteredList = students.filter(s => {
+            const matchSearch = `${s.firstName} ${s.lastName} ${s.admissionNumber}`.toLowerCase().includes(search.toLowerCase());
+            const matchGrade = !gradeFilter || s.grade === gradeFilter;
+            return matchSearch && matchGrade;
+        });
 
-    const paginatedStudents = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+        const activeCount = students.filter(s => s.status === 'Active').length;
+        const maleCount = students.filter(s => s.gender === 'Male').length;
+        const femaleCount = students.filter(s => s.gender === 'Female').length;
 
-    const active = students.filter(s => s.status === 'Active').length;
-    const male = students.filter(s => s.gender === 'Male').length;
-    const female = students.filter(s => s.gender === 'Female').length;
+        return {
+            filtered: filteredList,
+            stats: {
+                total: students.length,
+                active: activeCount,
+                male: maleCount,
+                female: femaleCount
+            }
+        };
+    }, [students, search, gradeFilter]);
+
+    const paginatedStudents = React.useMemo(() =>
+        filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage),
+        [filtered, currentPage]
+    );
 
     const handleEdit = (student: Student) => {
         setEditingStudent(student);
@@ -75,19 +90,19 @@ export default function Students() {
             <div className="stats-grid animate-up" style={{ gap: '20px', marginBottom: '32px' }}>
                 <div className="premium-card" style={{ padding: '20px' }}>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Total Students</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent-blue)', margin: '4px 0' }}>{students.length}</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent-blue)', margin: '4px 0' }}>{stats.total}</div>
                 </div>
                 <div className="premium-card" style={{ padding: '20px' }}>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Active Students</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent-green)', margin: '4px 0' }}>{active}</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--accent-green)', margin: '4px 0' }}>{stats.active}</div>
                 </div>
                 <div className="premium-card" style={{ padding: '20px' }}>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Male</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>{male}</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>{stats.male}</div>
                 </div>
                 <div className="premium-card" style={{ padding: '20px' }}>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>Female</div>
-                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>{female}</div>
+                    <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', margin: '4px 0' }}>{stats.female}</div>
                 </div>
             </div>
 
