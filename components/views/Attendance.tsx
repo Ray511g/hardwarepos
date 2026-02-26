@@ -345,9 +345,10 @@ export default function Attendance() {
 
                     <div className="attendance-marking-list animate-up" style={{ display: 'grid', gap: 12 }}>
                         {filteredStudents.length === 0 ? (
-                            <div className="empty-state" style={{ padding: '40px 0', background: 'var(--bg-surface-opaque)', borderRadius: 12 }}>
-                                <GroupIcon style={{ fontSize: 48, opacity: 0.2, marginBottom: 12 }} />
-                                <p style={{ fontWeight: 500, color: 'var(--text-muted)' }}>No students match your current criteria</p>
+                            <div className="empty-state">
+                                <GroupIcon className="empty-state-icon" />
+                                <h3>Attendance List Empty</h3>
+                                <p>No students match your current selection or search query. Please adjust your filters.</p>
                             </div>
                         ) : (
                             filteredStudents.map(student => (

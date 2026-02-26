@@ -8,7 +8,7 @@ export const generateStudentReport = async (studentName: string, elementId: stri
     try {
         const canvas = await html2canvas(element, {
             scale: 2,
-            backgroundColor: '#0a0d14', // Match the dark theme background
+            backgroundColor: '#ffffff', // Professional white background for printing
             logging: false,
             useCORS: true
         });

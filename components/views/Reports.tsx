@@ -757,8 +757,12 @@ export default function Reports() {
                                         return r.studentId === reportFilter.studentId && exam?.term === reportFilter.term;
                                     }).length === 0 && (
                                             <tr>
-                                                <td colSpan={4} style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>
-                                                    No results found for the selected student and term.
+                                                <td colSpan={4}>
+                                                    <div className="empty-state">
+                                                        <AssessmentIcon className="empty-state-icon" />
+                                                        <h3>Performance Data Missing</h3>
+                                                        <p>No results have been recorded for the selected student in this term yet.</p>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )}
@@ -850,8 +854,12 @@ export default function Reports() {
                                     ))}
                                     {payments.length === 0 && expenses.length === 0 && payroll.length === 0 && (
                                         <tr>
-                                            <td colSpan={5} style={{ textAlign: 'center', padding: 40, color: 'var(--text-secondary)' }}>
-                                                No financial entries found for the current audit period.
+                                            <td colSpan={5}>
+                                                <div className="empty-state">
+                                                    <AccountBalanceIcon className="empty-state-icon" />
+                                                    <h3>Financial Portfolio Empty</h3>
+                                                    <p>There are no recorded income, expense, or payroll entries for the current audit period.</p>
+                                                </div>
                                             </td>
                                         </tr>
                                     )}

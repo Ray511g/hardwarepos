@@ -113,71 +113,69 @@ export default function ReceiptModal({ payment, onClose }: Props) {
                     <h2>Payment Receipt</h2>
                     <button className="modal-close" onClick={onClose} title="Close receipt" aria-label="Close modal"><CloseIcon /></button>
                 </div>
-                <div className="modal-body p-20">
-                    <div className="receipt-content">
+                <div className="modal-body overhaul-modal-body" style={{ background: '#f1f5f9', padding: '30px' }}>
+                    <div className="receipt-content paper-sheet" style={{ margin: '0 auto', minHeight: 'auto', padding: '32px' }}>
                         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                            <div style={{ fontSize: 20, fontWeight: 800, color: '#3b82f6', letterSpacing: 1 }}>
+                            <div style={{ fontSize: 22, fontWeight: 800, color: '#4f46e5', letterSpacing: 1 }}>
                                 {settings.schoolName}
                             </div>
-                            <div className="text-muted text-xs" style={{ marginTop: 4 }}>
+                            <div style={{ color: '#64748b', fontSize: '12px', marginTop: 4 }}>
                                 {settings.address} | {settings.phone}
                             </div>
-                            <span className="badge blue" style={{ marginTop: 8, display: 'inline-block', letterSpacing: 1 }}>
+                            <span className="badge blue" style={{ marginTop: 12, display: 'inline-block', letterSpacing: 1, padding: '4px 16px' }}>
                                 OFFICIAL RECEIPT
                             </span>
                         </div>
 
-                        <hr className="receipt-divider" />
+                        <hr style={{ border: 'none', borderTop: '1px dashed #cbd5e1', margin: '20px 0' }} />
 
-                        <div className="receipt-row">
-                            <span className="label">Receipt No:</span>
-                            <span style={{ fontWeight: 700 }}>{payment.receiptNumber}</span>
+                        <div className="receipt-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                            <span style={{ color: '#64748b', fontWeight: 500 }}>Receipt No:</span>
+                            <span style={{ fontWeight: 700, color: '#1e293b' }}>{payment.receiptNumber}</span>
                         </div>
-                        <div className="receipt-row">
-                            <span className="label">Date:</span>
-                            <span>{new Date(payment.date).toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
+                        <div className="receipt-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                            <span style={{ color: '#64748b', fontWeight: 500 }}>Date:</span>
+                            <span style={{ color: '#1e293b' }}>{new Date(payment.date).toLocaleDateString('en-KE', { day: '2-digit', month: 'long', year: 'numeric' })}</span>
                         </div>
-                        <div className="receipt-row">
-                            <span className="label">Term:</span>
-                            <span>{payment.term}</span>
-                        </div>
-
-                        <hr className="receipt-divider" />
-
-                        <div className="receipt-row">
-                            <span className="label">Student:</span>
-                            <span style={{ fontWeight: 600 }}>{payment.studentName}</span>
-                        </div>
-                        <div className="receipt-row">
-                            <span className="label">Grade:</span>
-                            <span>{payment.grade}</span>
+                        <div className="receipt-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                            <span style={{ color: '#64748b', fontWeight: 500 }}>Term:</span>
+                            <span style={{ color: '#1e293b' }}>{payment.term}</span>
                         </div>
 
-                        <hr className="receipt-divider" />
+                        <hr style={{ border: 'none', borderTop: '1px dashed #cbd5e1', margin: '20px 0' }} />
 
-                        <div className="receipt-row">
-                            <span className="label">Payment Method:</span>
-                            <span><span className="badge blue">{payment.method}</span></span>
+                        <div className="receipt-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                            <span style={{ color: '#64748b', fontWeight: 500 }}>Student:</span>
+                            <span style={{ fontWeight: 600, color: '#1e293b' }}>{payment.studentName}</span>
+                        </div>
+                        <div className="receipt-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                            <span style={{ color: '#64748b', fontWeight: 500 }}>Grade:</span>
+                            <span style={{ color: '#1e293b' }}>{payment.grade}</span>
+                        </div>
+
+                        <hr style={{ border: 'none', borderTop: '1px dashed #cbd5e1', margin: '20px 0' }} />
+
+                        <div className="receipt-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, fontSize: 13 }}>
+                            <span style={{ color: '#64748b', fontWeight: 500 }}>Payment Method:</span>
+                            <span style={{ fontWeight: 600, color: '#4f46e5' }}>{payment.method}</span>
                         </div>
                         {payment.reference && (
-                            <div className="receipt-row">
-                                <span className="label">Reference:</span>
-                                <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{payment.reference}</span>
+                            <div className="receipt-row" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, fontSize: 13 }}>
+                                <span style={{ color: '#64748b', fontWeight: 500 }}>Reference:</span>
+                                <span style={{ fontFamily: 'monospace', color: '#1e293b' }}>{payment.reference}</span>
                             </div>
                         )}
 
-                        <hr className="receipt-divider" />
-
                         <div style={{
-                            background: 'rgba(16,185,129,0.05)',
-                            border: '2px solid #10b981',
+                            background: '#f0fdf4',
+                            border: '2px solid #22c55e',
                             borderRadius: 10,
                             padding: '16px',
                             textAlign: 'center',
-                            margin: '12px 0'
+                            margin: '20px 0'
                         }}>
-                            <div className="text-muted text-xs uppercase" style={{ letterSpacing: 1 }}>Amount Paid</div>
-                            <div style={{ fontSize: 28, fontWeight: 800, color: '#10b981', marginTop: 4 }}>
+                            <div style={{ color: '#16a34a', fontSize: '11px', textTransform: 'uppercase', fontWeight: 700, letterSpacing: 1 }}>Amount Paid</div>
+                            <div style={{ fontSize: 32, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>
                                 KSh {payment.amount.toLocaleString()}
                             </div>
                         </div>
@@ -185,19 +183,20 @@ export default function ReceiptModal({ payment, onClose }: Props) {
                         <div style={{ textAlign: 'center' }}>
                             <span style={{
                                 display: 'inline-block',
-                                border: '2px solid #10b981',
-                                color: '#10b981',
-                                padding: '4px 20px',
+                                border: '2px solid #22c55e',
+                                color: '#22c55e',
+                                padding: '4px 24px',
                                 borderRadius: 4,
-                                fontWeight: 700,
-                                fontSize: 13,
+                                fontWeight: 800,
+                                fontSize: 14,
                                 transform: 'rotate(-5deg)',
-                                letterSpacing: 1
+                                letterSpacing: 1,
+                                opacity: 0.8
                             }}>✓ PAID</span>
                         </div>
 
-                        <p className="text-center text-muted text-xs" style={{ marginTop: 16 }}>
-                            Thank you for your payment. This is an official receipt.
+                        <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '10px', marginTop: 24 }}>
+                            Thank you for your payment. This is an official digital receipt.
                         </p>
                     </div>
                 </div>
