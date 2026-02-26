@@ -23,7 +23,8 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import BadgeIcon from '@mui/icons-material/Badge';
 import InfoIcon from '@mui/icons-material/Info';
-import GlobalSearch from './GlobalSearch';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import InventoryIcon from '@mui/icons-material/Inventory';
 
 export const PERMISSIONS = [
     { code: 'MANAGE_STUDENTS', label: 'Students Module' },
@@ -50,7 +51,7 @@ const navItems = [
     { path: '/hr', icon: <BadgeIcon />, label: 'HR & Payroll', permission: 'MANAGE_HR' },
     { path: '/approvals', icon: <AssignmentIcon />, label: 'Workflow', permission: 'MANAGE_WORKFLOW' },
     { path: '/fees', icon: <PaymentIcon />, label: 'Finance', permission: 'MANAGE_FINANCE' },
-    { path: '/operations', icon: <LocalShippingIcon />, label: 'Operations', permission: 'MANAGE_ADMIN' },
+    { path: '/operations', icon: <InventoryIcon />, label: 'Operations', permission: 'MANAGE_ADMIN' },
     { path: '/grades', icon: <GradeIcon />, label: 'Grades', permission: 'MANAGE_EXAMS' },
     { path: '/exams', icon: <AssignmentIcon />, label: 'Exams', permission: 'MANAGE_EXAMS' },
     { path: '/results', icon: <AssessmentIcon />, label: 'Results', permission: 'MANAGE_REPORTS' },
@@ -58,6 +59,7 @@ const navItems = [
     { path: '/communication', icon: <EmailIcon />, label: 'Communication', permission: 'MANAGE_COMMUNICATION' },
     { path: '/admin', icon: <SettingsIcon />, label: 'Admin', permission: 'MANAGE_ADMIN' },
     { path: '/manual', icon: <MenuBookIcon />, label: 'System Manual' },
+    { path: '/portal', icon: <OpenInNewIcon />, label: 'Parent Portal (Demo)' },
     { path: '/about', icon: <InfoIcon />, label: 'About Software' },
 ];
 
@@ -149,9 +151,6 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 </div>
 
                 <nav className="sidebar-nav custom-scrollbar">
-                    <div style={{ padding: '0 20px 16px' }}>
-                        <GlobalSearch />
-                    </div>
                     <div className="nav-section-label">Main Menu</div>
                     {filteredNavItems.map((item) => (
                         <Link

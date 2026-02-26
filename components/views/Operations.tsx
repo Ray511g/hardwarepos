@@ -55,7 +55,17 @@ export default function OperationsPage() {
                     <p className="view-subtitle">Manage school assets, logistics, and resource circulation</p>
                 </div>
                 <div className="view-actions">
-                    <button className="btn btn-primary">
+                    <button className="btn btn-primary" onClick={() => {
+                        const name = prompt(`Enter ${activeTab} item name:`);
+                        if (name) {
+                            tryApi(`/api/${activeTab}`, {
+                                method: 'POST',
+                                body: JSON.stringify(activeTab === 'inventory' ? { name, category: 'General', quantity: 10, unitPrice: 0 } :
+                                            activeTab === 'library' ? { title: name, author: 'Unknown', totalCopies: 1 } :
+                                            { plateNumber: name, status: 'Active' })
+                            }).then(() => fetchData());
+                        }
+                    }}>
                         <AddIcon className="mr-2" style={{ fontSize: 18 }} />
                         {activeTab === 'inventory' ? 'Add Item' : activeTab === 'library' ? 'Add Book' : 'Register Vehicle'}
                     </button>
