@@ -56,10 +56,21 @@ const PayrollManager: React.FC<PayrollManagerProps> = (props) => {
     const onUpdateStaff = props.onUpdateStaff || context.updateStaff;
     const onDeleteStaff = props.onDeleteStaff || context.deleteStaff;
 
-    const [activeTab, setActiveTab] = useState<'staff' | 'payroll'>('payroll');
+    const [activeTab, setActiveTab] = useState<'staff' | 'payroll' | 'compliance'>('payroll');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
     const [generateConfig, setGenerateConfig] = useState({ month: new Date().getMonth() + 1, year: new Date().getFullYear() });
+    
+    // Compliance Settings State
+    const [compForm, setCompForm] = useState(context.settings);
+
+    React.useEffect(() => {
+        setCompForm(context.settings);
+    }, [context.settings]);
+
+    const handleSaveCompliance = async () => {
+        await context.updateSettings(compForm);
+    };
 
     const isAdminOrPrincipal = user?.role === 'Super Admin' || user?.role === 'Principal' || user?.role === 'Admin';
 
@@ -124,13 +135,45 @@ const PayrollManager: React.FC<PayrollManagerProps> = (props) => {
                                 <td class="amount">${entry.basicSalary.toLocaleString()}</td>
                                 <td class="amount">0</td>
                             </tr>
-                            ${(entry.allowances || []).map((a: any) => `
+                            ${(entry.totalAllowances > 0) ? `
                                 <tr>
-                                    <td>${a.name}</td>
-                                    <td class="amount">${a.amount.toLocaleString()}</td>
+                                    <td>Total Allowances</td>
+                                    <td class="amount">${entry.totalAllowances.toLocaleString()}</td>
                                     <td class="amount">0</td>
                                 </tr>
-                            `).join('')}
+                            ` : ''}
+
+                            <!-- Statutory Deductions -->
+                            ${entry.tax > 0 ? `
+                                <tr>
+                                    <td>PAYE (Income Tax)</td>
+                                    <td class="amount">0</td>
+                                    <td class="amount">${entry.tax.toLocaleString()}</td>
+                                </tr>
+                            ` : ''}
+                            ${entry.nssf > 0 ? `
+                                <tr>
+                                    <td>NSSF Deduction</td>
+                                    <td class="amount">0</td>
+                                    <td class="amount">${entry.nssf.toLocaleString()}</td>
+                                </tr>
+                            ` : ''}
+                            ${entry.nhif > 0 ? `
+                                <tr>
+                                    <td>${compForm.shifEnabled ? 'SHIF' : 'NHIF'} Contribution</td>
+                                    <td class="amount">0</td>
+                                    <td class="amount">${entry.nhif.toLocaleString()}</td>
+                                </tr>
+                            ` : ''}
+                            ${entry.housingLevy > 0 ? `
+                                <tr>
+                                    <td>Affordable Housing Levy</td>
+                                    <td class="amount">0</td>
+                                    <td class="amount">${entry.housingLevy.toLocaleString()}</td>
+                                </tr>
+                            ` : ''}
+
+                            <!-- Other Custom Deductions -->
                             ${(entry.deductions || []).map((d: any) => `
                                 <tr>
                                     <td>${d.name}</td>
@@ -138,6 +181,7 @@ const PayrollManager: React.FC<PayrollManagerProps> = (props) => {
                                     <td class="amount">${d.amount.toLocaleString()}</td>
                                 </tr>
                             `).join('')}
+
                             <tr class="total-row">
                                 <td>TOTALS</td>
                                 <td class="amount">${(entry.basicSalary + entry.totalAllowances).toLocaleString()}</td>
@@ -191,9 +235,17 @@ const PayrollManager: React.FC<PayrollManagerProps> = (props) => {
                 >
                     <GroupIcon style={{ fontSize: 20 }} /> Staff Salary Configuration
                 </button>
+                <button
+                    className={`tab-btn ${activeTab === 'compliance' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('compliance')}
+                    title="Configure tax brackets and statutory deductions"
+                    aria-label="Compliance Settings Tab"
+                >
+                    <LockIcon style={{ fontSize: 20 }} /> Compliance & Tax Rules
+                </button>
             </div>
 
-            {activeTab === 'payroll' ? (
+            {activeTab === 'payroll' && (
                 <div className="payroll-entries">
                     <div className="finance-toolbar">
                         <div>
@@ -299,7 +351,9 @@ const PayrollManager: React.FC<PayrollManagerProps> = (props) => {
                         </table>
                     </div>
                 </div>
-            ) : (
+            )}
+
+            {activeTab === 'staff' && (
                 <div className="staff-config">
                     <div className="finance-toolbar">
                         <div>
@@ -392,6 +446,173 @@ const PayrollManager: React.FC<PayrollManagerProps> = (props) => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'compliance' && (
+                <div className="compliance-config animate-in">
+                    <div className="finance-toolbar">
+                        <div>
+                            <h2 className="section-title">Compliance & Statutory Rules</h2>
+                            <p className="text-muted text-xs">Configure income tax brackets and social insurance rates</p>
+                        </div>
+                        {isAdminOrPrincipal && (
+                            <button className="btn btn-primary" onClick={handleSaveCompliance}>
+                                <SaveIcon className="mr-2" /> Save Compliance Rules
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="admin-grid-2">
+                        <div className="admin-section">
+                            <h3>Governing Rates</h3>
+                            <div className="card">
+                                <div className="settings-form">
+                                    <div className="grid-2">
+                                        <div className="form-group">
+                                            <label>NSSF Contribution Rate</label>
+                                            <div className="flex-row">
+                                                <input type="number" className="form-control" value={(compForm.nssfRate || 0.06) * 100} onChange={e => setCompForm({...compForm, nssfRate: parseFloat(e.target.value)/100})} />
+                                                <span className="ml-2">%</span>
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>NSSF Max Cap (KES)</label>
+                                            <input type="number" className="form-control" value={compForm.nssfMax || 0} onChange={e => setCompForm({...compForm, nssfMax: parseFloat(e.target.value)})} />
+                                        </div>
+                                    </div>
+                                    <div className="grid-2 mt-15">
+                                        <div className="form-group">
+                                            <label>Affordable Housing Levy</label>
+                                            <div className="flex-row">
+                                                <input type="number" className="form-control" value={(compForm.housingLevyRate || 0.015) * 100} onChange={e => setCompForm({...compForm, housingLevyRate: parseFloat(e.target.value)/100})} />
+                                                <span className="ml-2">%</span>
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Monthly Personal Relief</label>
+                                            <input type="number" className="form-control" value={compForm.personalRelief || 0} onChange={e => setCompForm({...compForm, personalRelief: parseFloat(e.target.value)})} />
+                                        </div>
+                                    </div>
+                                    <div className="form-group mt-15">
+                                        <label className="flex-row pointer">
+                                            <input type="checkbox" checked={compForm.shifEnabled} onChange={e => setCompForm({...compForm, shifEnabled: e.target.checked})} />
+                                            <span className="ml-2">Apply Flat SHIF Rate (2.75% of Gross)</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {!compForm.shifEnabled && (
+                                <>
+                                    <h3 className="mt-20">NHIF Brackets (Legacy)</h3>
+                                    <div className="card">
+                                        <div className="table-container p-0">
+                                            <table className="data-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>From (KES)</th>
+                                                        <th>To (KES)</th>
+                                                        <th>Amount (KES)</th>
+                                                        <th>Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {(compForm.nhifConfig || []).map((b: any, idx: number) => (
+                                                        <tr key={idx}>
+                                                            <td><input type="number" className="form-control form-control-sm" value={b.min || 0} onChange={e => {
+                                                                const newB = [...compForm.nhifConfig];
+                                                                newB[idx].min = parseFloat(e.target.value);
+                                                                setCompForm({...compForm, nhifConfig: newB});
+                                                            }} /></td>
+                                                            <td><input type="number" className="form-control form-control-sm" value={b.max || 0} onChange={e => {
+                                                                const newB = [...compForm.nhifConfig];
+                                                                newB[idx].max = parseFloat(e.target.value);
+                                                                setCompForm({...compForm, nhifConfig: newB});
+                                                            }} /></td>
+                                                            <td><input type="number" className="form-control form-control-sm" value={b.amount || 0} onChange={e => {
+                                                                const newB = [...compForm.nhifConfig];
+                                                                newB[idx].amount = parseFloat(e.target.value);
+                                                                setCompForm({...compForm, nhifConfig: newB});
+                                                            }} /></td>
+                                                            <td>
+                                                                <button className="action-btn text-red" onClick={() => {
+                                                                    const newB = compForm.nhifConfig.filter((_: any, i: number) => i !== idx);
+                                                                    setCompForm({...compForm, nhifConfig: newB});
+                                                                }}>Delete</button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    <tr>
+                                                        <td colSpan={4}>
+                                                            <button className="btn btn-outline-sm w-full" onClick={() => {
+                                                                const newB = [...(compForm.nhifConfig || []), { min: 0, max: -1, amount: 0 }];
+                                                                setCompForm({...compForm, nhifConfig: newB});
+                                                            }}>+ Add NHIF Bracket</button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div className="admin-section">
+                            <h3>PAYE Income Tax Brackets</h3>
+                            <div className="card">
+                                <div className="table-container p-0">
+                                    <table className="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>From (KES)</th>
+                                                <th>To (KES)</th>
+                                                <th>Tax Rate (%)</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(compForm.payeConfig || []).map((b: any, idx: number) => (
+                                                <tr key={idx}>
+                                                    <td><input type="number" className="form-control form-control-sm" value={b.min || 0} onChange={e => {
+                                                        const newB = [...compForm.payeConfig];
+                                                        newB[idx].min = parseFloat(e.target.value);
+                                                        setCompForm({...compForm, payeConfig: newB});
+                                                    }} /></td>
+                                                    <td><input type="number" className="form-control form-control-sm" value={b.max || 0} onChange={e => {
+                                                        const newB = [...compForm.payeConfig];
+                                                        newB[idx].max = parseFloat(e.target.value);
+                                                        setCompForm({...compForm, payeConfig: newB});
+                                                    }} /></td>
+                                                    <td><input type="number" className="form-control form-control-sm" value={(b.rate || 0) * 100} onChange={e => {
+                                                        const newB = [...compForm.payeConfig];
+                                                        newB[idx].rate = parseFloat(e.target.value) / 100;
+                                                        setCompForm({...compForm, payeConfig: newB});
+                                                    }} /></td>
+                                                    <td>
+                                                        <button className="action-btn text-red" onClick={() => {
+                                                            const newB = compForm.payeConfig.filter((_: any, i: number) => i !== idx);
+                                                            setCompForm({...compForm, payeConfig: newB});
+                                                        }}>Delete</button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            <tr>
+                                                <td colSpan={4}>
+                                                    <button className="btn btn-outline-sm w-full" onClick={() => {
+                                                        const newB = [...(compForm.payeConfig || []), { min: 0, max: -1, rate: 0.1 }];
+                                                        setCompForm({...compForm, payeConfig: newB});
+                                                    }}>+ Add Tax Bracket</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p className="text-muted text-xs p-10">Use -1 for 'To' amount to represent 'Infinity' or 'And Above'.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}

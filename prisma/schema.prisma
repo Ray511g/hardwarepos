@@ -34,32 +34,32 @@ model Role {
 }
 
 model Student {
-  id               String            @id @default(cuid())
-  admissionNumber  String            @unique
-  firstName        String
-  lastName         String
-  gender           String
-  grade            String
-  dateOfBirth      String?
-  parentName       String
-  parentPhone      String
-  parentEmail      String?
-  address          String?
+  id                String            @id @default(cuid())
+  admissionNumber   String            @unique
+  firstName         String
+  lastName          String
+  gender            String
+  grade             String
+  dateOfBirth       String?
+  parentName        String
+  parentPhone       String
+  parentEmail       String?
+  address           String?
+  status            String            @default("Active")
+  enrollmentDate    String
+  totalFees         Float             @default(0)
+  paidFees          Float             @default(0)
+  feeBalance        Float             @default(0)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  allergies         String?
+  bloodGroup        String?
+  emergencyContact  String?
   medicalConditions String?
-  bloodGroup       String?
-  emergencyContact String?
-  allergies        String?
-  status           String            @default("Active")
-  enrollmentDate   String
-  totalFees        Float             @default(0)
-  paidFees         Float             @default(0)
-  feeBalance       Float             @default(0)
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  assessmentScores AssessmentScore[]
-  attendance       Attendance[]
-  payments         Payment[]
-  results          Result[]
+  assessmentScores  AssessmentScore[]
+  attendance        Attendance[]
+  payments          Payment[]
+  results           Result[]
 }
 
 model Teacher {
@@ -157,13 +157,14 @@ model Settings {
   sssEnabled                    Boolean    @default(false)
   autoTimetableEnabled          Boolean    @default(false)
   manualTimetableBuilderEnabled Boolean    @default(true)
-  // Payroll & Statutory Settings
-  nssfRate                      Float      @default(0.06)
-  nssfMax                       Float      @default(2160)
-  nhifConfig                    Json? // To store tiered brackets
-  personalRelief                Float      @default(2400)
-  housingLevyRate               Float      @default(0.015)
   updatedAt                     DateTime   @updatedAt
+  housingLevyRate               Float      @default(0.015)
+  nhifConfig                    Json? // To store tiered brackets
+  nssfMax                       Float      @default(2160)
+  nssfRate                      Float      @default(0.06)
+  payeConfig                    Json? // To store tiered tax brackets
+  shifEnabled                   Boolean    @default(true)
+  personalRelief                Float      @default(2400)
   timeSlots                     TimeSlot[]
 }
 

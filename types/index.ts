@@ -188,6 +188,8 @@ export interface SchoolSettings {
     housingLevyRate: number;
     personalRelief: number;
     nhifConfig?: any;
+    payeConfig?: any;
+    shifEnabled?: boolean;
 }
 
 export type GradeLevel =

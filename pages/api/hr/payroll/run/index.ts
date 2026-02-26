@@ -36,7 +36,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     nssfRate: settings.nssfRate,
                     nssfMax: settings.nssfMax,
                     personalRelief: settings.personalRelief,
-                    housingLevyRate: settings.housingLevyRate
+                    housingLevyRate: settings.housingLevyRate,
+                    payeConfig: settings.payeConfig,
+                    nhifConfig: settings.nhifConfig,
+                    shifEnabled: settings.shifEnabled
                 } : undefined
             });
 

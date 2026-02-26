@@ -93,7 +93,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         nssfRate: settings.nssfRate,
                         nssfMax: settings.nssfMax,
                         personalRelief: settings.personalRelief,
-                        housingLevyRate: settings.housingLevyRate
+                        housingLevyRate: settings.housingLevyRate,
+                        payeConfig: settings.payeConfig,
+                        nhifConfig: settings.nhifConfig,
+                        shifEnabled: settings.shifEnabled
                     } : undefined
                 });
 
@@ -232,13 +235,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (status === 'Locked') {
 
                 // Post to Ledger once locked
+                // We use Gross Pay for the expense, and credit net pay to bank, and other deductions to liabilities
                 const expenseAccountCode = (entry.staff.type === 'BOM_TEACHER' || entry.staff.type === 'TEACHER') ? '5001' : '5002';
+                const grossPay = entry.basicSalary + entry.totalAllowances;
 
                 await postTransaction(
                     `PAY-${entry.id}`,
                     [
-                        { accountCode: expenseAccountCode, description: `Payroll: ${entry.staff.firstName} ${entry.staff.lastName} (${entry.month}/${entry.year})`, debit: entry.netPay, credit: 0 },
-                        { accountCode: '1002', description: `Salary payment to ${entry.staff.lastName}`, debit: 0, credit: entry.netPay }
+                        // Debit the full Expense (Gross Pay)
+                        { accountCode: expenseAccountCode, description: `Gross Payroll: ${entry.staff.firstName} ${entry.staff.lastName} (${entry.month}/${entry.year})`, debit: grossPay, credit: 0 },
+                        
+                        // Credit Net Pay to Bank
+                        { accountCode: '1002', description: `Net Salary payment: ${entry.staff.lastName}`, debit: 0, credit: entry.netPay },
+                        
+                        // Credit Deductions to Liabilities
+                        ...(entry.tax > 0 ? [{ accountCode: '2001', description: `PAYE Tax: ${entry.staff.lastName}`, debit: 0, credit: entry.tax }] : []),
+                        ...(entry.nhif > 0 ? [{ accountCode: '2002', description: `NHIF/SHIF: ${entry.staff.lastName}`, debit: 0, credit: entry.nhif }] : []),
+                        ...(entry.nssf > 0 ? [{ accountCode: '2003', description: `NSSF: ${entry.staff.lastName}`, debit: 0, credit: entry.nssf }] : []),
+                        ...(entry.housingLevy > 0 ? [{ accountCode: '2004', description: `Housing Levy: ${entry.staff.lastName}`, debit: 0, credit: entry.housingLevy }] : []),
+                        
+                        // Handle other manual deductions
+                        ...((entry.totalDeductions - entry.tax - entry.nhif - entry.nssf - entry.housingLevy) > 0 ? [
+                            { 
+                                accountCode: '2005', 
+                                description: `Misc Savings/Other Deductions: ${entry.staff.lastName}`, 
+                                debit: 0, 
+                                credit: (entry.totalDeductions - entry.tax - entry.nhif - entry.nssf - entry.housingLevy) 
+                            }
+                        ] : [])
                     ],
                     entry.id
                 );
