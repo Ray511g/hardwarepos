@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from '../../lib/prisma';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'GET') {
         const buses = await prisma.bus.findMany({
-            include: { routes: true },
-            orderBy: { plateNumber: 'asc' }
+            include: { routes: true }
         });
         return res.status(200).json(buses);
     }
@@ -15,23 +16,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             data: req.body
         });
         return res.status(201).json(bus);
-    }
-
-    if (req.method === 'PUT') {
-        const { id, ...data } = req.body;
-        const bus = await prisma.bus.update({
-            where: { id: String(id) },
-            data
-        });
-        return res.status(200).json(bus);
-    }
-
-    if (req.method === 'DELETE') {
-        const { id } = req.query;
-        await prisma.bus.delete({
-            where: { id: String(id) }
-        });
-        return res.status(204).end();
     }
 
     res.status(405).end();
