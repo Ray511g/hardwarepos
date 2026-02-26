@@ -96,9 +96,6 @@ export default function Dashboard() {
                         Welcome back, <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{user?.name || 'Administrator'}</span>
                     </p>
                 </div>
-                <button className="btn-premium animate-up" onClick={handleExportSummary} disabled={isExporting}>
-                    <FileDownloadIcon /> {isExporting ? 'Generating...' : 'Executive Report'}
-                </button>
             </header>
 
             <div className="premium-stats-grid animate-up">
