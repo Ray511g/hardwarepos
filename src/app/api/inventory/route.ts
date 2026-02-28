@@ -8,8 +8,9 @@ export async function GET() {
     const items = await prisma.product.findMany({
       orderBy: { category: 'asc' }
     });
-    return NextResponse.json(items);
+    return NextResponse.json(Array.isArray(items) ? items : []);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch inventory" }, { status: 500 });
+    console.error("Inventory API Error:", error);
+    return NextResponse.json([]); // Return empty array to prevent frontend crash
   }
 }

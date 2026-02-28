@@ -91,7 +91,7 @@ export default function POSPage() {
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>Loading inventory...</div>
         ) : (
           <div className="grid grid-cols-3" style={{ overflowY: 'auto', alignContent: 'start' }}>
-            {products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase())).map(product => (
+            {(Array.isArray(products) ? products : []).filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.sku.toLowerCase().includes(search.toLowerCase())).map(product => (
               <div key={product.id} className="card" onClick={() => addToCart(product)} style={{ cursor: 'pointer', textAlign: 'center', opacity: product.stockLevel <= 0 ? 0.5 : 1 }}>
                  <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '8px', marginBottom: '1rem' }}>
                     <div style={{ fontSize: '2rem' }}>{product.category === 'Cement' ? '🧱' : product.category === 'Steel' ? '🏗️' : '📦'}</div>
