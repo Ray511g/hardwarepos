@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  sku             String   @unique
+  name            String
+  description     String?
+  category        String
+  unit            String   // KG, Bag, Piece, Meter
+  unitPrice       Float
+  costPrice       Float
+  stockLevel      Float    @default(0)
+  minStockLevel   Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  saleItems       SaleItem[]
+}
+
+model Sale {
+  id              String   @id @default(cuid())
+  invoiceNumber   String   @unique
+  total           Float
+  taxAmount       Float    // VAT 16%
+  discount        Float    @default(0)
+  paymentMethod   String   // CASH, MPESA, CREDIT
+  mpesaCode       String?
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  status          String   // COMPLETED, PENDING_ETIMS, CANCELLED
+  etimsSigned     Boolean  @default(false)
+  etimsSignature  String?
+  createdAt       DateTime @default(now())
+  saleItems       SaleItem[]
+}
+
+model SaleItem {
+  id              String   @id @default(cuid())
+  saleId          String
+  sale            Sale     @relation(fields: [saleId], references: [id])
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  quantity        Float
+  unitPrice       Float
+  subtotal        Float
+}
+
+model Customer {
+  id              String   @id @default(cuid())
+  name            String
+  phone           String?
+  email           String?
+  debtBalance     Float    @default(0)
+  sales           Sale[]
+  createdAt       DateTime @default(now())
+}
+
+model Supplier {
+  id              String   @id @default(cuid())
+  name            String
+  contactPerson   String?
+  phone           String?
+  email           String?
+  createdAt       DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  name      String
+  role      String   @default("CASHIER") // ADMIN, CASHIER, MANAGER
+  createdAt DateTime @default(now())
+}
+
+model BusinessSettings {
+  id            String   @id @default("singleton")
+  name          String   @default("Hardware Pro")
+  phone         String?
+  email         String?
+  address       String?
+  pinNumber     String?  // KRA PIN
+  paybillNumber String?
+  tillNumber    String?
+  updatedAt     DateTime @updatedAt
+}
+
