@@ -37,14 +37,14 @@ export default function Dashboard() {
         <div className="card">
           <div style={{ opacity: 0.7, fontSize: '0.875rem', marginBottom: '0.5rem' }}>Today's Sales</div>
           <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'var(--primary)' }}>
-            Kes {data.todaySales.toLocaleString()}
+            Kes {(data?.todaySales || 0).toLocaleString()}
           </div>
           <div style={{ fontSize: '0.75rem', color: 'var(--success)', marginTop: '0.5rem' }}>Live from Database</div>
         </div>
         <div className="card" style={{ borderLeft: '4px solid var(--error)' }}>
           <div style={{ opacity: 0.7, fontSize: '0.875rem', marginBottom: '0.5rem' }}>Stock Alerts</div>
           <div style={{ fontSize: '1.75rem', fontWeight: 'bold', color: 'var(--error)' }}>
-            {data.lowStockCount} Items
+            {data?.lowStockCount || 0} Items
           </div>
           <div style={{ fontSize: '0.75rem', opacity: 0.7, marginTop: '0.5rem' }}>Below critical levels</div>
         </div>
@@ -55,8 +55,10 @@ export default function Dashboard() {
         </div>
         <div className="card">
           <div style={{ opacity: 0.7, fontSize: '0.875rem', marginBottom: '0.5rem' }}>System Status</div>
-          <div style={{ fontSize: '1.75rem', fontWeight: 'bold' }}>Online</div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--primary)', marginTop: '0.5rem' }}>Database Connected</div>
+          <div style={{ fontSize: '1.75rem', fontWeight: 'bold' }}>{data?.error ? "Error" : "Online"}</div>
+          <div style={{ fontSize: '0.75rem', color: data?.error ? 'var(--error)' : 'var(--primary)', marginTop: '0.5rem' }}>
+            {data?.error || "Database Connected"}
+          </div>
         </div>
       </div>
 
@@ -80,7 +82,7 @@ export default function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {data.recentSales.map((sale: any, i: number) => (
+              {(data?.recentSales || []).map((sale: any, i: number) => (
                 <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', fontSize: '0.95rem' }}>
                   <td style={{ padding: '1rem 0', fontWeight: '500' }}>{sale.invoiceNumber}</td>
                   <td style={{ padding: '1rem 0' }}>{sale.customer?.name || "Walk-in"}</td>
@@ -89,7 +91,7 @@ export default function Dashboard() {
                       {sale.paymentMethod}
                      </span>
                   </td>
-                  <td style={{ padding: '1rem 0', fontWeight: 'bold' }}>Kes {sale.total.toLocaleString()}</td>
+                  <td style={{ padding: '1rem 0', fontWeight: 'bold' }}>Kes {(sale.total || 0).toLocaleString()}</td>
                   <td style={{ padding: '1rem 0' }}>
                     <span style={{ fontSize: '0.75rem', opacity: 0.8, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                       <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: sale.etimsSigned ? 'var(--success)' : 'var(--warning)' }}></div>
@@ -98,7 +100,7 @@ export default function Dashboard() {
                   </td>
                 </tr>
               ))}
-              {data.recentSales.length === 0 && (
+              {(!data?.recentSales || data.recentSales.length === 0) && (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>No sales recorded yet.</td>
                 </tr>
