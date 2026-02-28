@@ -1,6 +1,10 @@
 "use client";
 
-export default function Receipt({ sale }: { sale: any }) {
+export default function Receipt({ sale, business }: { sale: any, business?: any }) {
+  const shopName = business?.name || "KENYA HARDWARE PRO";
+  const shopPin = business?.pinNumber || "P051234567X";
+  const shopPhone = business?.phone || "+254 700 000 000";
+
   return (
     <div style={{ 
       width: '300px', 
@@ -13,10 +17,10 @@ export default function Receipt({ sale }: { sale: any }) {
       boxShadow: '0 0 10px rgba(0,0,0,0.1)'
     }}>
       <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-        <h2 style={{ margin: 0 }}>HARDWARE PRO</h2>
-        <div>Main Street, Nairobi, Kenya</div>
-        <div>Tel: +254 700 000 000</div>
-        <div>PIN: P051234567X</div>
+        <h2 style={{ margin: 0 }}>{shopName}</h2>
+        <div>{business?.address || "Main Street, Nairobi, Kenya"}</div>
+        <div>Tel: {shopPhone}</div>
+        <div>PIN: {shopPin}</div>
         <hr style={{ border: 'none', borderTop: '1px dashed #000', margin: '10px 0' }} />
         <div style={{ fontWeight: 'bold' }}>TAX INVOICE</div>
       </div>
