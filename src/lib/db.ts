@@ -5,13 +5,15 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // PostgreSQL Serverless Connection Pool Management
+const dbUrl = process.env.DATABASE_URL || "postgresql://postgres:dummy@localhost:5432/dummy?schema=public";
+
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
     datasources: {
        db: {
-          url: process.env.DATABASE_URL
+          url: dbUrl
        }
     }
   })
