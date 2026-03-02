@@ -3,26 +3,28 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-let demoCustomers = [
-  { id: '1', name: 'Nairobi Construction Co.', phone: '0711122233', debtBalance: 0, creditLimit: 250000 },
-  { id: '2', name: 'James Otieno (Contractor)', phone: '0722233344', debtBalance: 4500, creditLimit: 50000 },
-  { id: '3', name: 'Government Housing Project', phone: '0733344455', debtBalance: 125000, creditLimit: 1000000 }
-];
+const globalStore = global as any;
+if (!globalStore.simCustomers) {
+  globalStore.simCustomers = [
+    { id: '1', name: 'Nairobi Construction Co.', phone: '0711122233', debtBalance: 0, creditLimit: 250000 },
+    { id: '2', name: 'James Otieno (Engineer)', phone: '0722233344', debtBalance: 4500, creditLimit: 50000 },
+    { id: '3', name: 'Government Housing Project', phone: '0733344455', debtBalance: 125000, creditLimit: 1000000 }
+  ];
+}
 
 export async function GET() {
-  if (!dbConnected) return NextResponse.json(demoCustomers);
+  if (!dbConnected) return NextResponse.json(globalStore.simCustomers);
   try {
     const customers = await prisma.customer.findMany({
       orderBy: { name: 'asc' },
-      include: { sales: { take: 5, orderBy: { createdAt: 'desc' } } }
     });
     
-    if (!customers || customers.length === 0) return NextResponse.json(demoCustomers);
+    if (!customers || customers.length === 0) return NextResponse.json(globalStore.simCustomers);
     
     return NextResponse.json(customers);
   } catch (error) {
     console.error("Postgres Customer API Failure:", error);
-    return NextResponse.json(demoCustomers);
+    return NextResponse.json(globalStore.simCustomers);
   }
 }
 
@@ -31,7 +33,7 @@ export async function POST(req: Request) {
       const body = await req.json();
       if (!dbConnected) {
          const newC = { ...body, id: `sim-cust-${Date.now()}`, debtBalance: 0 };
-         demoCustomers.push(newC);
+         globalStore.simCustomers.push(newC);
          return NextResponse.json(newC);
       }
       

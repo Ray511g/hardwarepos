@@ -3,9 +3,12 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const DEMO_AUDITS = [
-  { id: '1', product: { sku: 'CEM-BAM-50', name: 'Bamburi Cement' }, systemStock: 250, physicalStock: 248, variance: -2, reason: 'Manual Reconciliation', auditDate: new Date().toISOString() }
-];
+const globalStore = global as any;
+if (!globalStore.simAudits) {
+  globalStore.simAudits = [
+    { id: '1', product: { sku: 'CEM-BAM-50', name: 'Bamburi Cement' }, systemStock: 250, physicalStock: 248, variance: -2, reason: 'Manual Reconciliation', auditDate: new Date().toISOString() }
+  ];
+}
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +16,9 @@ export async function POST(req: Request) {
     const { productId, physicalStock, reason } = body;
 
     if (!dbConnected) {
-       return NextResponse.json({ success: true, audit: { ...body, id: `sim-${Date.now()}`, auditDate: new Date().toISOString() } });
+       const newAudit = { ...body, id: `sim-${Date.now()}`, auditDate: new Date().toISOString() };
+       globalStore.simAudits.push(newAudit);
+       return NextResponse.json({ success: true, audit: newAudit });
     }
 
     const result = await prisma.$transaction(async (tx) => {
@@ -45,19 +50,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, audit: result });
   } catch (error) {
     console.error("Audit Error:", error);
-    return NextResponse.json({ success: true, simulated: true });
+    return NextResponse.json({ success: false, simulated: true });
   }
 }
 
 export async function GET() {
-   if (!dbConnected) return NextResponse.json(DEMO_AUDITS);
+   if (!dbConnected) return NextResponse.json(globalStore.simAudits);
    try {
       const audits = await prisma.stockAudit.findMany({
          include: { product: true },
          orderBy: { auditDate: 'desc' }
       });
-      return NextResponse.json(audits || DEMO_AUDITS);
+      return NextResponse.json(audits.length > 0 ? audits : globalStore.simAudits);
    } catch (error) {
-      return NextResponse.json(DEMO_AUDITS);
+      return NextResponse.json(globalStore.simAudits);
    }
 }

@@ -3,20 +3,23 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-let demoUsers = [
-  { id: '1', username: 'admin', name: 'System Admin', role: 'ADMIN' },
-  { id: '2', username: 'cashier1', name: 'Main Cashier', role: 'CASHIER' }
-];
+const globalStore = global as any;
+if (!globalStore.simUsers) {
+  globalStore.simUsers = [
+    { id: '1', username: 'admin', name: 'System Admin', role: 'ADMIN' },
+    { id: '2', username: 'cashier1', name: 'Main Cashier', role: 'CASHIER' }
+  ];
+}
 
 export async function GET() {
-  if (!dbConnected) return NextResponse.json(demoUsers);
+  if (!dbConnected) return NextResponse.json(globalStore.simUsers);
   try {
     const users = await prisma.user.findMany({
       orderBy: { name: 'asc' }
     });
-    return NextResponse.json(users.length > 0 ? users : demoUsers);
+    return NextResponse.json(users.length > 0 ? users : globalStore.simUsers);
   } catch (error) {
-    return NextResponse.json(demoUsers);
+    return NextResponse.json(globalStore.simUsers);
   }
 }
 
@@ -25,7 +28,7 @@ export async function POST(req: Request) {
     const body = await req.json();
     if (!dbConnected) {
        const newU = { ...body, id: `sim-user-${Date.now()}` };
-       demoUsers.push(newU);
+       globalStore.simUsers.push(newU);
        return NextResponse.json(newU);
     }
     

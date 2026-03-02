@@ -3,10 +3,13 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-let demoExpenses = [
-  { id: '1', category: 'RENT', description: 'Store Rent - Nairobi HQ', amount: 45000, date: new Date().toISOString() },
-  { id: '2', category: 'ELECTRICITY', description: 'Monthly Tokens', amount: 8500, date: new Date().toISOString() }
-];
+const globalStore = global as any;
+if (!globalStore.simExpenses) {
+  globalStore.simExpenses = [
+    { id: '1', category: 'RENT', description: 'Store Rent - Nairobi HQ', amount: 45000, date: new Date().toISOString() },
+    { id: '2', category: 'ELECTRICITY', description: 'Monthly Tokens', amount: 8500, date: new Date().toISOString() }
+  ];
+}
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +18,7 @@ export async function POST(req: Request) {
 
     if (!dbConnected) {
        const newE = { ...body, id: `sim-exp-${Date.now()}`, date: date || new Date().toISOString() };
-       demoExpenses.push(newE);
+       globalStore.simExpenses.push(newE);
        return NextResponse.json({ success: true, expense: newE });
     }
 
@@ -36,13 +39,13 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-   if (!dbConnected) return NextResponse.json(demoExpenses);
+   if (!dbConnected) return NextResponse.json(globalStore.simExpenses);
    try {
       const expenses = await prisma.expense.findMany({
          orderBy: { date: 'desc' }
       });
-      return NextResponse.json(expenses.length > 0 ? expenses : demoExpenses);
+      return NextResponse.json(expenses.length > 0 ? expenses : globalStore.simExpenses);
    } catch (error) {
-      return NextResponse.json(demoExpenses);
+      return NextResponse.json(globalStore.simExpenses);
    }
 }

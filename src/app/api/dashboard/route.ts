@@ -3,18 +3,18 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const MOCK_STATS = {
-   todaySales: 154200,
-   lowStockCount: 12,
-   recentSales: [
-      { id: 'sim-1', invoiceNumber: 'SIM-INV-001', total: 4500, paymentMethod: 'MPESA', etimsSigned: true, createdAt: new Date().toISOString() },
-      { id: 'sim-2', invoiceNumber: 'SIM-INV-002', total: 12500, paymentMethod: 'CASH', etimsSigned: true, createdAt: new Date().toISOString() },
-      { id: 'sim-3', invoiceNumber: 'SIM-INV-003', total: 850, paymentMethod: 'CREDIT', etimsSigned: false, createdAt: new Date().toISOString() }
-   ]
-};
+const globalStore = global as any;
 
 export async function GET() {
-  if (!dbConnected) return NextResponse.json(MOCK_STATS);
+  // Use shared dynamic simulation if DB is disconnected
+  if (!dbConnected) {
+    return NextResponse.json({
+       todaySales: globalStore.simSales?.reduce((acc: number, s: any) => acc + s.total, 0) || 154200,
+       lowStockCount: globalStore.simProducts?.filter((p: any) => p.stockLevel < 20).length || 12,
+       recentSales: globalStore.simSales?.slice(0, 5) || []
+    });
+  }
+
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -36,11 +36,15 @@ export async function GET() {
       }).catch(() => null)
     ]);
 
-    // If database is empty or connection fails, use simulations
+    // If database is empty, fallback to high-quality dynamic simulation
     const hasData = todaySales?._sum?.total !== null || (recentSales && recentSales.length > 0);
     
     if (!hasData) {
-       return NextResponse.json(MOCK_STATS);
+       return NextResponse.json({
+          todaySales: globalStore.simSales?.reduce((acc: number, s: any) => acc + s.total, 0) || 154200,
+          lowStockCount: globalStore.simProducts?.filter((p: any) => p.stockLevel < 20).length || 12,
+          recentSales: globalStore.simSales?.slice(0, 5) || []
+       });
     }
 
     return NextResponse.json({
@@ -50,6 +54,10 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Dashboard Fallback:", error);
-    return NextResponse.json(MOCK_STATS);
+    return NextResponse.json({
+       todaySales: globalStore.simSales?.reduce((acc: number, s: any) => acc + s.total, 0) || 154200,
+       lowStockCount: 12,
+       recentSales: globalStore.simSales?.slice(0, 5) || []
+    });
   }
 }

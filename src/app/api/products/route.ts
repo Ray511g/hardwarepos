@@ -3,26 +3,31 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-let demoProducts = [
-  { id: '1', sku: 'CEM-BAM-50', name: 'Bamburi Tembo Cement (50kg)', category: 'CEMENT', unit: 'Bag', unitPrice: 950, costPrice: 880, stockLevel: 250, minStockLevel: 50, bulkThreshold: 50, bulkDiscountPrice: 920 },
-  { id: '2', sku: 'STL-D12-6M', name: 'D12 Deformed Steel Bar (6m)', category: 'STEEL', unit: 'Pc', unitPrice: 1250, costPrice: 1100, stockLevel: 120, minStockLevel: 20, bulkThreshold: 20, bulkDiscountPrice: 1210 },
-  { id: '3', sku: 'ROF-BOX-3M', name: 'Box Profile Sheet - Blue (3m)', category: 'ROOFING', unit: 'Pc', unitPrice: 2400, costPrice: 2100, stockLevel: 45, minStockLevel: 10, bulkThreshold: 10, bulkDiscountPrice: 2320 }
-];
+// Global singleton for session-persistent simulation (survives instance warm-starts)
+const globalStore = global as any;
+if (!globalStore.simProducts) {
+  globalStore.simProducts = [
+    { id: '1', sku: 'CEM-BAM-50', name: 'Bamburi Tembo Cement (50kg)', category: 'CEMENT', unit: 'Bag', unitPrice: 950, costPrice: 880, stockLevel: 250, minStockLevel: 50, bulkThreshold: 50, bulkDiscountPrice: 920 },
+    { id: '2', sku: 'STL-D12-6M', name: 'D12 Deformed Steel Bar (6m)', category: 'STEEL', unit: 'Pc', unitPrice: 1250, costPrice: 1100, stockLevel: 120, minStockLevel: 20, bulkThreshold: 20, bulkDiscountPrice: 1210 },
+    { id: '3', sku: 'ROF-BOX-3M', name: 'Box Profile Sheet - Blue (3m)', category: 'ROOFING', unit: 'Pc', unitPrice: 2400, costPrice: 2100, stockLevel: 45, minStockLevel: 10, bulkThreshold: 10, bulkDiscountPrice: 2320 }
+  ];
+}
 
 export async function GET() {
-  if (!dbConnected) return NextResponse.json(demoProducts);
+  if (!dbConnected) return NextResponse.json(globalStore.simProducts);
 
   try {
     const products = await prisma.product.findMany({
       orderBy: { name: 'asc' }
     });
     
-    if (!products || products.length === 0) return NextResponse.json(demoProducts);
+    // Fallback to high-quality demo if DB is empty
+    if (!products || products.length === 0) return NextResponse.json(globalStore.simProducts);
     
     return NextResponse.json(products);
   } catch (error) {
     console.error("Postgres Fetch Failure:", error);
-    return NextResponse.json(demoProducts);
+    return NextResponse.json(globalStore.simProducts);
   }
 }
 
@@ -34,11 +39,12 @@ export async function POST(req: Request) {
          const newP = { 
             ...body, 
             id: `sim-sku-${Date.now()}`, 
-            stockLevel: body.stockLevel || 0,
+            stockLevel: parseFloat(body.stockLevel) || 0,
             unitPrice: parseFloat(body.unitPrice),
-            costPrice: parseFloat(body.costPrice)
+            costPrice: parseFloat(body.costPrice),
+            minStockLevel: parseFloat(body.minStockLevel) || 0
          };
-         demoProducts.push(newP);
+         globalStore.simProducts.push(newP);
          return NextResponse.json(newP);
       }
       

@@ -3,13 +3,21 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+const globalStore = global as any;
+if (!globalStore.simSales) {
+  globalStore.simSales = [
+    { id: 'sim-1', invoiceNumber: 'SIM-INV-001', total: 4500, paymentMethod: 'MPESA', etimsSigned: true, createdAt: new Date().toISOString() },
+    { id: 'sim-2', invoiceNumber: 'SIM-INV-002', total: 12500, paymentMethod: 'CASH', etimsSigned: true, createdAt: new Date().toISOString() },
+    { id: 'sim-3', invoiceNumber: 'SIM-INV-003', total: 850, paymentMethod: 'CREDIT', etimsSigned: true, createdAt: new Date().toISOString() }
+  ];
+}
+
 export async function POST(req: Request) {
   let body: any = {};
   try {
     body = await req.json();
     const { cart, paymentMethod, total, customerId, mpesaCode } = body;
 
-    // Direct Fallback if DB is disconnected (Industrial speed demo)
     if (!dbConnected) {
        const simulatedSale = {
           id: `sim-${Date.now()}`,
@@ -20,11 +28,11 @@ export async function POST(req: Request) {
           etimsSignature: `KRA-SIM-${Math.random().toString(36).substring(7).toUpperCase()}`,
           createdAt: new Date().toISOString()
        };
+       globalStore.simSales.unshift(simulatedSale); // Add to dynamic list
        return NextResponse.json({ success: true, sale: simulatedSale });
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Create Transaction (Production Logic)
       const sale = await tx.sale.create({
         data: {
           invoiceNumber: `INV-${Date.now()}`,
@@ -48,7 +56,6 @@ export async function POST(req: Request) {
         }
       });
 
-      // 2. Decrement Stock
       for (const item of cart) {
         await tx.product.update({
           where: { id: item.id },
@@ -56,7 +63,6 @@ export async function POST(req: Request) {
         });
       }
 
-      // 3. Customer Debt Logic
       if (paymentMethod === "CREDIT" && customerId) {
         await tx.customer.update({
           where: { id: customerId },
@@ -70,15 +76,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, sale: result });
   } catch (error) {
     console.error("Sales Error:", error);
-    // Reliable fallback for high-uptime demo
-    const fallbackSale = {
-       id: `err-sim-${Date.now()}`,
-       invoiceNumber: `SIM-ERR-${Date.now()}`,
-       total: body?.total || 0,
-       paymentMethod: body?.paymentMethod || 'CASH',
-       etimsSigned: true,
-       createdAt: new Date().toISOString()
-    };
-    return NextResponse.json({ success: true, sale: fallbackSale, simulated: true });
+    return NextResponse.json({ success: false, error: "Transaction processing failed" }, { status: 500 });
   }
+}
+
+export async function GET() {
+   if (!dbConnected) return NextResponse.json(globalStore.simSales);
+   try {
+      const sales = await prisma.sale.findMany({
+         take: 50,
+         orderBy: { createdAt: 'desc' },
+         include: { customer: true }
+      });
+      return NextResponse.json(sales.length > 0 ? sales : globalStore.simSales);
+   } catch (error) {
+      return NextResponse.json(globalStore.simSales);
+   }
 }
