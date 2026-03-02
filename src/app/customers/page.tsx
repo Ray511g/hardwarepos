@@ -14,7 +14,13 @@ export default function CustomersPage() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+    const interval = setInterval(() => {
+       if (!showAdd && !selectedCustomer) {
+          fetchData();
+       }
+    }, 5000); // 5-second Ledger Sync
+    return () => clearInterval(interval);
+  }, [showAdd, selectedCustomer]);
 
   const fetchData = () => {
     fetch("/api/customers")

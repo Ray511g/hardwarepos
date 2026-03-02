@@ -9,14 +9,20 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/dashboard").then(res => res.json()),
-      fetch("/api/finance").then(res => res.json())
-    ]).then(([dashData, financeData]) => {
-      setData(dashData);
-      setFinance(financeData);
-      setLoading(false);
-    }).catch(() => setLoading(false));
+    const fetchTelemetry = () => {
+      Promise.all([
+        fetch("/api/dashboard").then(res => res.json()),
+        fetch("/api/finance").then(res => res.json())
+      ]).then(([dashData, financeData]) => {
+        setData(dashData);
+        setFinance(financeData);
+        setLoading(false);
+      }).catch(() => setLoading(false));
+    };
+
+    fetchTelemetry();
+    const interval = setInterval(fetchTelemetry, 10000); // 10-second Business Sync
+    return () => clearInterval(interval);
   }, []);
 
   if (loading) return (

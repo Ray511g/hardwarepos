@@ -14,7 +14,14 @@ export default function InventoryPage() {
 
   useEffect(() => {
      fetchData();
-  }, []);
+     const interval = setInterval(() => {
+        // Prevent background data update from interrupting a manual entry/audit
+        if (!showAdd && !selectedProduct) {
+           fetchData();
+        }
+     }, 5000); 
+     return () => clearInterval(interval);
+  }, [showAdd, selectedProduct]);
 
   const fetchData = () => {
     fetch("/api/products")

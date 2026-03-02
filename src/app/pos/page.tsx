@@ -21,17 +21,26 @@ export default function POSPage() {
   const [customerPhone, setCustomerPhone] = useState(""); // For M-PESA STK
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/products").then(res => res.json()),
-      fetch("/api/customers").then(res => res.json()),
-      fetch("/api/settings").then(res => res.json())
-    ]).then(([prodData, custData, bizData]) => {
-      setProducts(Array.isArray(prodData) ? prodData : []);
-      setCustomers(Array.isArray(custData) ? custData : []);
-      setBusiness(bizData);
-      setIsLoading(false);
-    }).catch(() => setIsLoading(false));
-  }, []);
+    const fetchData = () => {
+      Promise.all([
+        fetch("/api/products").then(res => res.json()),
+        fetch("/api/customers").then(res => res.json()),
+        fetch("/api/settings").then(res => res.json())
+      ]).then(([prodData, custData, bizData]) => {
+        // Only update products if not in a critical UI state (like checkout) to prevent jitters
+        if (!isProcessing) {
+           setProducts(Array.isArray(prodData) ? prodData : []);
+        }
+        setCustomers(Array.isArray(custData) ? custData : []);
+        setBusiness(bizData);
+        setIsLoading(false);
+      }).catch(() => setIsLoading(false));
+    };
+
+    fetchData();
+    const interval = setInterval(fetchData, 5000); // 5-second Multi-Device Sync
+    return () => clearInterval(interval);
+  }, [isProcessing]);
 
   // Professional Price Calculation with Bulk Discount Logic
   const getPrice = (product: any, qty: number) => {
