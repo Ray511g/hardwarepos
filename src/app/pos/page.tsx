@@ -21,24 +21,64 @@ export default function POSPage() {
   const [customerPhone, setCustomerPhone] = useState(""); // For M-PESA STK
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // '/' to focus search
+      if (e.key === "/" && document.activeElement?.tagName !== "INPUT") {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+        searchInput?.focus();
+      }
+      // 'Enter' to add first search result
+      if (e.key === "Enter" && document.activeElement?.tagName === "INPUT" && filteredProducts.length > 0) {
+        addToCart(filteredProducts[0]);
+        setSearch("");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filteredProducts]);
+
+  useEffect(() => {
+    // 1. Instant Cache Recovery - Makes the POS load in 0ms
+    const cachedProducts = localStorage.getItem("pos_products_cache");
+    const cachedCustomers = localStorage.getItem("pos_customers_cache");
+    const cachedBusiness = localStorage.getItem("pos_business_cache");
+
+    if (cachedProducts) setProducts(JSON.parse(cachedProducts));
+    if (cachedCustomers) setCustomers(JSON.parse(cachedCustomers));
+    if (cachedBusiness) setBusiness(JSON.parse(cachedBusiness));
+    
+    // Only show loader if we have absolutely no data
+    if (cachedProducts) setIsLoading(false);
+
     const fetchData = () => {
       Promise.all([
         fetch("/api/products").then(res => res.json()),
         fetch("/api/customers").then(res => res.json()),
         fetch("/api/settings").then(res => res.json())
       ]).then(([prodData, custData, bizData]) => {
-        // Only update products if not in a critical UI state (like checkout) to prevent jitters
         if (!isProcessing) {
-           setProducts(Array.isArray(prodData) ? prodData : []);
+           const validatedProds = Array.isArray(prodData) ? prodData : [];
+           const validatedCusts = Array.isArray(custData) ? custData : [];
+           
+           setProducts(validatedProds);
+           setCustomers(validatedCusts);
+           setBusiness(bizData);
+           
+           // 2. Persistent Local Cache for Offline/Speed
+           localStorage.setItem("pos_products_cache", JSON.stringify(validatedProds));
+           localStorage.setItem("pos_customers_cache", JSON.stringify(validatedCusts));
+           localStorage.setItem("pos_business_cache", JSON.stringify(bizData));
         }
-        setCustomers(Array.isArray(custData) ? custData : []);
-        setBusiness(bizData);
         setIsLoading(false);
-      }).catch(() => setIsLoading(false));
+      }).catch(() => {
+         console.warn("Using offline cache...");
+         setIsLoading(false);
+      });
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 5000); // 5-second Multi-Device Sync
+    const interval = setInterval(fetchData, 10000); // 10-second Background Sync
     return () => clearInterval(interval);
   }, [isProcessing]);
 
@@ -96,16 +136,28 @@ export default function POSPage() {
     if (paymentMethod === "MPESA" && !customerPhone) return alert("📱 Please enter phone for STK Push");
     if (paymentMethod === "CREDIT" && !selectedCustomerId) return alert("👥 Please select a customer for Credit sale");
     
+    // OPTIMISTIC UPDATE: Instant local execution for high-volume handling
+    const tempCart = [...cart];
+    const tempTotal = total;
+    const tempCustomer = customers.find(c => c.id === selectedCustomerId);
+    
+    setProducts(products.map(p => {
+       const cItem = tempCart.find(ci => ci.id === p.id);
+       if (cItem) return { ...p, stockLevel: p.stockLevel - cItem.qty };
+       return p;
+    }));
+    setCart([]);
     setIsProcessing(true);
+
     try {
       const payload = {
-         cart,
+         cart: tempCart,
          paymentMethod,
-         total,
+         total: tempTotal,
          taxAmount: vat,
          customerId: paymentMethod === 'CREDIT' ? selectedCustomerId : null,
          customerPhone: paymentMethod === 'MPESA' ? customerPhone : null,
-         stkPush: paymentMethod === 'MPESA' // Trigger STK Push logic in backend
+         stkPush: paymentMethod === 'MPESA'
       };
 
       const response = await fetch("/api/sales", {
@@ -119,46 +171,38 @@ export default function POSPage() {
       if (result.success || result.id) {
         const saleData = result.sale || { 
           invoiceNumber: `INV-${Date.now()}`, 
-          total, 
-          items: cart, 
+          total: tempTotal, 
+          items: tempCart, 
           paymentMethod,
-          customer: customers.find(c => c.id === selectedCustomerId)
+          customer: tempCustomer
         };
         setLastSale(saleData);
         setShowReceipt(true);
-        setCart([]);
-        setSelectedCustomerId("");
-        setCustomerPhone("");
-        setProducts(products.map(p => {
-           const cItem = cart.find(ci => ci.id === p.id);
-           if (cItem) return { ...p, stockLevel: p.stockLevel - cItem.qty };
-           return p;
-        }));
       } else {
          setLastSale({ 
            invoiceNumber: `SIM-${Date.now()}`, 
-           total, 
-           items: cart, 
+           total: tempTotal, 
+           items: tempCart, 
            paymentMethod, 
            etimsSigned: true,
-           customer: customers.find(c => c.id === selectedCustomerId)
+           customer: tempCustomer
          });
          setShowReceipt(true);
-         setCart([]);
       }
     } catch (err) {
        setLastSale({ 
          invoiceNumber: `INV-${Date.now()}`, 
-         total, 
-         items: cart, 
+         total: tempTotal, 
+         items: tempCart, 
          paymentMethod, 
          etimsSigned: true,
-         customer: customers.find(c => c.id === selectedCustomerId)
+         customer: tempCustomer
        });
        setShowReceipt(true);
-       setCart([]);
     } finally {
       setIsProcessing(false);
+      setSelectedCustomerId("");
+      setCustomerPhone("");
     }
   };
 

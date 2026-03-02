@@ -14,25 +14,33 @@ export default function InventoryPage() {
   const [auditQty, setAuditQty] = useState("");
 
   useEffect(() => {
-     fetchData();
+     // 1. Instant Ledger Recovery
+     const cachedItems = localStorage.getItem("inventory_items_cache");
+     if (cachedItems) {
+        setItems(JSON.parse(cachedItems));
+        setIsLoading(false);
+     }
+
+     const pullData = () => {
+        fetch("/api/products")
+          .then(res => res.json())
+          .then(data => {
+            const validated = Array.isArray(data) ? data : [];
+            setItems(validated);
+            localStorage.setItem("inventory_items_cache", JSON.stringify(validated));
+            setIsLoading(false);
+          })
+          .catch(() => setIsLoading(false));
+     };
+
+     pullData();
      const interval = setInterval(() => {
-        // Prevent background data update from interrupting a manual entry/audit
         if (!showAdd && !selectedProduct) {
-           fetchData();
+           pullData();
         }
-     }, 5000); 
+     }, 10000); // 10-second Background Telemetry
      return () => clearInterval(interval);
   }, [showAdd, selectedProduct]);
-
-  const fetchData = () => {
-    fetch("/api/products")
-      .then(res => res.json())
-      .then(data => {
-        setItems(Array.isArray(data) ? data : []);
-        setIsLoading(false);
-      })
-      .catch(() => setIsLoading(false));
-  };
 
   const handleAddProduct = async (e: React.FormEvent) => {
      e.preventDefault();
