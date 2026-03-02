@@ -21,24 +21,6 @@ export default function POSPage() {
   const [customerPhone, setCustomerPhone] = useState(""); // For M-PESA STK
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // '/' to focus search
-      if (e.key === "/" && document.activeElement?.tagName !== "INPUT") {
-        e.preventDefault();
-        const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
-        searchInput?.focus();
-      }
-      // 'Enter' to add first search result
-      if (e.key === "Enter" && document.activeElement?.tagName === "INPUT" && filteredProducts.length > 0) {
-        addToCart(filteredProducts[0]);
-        setSearch("");
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [filteredProducts]);
-
-  useEffect(() => {
     // 1. Instant Cache Recovery - Makes the POS load in 0ms
     const cachedProducts = localStorage.getItem("pos_products_cache");
     const cachedCustomers = localStorage.getItem("pos_customers_cache");
@@ -127,6 +109,24 @@ export default function POSPage() {
      }
      return filtered;
   }, [products, search, activeCategory]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // '/' to focus search
+      if (e.key === "/" && document.activeElement?.tagName !== "INPUT") {
+        e.preventDefault();
+        const searchInput = document.querySelector('input[placeholder*="Search"]') as HTMLInputElement;
+        searchInput?.focus();
+      }
+      // 'Enter' to add first search result
+      if (e.key === "Enter" && document.activeElement?.tagName === "INPUT" && filteredProducts.length > 0) {
+        addToCart(filteredProducts[0]);
+        setSearch("");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [filteredProducts, addToCart]);
 
   const total = cart.reduce((acc, item) => acc + (item.unitPrice * item.qty), 0);
   const vat = total * (16 / 116);
