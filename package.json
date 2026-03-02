@@ -1,24 +1,24 @@
 {
   "name": "kenya-hardware-pro-pos",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && prisma db push --skip-generate"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
-    "@prisma/client": "^5.17.0",
+    "@prisma/client": "^5.22.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
-    "prisma": "^5.17.0",
+    "prisma": "^5.22.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "recharts": "^3.7.0"

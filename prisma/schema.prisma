@@ -2,9 +2,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// Switching to PostgreSQL for real persistence (Vercel Postgres/Supabase)
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Product {
@@ -18,6 +19,11 @@ model Product {
   costPrice       Float
   stockLevel      Float    @default(0)
   minStockLevel   Float    @default(0)
+  
+  // New: Bulk Discount Logic
+  bulkDiscountPrice Float?   // Optional special price for bulk
+  bulkThreshold     Float?   // Minimum quantity for bulk price
+  
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   saleItems       SaleItem[]
@@ -30,10 +36,15 @@ model Sale {
   taxAmount       Float    // VAT 16%
   discount        Float    @default(0)
   paymentMethod   String   // CASH, MPESA, CREDIT
+  
+  // New: Advanced Payment Tracking
   mpesaCode       String?
+  stkPushStatus   String?  // PENDING, PAID, FAILED
+  stkRequestId    String?
+  
   customerId      String?
   customer        Customer? @relation(fields: [customerId], references: [id])
-  status          String   // COMPLETED, PENDING_ETIMS, CANCELLED
+  status          String   @default("COMPLETED") // COMPLETED, PENDING_ETIMS, CANCELLED
   etimsSigned     Boolean  @default(false)
   etimsSignature  String?
   createdAt       DateTime @default(now())
@@ -56,7 +67,11 @@ model Customer {
   name            String
   phone           String?
   email           String?
+  
+  // New: Debt & Credit Logic
   debtBalance     Float    @default(0)
+  creditLimit     Float?   @default(50000) // Default 50k for contractors
+  
   sales           Sale[]
   createdAt       DateTime @default(now())
 }
@@ -73,7 +88,7 @@ model Supplier {
 model User {
   id        String   @id @default(cuid())
   username  String   @unique
-  password  String
+  password  String   // Hashed for security
   name      String
   role      String   @default("CASHIER") // ADMIN, CASHIER, MANAGER
   createdAt DateTime @default(now())
@@ -88,6 +103,6 @@ model BusinessSettings {
   pinNumber     String?  // KRA PIN
   paybillNumber String?
   tillNumber    String?
+  accountSuffix String?  // Optional for paybill account numbers
   updatedAt     DateTime @updatedAt
 }
-
