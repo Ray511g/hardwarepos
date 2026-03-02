@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 
 export default function InventoryPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -59,7 +59,9 @@ export default function InventoryPage() {
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
            <button className="btn btn-secondary" onClick={() => setActiveTab("AUDIT")}>🔍 Manual Audit</button>
-           <button className="btn btn-primary" style={{ padding: '1rem 2rem' }}>🏗️ Stock Inward</button>
+           <Link href="/procurement">
+              <button className="btn btn-primary" style={{ padding: '1rem 2rem' }}>🏗️ Stock Inward</button>
+           </Link>
         </div>
       </header>
 
