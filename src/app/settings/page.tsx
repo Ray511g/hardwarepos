@@ -14,14 +14,31 @@ export default function SettingsPage() {
   });
   const [isSaving, setIsSaving] = useState(false);
 
+  useEffect(() => {
+    fetch("/api/settings")
+      .then(res => res.json())
+      .then(data => {
+         if (data) setSettings(data);
+      });
+  }, []);
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    // In real app, call /api/settings
-    setTimeout(() => {
-      setIsSaving(false);
-      alert("Settings saved successfully!");
-    }, 1000);
+    try {
+      const response = await fetch("/api/settings", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify(settings)
+      });
+      if (response.ok) {
+         alert("✅ Business Configuration Updated Successfully!");
+      }
+    } catch (err) {
+       alert("❌ Failed to save settings to the cloud.");
+    } finally {
+       setIsSaving(false);
+    }
   };
 
   return (

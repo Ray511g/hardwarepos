@@ -7,7 +7,10 @@ const DEMO_SETTINGS = {
   name: "KENYA HARDWARE PRO",
   pinNumber: "P051234567X",
   address: "Main Street, Nairobi, Kenya",
-  phone: "+254 700 000 000"
+  phone: "0700123456",
+  email: "pos@kenyahardware.co.ke",
+  paybillNumber: "247247",
+  tillNumber: "567890"
 };
 
 export async function GET() {
@@ -25,13 +28,19 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    if (!dbConnected) return NextResponse.json(body);
+    
+    // Clean body for Upsert
+    const { id, updatedAt, ...cleanData } = body;
+    
     const settings = await prisma.businessSettings.upsert({
       where: { id: 'singleton' },
-      update: body,
-      create: { ...body, id: 'singleton' }
+      update: cleanData,
+      create: { ...cleanData, id: 'singleton' }
     });
     return NextResponse.json(settings);
   } catch (error) {
+    console.error("Settings Update Failure:", error);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }
