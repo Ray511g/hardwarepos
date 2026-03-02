@@ -6,7 +6,9 @@ export default function InventoryPage() {
   const [items, setItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("ALL");
+  const [activeTab, setActiveTab] = useState("STOCK"); // STOCK, AUDIT, PROCUREMENT
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [auditQty, setAuditQty] = useState("");
 
   useEffect(() => {
     fetch("/api/products")
@@ -18,86 +20,110 @@ export default function InventoryPage() {
       .catch(() => setIsLoading(false));
   }, []);
 
+  const handleAudit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProduct || !auditQty) return;
+    
+    const response = await fetch("/api/inventory/audit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        productId: selectedProduct.id,
+        physicalStock: parseFloat(auditQty),
+        reason: "Manual Reconciliation Audit"
+      })
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      alert("✅ Audit Successful: Stock level reconciled.");
+      setItems(items.map(p => p.id === selectedProduct.id ? { ...p, stockLevel: parseFloat(auditQty) } : p));
+      setSelectedProduct(null);
+      setAuditQty("");
+    }
+  };
+
   const filteredItems = useMemo(() => {
-     let filtered = items.filter(p => 
+     return items.filter(p => 
         p.name.toLowerCase().includes(filter.toLowerCase()) || 
         p.sku.toLowerCase().includes(filter.toLowerCase())
      );
-     if (categoryFilter !== "ALL") {
-        filtered = filtered.filter(p => p.category.toUpperCase() === categoryFilter);
-     }
-     return filtered;
-  }, [items, filter, categoryFilter]);
-
-  const categories = ["ALL", ...Array.from(new Set(items.map(i => i.category.toUpperCase())))];
+  }, [items, filter]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem', height: '100%', overflow: 'hidden' }}>
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '900', letterSpacing: '-1.5px', marginBottom: '0.25rem' }}>Inventory Control</h1>
-          <p style={{ opacity: 0.6, fontSize: '1rem' }}>Manage over {items.length} SKUs across all branches.</p>
+          <h1 style={{ fontSize: '3rem', fontWeight: '900', letterSpacing: '-2px', margin: 0 }}>Stock Operations</h1>
+          <p style={{ opacity: 0.5, fontSize: '1.1rem', marginTop: '0.5rem' }}>Global Hardware Asset Management & Reconciliation Console</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
-           <button className="btn btn-secondary">📥 Export Ledger</button>
-           <button className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 'bold' }}>+ Stock Intake</button>
+           <button className="btn btn-secondary" onClick={() => setActiveTab("AUDIT")}>🔍 Manual Audit</button>
+           <button className="btn btn-primary" style={{ padding: '1rem 2rem' }}>🏗️ Stock Inward</button>
         </div>
       </header>
 
-      <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', overflow: 'hidden', padding: '1.5rem' }}>
-          
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <div style={{ flex: 1, position: 'relative' }}>
+      {/* Audit Modal Overlay */}
+      {selectedProduct && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+           <form onSubmit={handleAudit} className="card" style={{ width: '450px', background: 'var(--sidebar)', border: '1px solid var(--primary)', padding: '3rem', textAlign: 'center' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🔦</div>
+              <h2 style={{ marginBottom: '0.5rem' }}>Stock Reconciliation</h2>
+              <p style={{ opacity: 0.5, marginBottom: '2rem' }}>Reconciling physical count for <b>{selectedProduct.sku}</b></p>
+              
+              <div style={{ textAlign: 'left', marginBottom: '2rem' }}>
+                <label style={{ fontSize: '0.75rem', fontWeight: 'bold', opacity: 0.5 }}>PHYSICAL QUANTITY DETECTED ({selectedProduct.unit})</label>
                 <input 
-                  type="text" 
-                  placeholder="Filter stock by SKU, name or reference..." 
-                  style={{ width: '100%', padding: '0.875rem 1.25rem', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)', color: 'white' }}
-                  value={filter}
-                  onChange={(e) => setFilter(e.target.value)}
+                  type="number" 
+                  autoFocus
+                  style={{ width: '100%', padding: '1.25rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white', marginTop: '0.75rem', fontSize: '1.5rem', fontWeight: 'bold' }}
+                  value={auditQty}
+                  onChange={(e) => setAuditQty(e.target.value)}
+                  placeholder="Counted reality..."
+                  required
                 />
+                <p style={{ fontSize: '0.7rem', opacity: 0.5, marginTop: '1rem' }}>Current system stock: {selectedProduct.stockLevel}</p>
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                 {categories.slice(0, 6).map(cat => (
-                    <button 
-                      key={cat}
-                      onClick={() => setCategoryFilter(cat)}
-                      style={{ 
-                         padding: '0.5rem 0.75rem', 
-                         borderRadius: '8px', 
-                         border: '1px solid var(--card-border)', 
-                         background: categoryFilter === cat ? 'var(--primary)' : 'transparent',
-                         color: categoryFilter === cat ? 'black' : 'white',
-                         fontSize: '0.7rem',
-                         fontWeight: 'bold',
-                         cursor: 'pointer'
-                      }}
-                    >
-                       {cat}
-                    </button>
-                 ))}
+
+              <div style={{ display: 'flex', gap: '1rem' }}>
+                 <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setSelectedProduct(null)}>Abort</button>
+                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Finalize Reality</button>
               </div>
+           </form>
+        </div>
+      )}
+
+      <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1.5rem', overflow: 'hidden', padding: '1.5rem' }}>
+          <div style={{ position: 'relative' }}>
+             <input 
+               type="text" 
+               placeholder="🔍 Filter ledger by SKU or Name..." 
+               style={{ width: '100%', padding: '1.25rem', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--card-border)', color: 'white', fontSize: '1rem' }}
+               value={filter}
+               onChange={(e) => setFilter(e.target.value)}
+             />
           </div>
 
           <div style={{ flex: 1, overflowY: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
                 <thead>
-                  <tr style={{ textAlign: 'left', opacity: 0.4, fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                    <th style={{ padding: '0 1rem' }}>SKU / Reference</th>
-                    <th style={{ padding: '0 1rem' }}>Product Name</th>
+                  <tr style={{ textAlign: 'left', opacity: 0.4, fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>
+                    <th style={{ padding: '0 1rem' }}>SKU</th>
+                    <th style={{ padding: '0 1rem' }}>Description</th>
                     <th style={{ padding: '0 1rem' }}>Category</th>
-                    <th style={{ padding: '0 1rem' }}>Available Stock</th>
-                    <th style={{ padding: '0 1rem' }}>Unit Price (KES)</th>
+                    <th style={{ padding: '0 1rem' }}>System Stock</th>
+                    <th style={{ padding: '0 1rem' }}>Cost vs Unit Price</th>
                     <th style={{ padding: '0 1rem' }}>Health Status</th>
-                    <th style={{ padding: '0 1rem', textAlign: 'right' }}>Management</th>
+                    <th style={{ padding: '0 1rem', textAlign: 'right' }}>Audit Operations</th>
                   </tr>
                 </thead>
                 <tbody>
                   {isLoading ? (
-                    <tr><td colSpan={7} style={{ textAlign: 'center', padding: '5rem', opacity: 0.3 }}>Querying live stock data...</td></tr>
+                    <tr><td colSpan={7} style={{ textAlign: 'center', padding: '5rem', opacity: 0.3 }}>Scrutinizing inventory stream...</td></tr>
                   ) : filteredItems.map((item, i) => (
-                    <tr key={i} className="hover-lift" style={{ background: 'rgba(255,255,255,0.02)', borderRadius: '12px', transition: 'all 0.2s' }}>
+                    <tr key={i} className="hover-lift" style={{ background: 'rgba(255,255,255,0.02)', cursor: 'pointer' }}>
                       <td style={{ padding: '1.25rem 1rem', fontWeight: 'bold', color: 'var(--primary)', fontSize: '0.8rem' }}>{item.sku}</td>
-                      <td style={{ padding: '1.25rem 1rem', fontWeight: '600' }}>{item.name}</td>
+                      <td style={{ padding: '1.25rem 1rem' }}>{item.name}</td>
                       <td style={{ padding: '1.25rem 1rem' }}>
                          <span style={{ fontSize: '0.7rem', fontWeight: 'bold', background: 'rgba(255,255,255,0.05)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{item.category}</span>
                       </td>
@@ -109,7 +135,12 @@ export default function InventoryPage() {
                            <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>{item.unit}(s)</span>
                         </div>
                       </td>
-                      <td style={{ padding: '1.25rem 1rem', fontWeight: '800' }}>{item.unitPrice.toLocaleString()}</td>
+                      <td style={{ padding: '1.25rem 1rem' }}>
+                         <div style={{ display: 'flex', flexDirection: 'column' }}>
+                            <span style={{ fontWeight: '800', fontSize: '0.9rem' }}>KES {item.unitPrice.toLocaleString()}</span>
+                            <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>Cost: {item.costPrice.toLocaleString()}</span>
+                         </div>
+                      </td>
                       <td style={{ padding: '1.25rem 1rem' }}>
                         {item.stockLevel < 10 ? (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--error)', fontSize: '0.75rem', fontWeight: 'bold' }}>
@@ -124,16 +155,10 @@ export default function InventoryPage() {
                         )}
                       </td>
                       <td style={{ padding: '1.25rem 1rem', textAlign: 'right' }}>
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                           <button className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--card-border)' }}>Edit</button>
-                           <button className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.2)', color: 'var(--success)' }}>Stock +</button>
-                        </div>
+                        <button className="btn" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem', background: 'rgba(255,255,255,0.05)', border: '1px solid var(--card-border)' }} onClick={() => setSelectedProduct(item)}>Audit 🔍</button>
                       </td>
                     </tr>
                   ))}
-                  {filteredItems.length === 0 && !isLoading && (
-                     <tr><td colSpan={7} style={{ textAlign: 'center', padding: '5rem', opacity: 0.3 }}>No items match your criteria.</td></tr>
-                  )}
                 </tbody>
               </table>
           </div>

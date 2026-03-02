@@ -54,10 +54,10 @@ export default function RootLayout({
             {[
               { label: '📊 Dashboard', path: '/' },
               { label: '🖨️ POS Terminal', path: '/pos' },
-              { label: '📦 Inventory', path: '/inventory' },
-              { label: '👥 Customers', path: '/customers' },
-              { label: '🏗️ Suppliers', path: '/suppliers' },
-              { label: '📈 Reports', path: '/reports' },
+              { label: '📦 Inventory & Audit', path: '/inventory' },
+              { label: '🏗️ Stock Inward / PO', path: '/procurement' },
+              { label: '💳 Debt Ledger', path: '/customers' },
+              { label: '📉 Profit & Loss', path: '/finance' },
               { label: '👨‍💼 Staff Control', path: '/users' },
               { label: '⚙️ Business Config', path: '/settings' }
             ].map((link) => (

@@ -2,7 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Switching to PostgreSQL for real persistence (Vercel Postgres/Supabase)
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -19,14 +18,15 @@ model Product {
   costPrice       Float
   stockLevel      Float    @default(0)
   minStockLevel   Float    @default(0)
-  
-  // New: Bulk Discount Logic
-  bulkDiscountPrice Float?   // Optional special price for bulk
-  bulkThreshold     Float?   // Minimum quantity for bulk price
+  bulkDiscountPrice Float?
+  bulkThreshold     Float?
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+  
   saleItems       SaleItem[]
+  purchaseItems   PurchaseItem[]
+  auditLogs       StockAudit[]
 }
 
 model Sale {
@@ -36,19 +36,17 @@ model Sale {
   taxAmount       Float    // VAT 16%
   discount        Float    @default(0)
   paymentMethod   String   // CASH, MPESA, CREDIT
-  
-  // New: Advanced Payment Tracking
   mpesaCode       String?
-  stkPushStatus   String?  // PENDING, PAID, FAILED
-  stkRequestId    String?
   
   customerId      String?
   customer        Customer? @relation(fields: [customerId], references: [id])
-  status          String   @default("COMPLETED") // COMPLETED, PENDING_ETIMS, CANCELLED
+  status          String   @default("COMPLETED")
   etimsSigned     Boolean  @default(false)
   etimsSignature  String?
   createdAt       DateTime @default(now())
+  
   saleItems       SaleItem[]
+  payments        Payment[]
 }
 
 model SaleItem {
@@ -59,6 +57,30 @@ model SaleItem {
   product         Product  @relation(fields: [productId], references: [id])
   quantity        Float
   unitPrice       Float
+  costPrice       Float    @default(0) // Track cost at time of sale for profit logic
+  subtotal        Float
+}
+
+model PurchaseOrder {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  supplierId      String
+  supplier        Supplier @relation(fields: [supplierId], references: [id])
+  totalAmount     Float
+  status          String   @default("PENDING") // PENDING, RECEIVED, CANCELLED
+  receivedAt      DateTime?
+  createdAt       DateTime @default(now())
+  items           PurchaseItem[]
+}
+
+model PurchaseItem {
+  id              String   @id @default(cuid())
+  orderId         String
+  order           PurchaseOrder @relation(fields: [orderId], references: [id])
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  quantity        Float
+  costPrice       Float
   subtotal        Float
 }
 
@@ -67,13 +89,43 @@ model Customer {
   name            String
   phone           String?
   email           String?
-  
-  // New: Debt & Credit Logic
   debtBalance     Float    @default(0)
-  creditLimit     Float?   @default(50000) // Default 50k for contractors
-  
+  creditLimit     Float?   @default(50000)
   sales           Sale[]
+  payments        Payment[]
   createdAt       DateTime @default(now())
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  amount          Float
+  method          String   // CASH, MPESA
+  reference       String?  // Mpesa code
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  saleId          String?
+  sale            Sale?     @relation(fields: [saleId], references: [id])
+  createdAt       DateTime @default(now())
+}
+
+model Expense {
+  id              String   @id @default(cuid())
+  category        String   // RENT, SALARY, ELECTRICITY, TRANSPORT, OTHER
+  description     String
+  amount          Float
+  date            DateTime @default(now())
+  recordedBy      String?
+}
+
+model StockAudit {
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id])
+  systemStock     Float
+  physicalStock   Float
+  variance        Float
+  reason          String?
+  auditDate       DateTime @default(now())
 }
 
 model Supplier {
@@ -82,15 +134,17 @@ model Supplier {
   contactPerson   String?
   phone           String?
   email           String?
+  address         String?
+  purchaseOrders  PurchaseOrder[]
   createdAt       DateTime @default(now())
 }
 
 model User {
   id        String   @id @default(cuid())
   username  String   @unique
-  password  String   // Hashed for security
+  password  String
   name      String
-  role      String   @default("CASHIER") // ADMIN, CASHIER, MANAGER
+  role      String   @default("CASHIER")
   createdAt DateTime @default(now())
 }
 
@@ -100,9 +154,8 @@ model BusinessSettings {
   phone         String?
   email         String?
   address       String?
-  pinNumber     String?  // KRA PIN
+  pinNumber     String?
   paybillNumber String?
   tillNumber    String?
-  accountSuffix String?  // Optional for paybill account numbers
   updatedAt     DateTime @updatedAt
 }
