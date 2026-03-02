@@ -50,7 +50,10 @@ export default function RootLayout({
             <h1 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.5px' }}>Hardware<span style={{ color: 'var(--primary)' }}>PRO</span></h1>
           </div>
 
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1 }}>
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', flex: 1, overflowY: 'auto', paddingRight: '0.5rem', scrollbarWidth: 'none' }}>
+            <style>{`
+              nav::-webkit-scrollbar { display: none; }
+            `}</style>
             {[
               { label: '📊 Dashboard', path: '/' },
               { label: '🖨️ POS Terminal', path: '/pos' },
