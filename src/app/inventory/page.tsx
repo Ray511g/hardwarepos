@@ -8,9 +8,15 @@ export default function InventoryPage() {
   const [filter, setFilter] = useState("");
   const [activeTab, setActiveTab] = useState("STOCK"); // STOCK, AUDIT, PROCUREMENT
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [showAdd, setShowAdd] = useState(false);
+  const [newProduct, setNewProduct] = useState({ name: "", sku: "", category: "CEMENT", unit: "Bag", unitPrice: "", costPrice: "", stockLevel: 0, minStockLevel: 5 });
   const [auditQty, setAuditQty] = useState("");
 
   useEffect(() => {
+     fetchData();
+  }, []);
+
+  const fetchData = () => {
     fetch("/api/products")
       .then(res => res.json())
       .then(data => {
@@ -18,7 +24,29 @@ export default function InventoryPage() {
         setIsLoading(false);
       })
       .catch(() => setIsLoading(false));
-  }, []);
+  };
+
+  const handleAddProduct = async (e: React.FormEvent) => {
+     e.preventDefault();
+     try {
+        const res = await fetch("/api/products", {
+           method: "POST",
+           headers: { "Content-Type": "application/json" },
+           body: JSON.stringify({
+              ...newProduct,
+              unitPrice: parseFloat(newProduct.unitPrice),
+              costPrice: parseFloat(newProduct.costPrice)
+           })
+        });
+        if (res.ok) {
+           setShowAdd(false);
+           setNewProduct({ name: "", sku: "", category: "CEMENT", unit: "Bag", unitPrice: "", costPrice: "", stockLevel: 0, minStockLevel: 5 });
+           fetchData();
+        }
+     } catch (err) {
+        alert("Product registration failed.");
+     }
+  };
 
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,12 +86,83 @@ export default function InventoryPage() {
           <p style={{ opacity: 0.5, fontSize: '1.1rem', marginTop: '0.5rem' }}>Global Hardware Asset Management & Reconciliation Console</p>
         </div>
         <div style={{ display: 'flex', gap: '1rem' }}>
-           <button className="btn btn-secondary" onClick={() => setActiveTab("AUDIT")}>🔍 Manual Audit</button>
+           <button className="btn btn-secondary" onClick={() => setShowAdd(true)}>+ Register New SKU</button>
            <Link href="/procurement">
               <button className="btn btn-primary" style={{ padding: '1rem 2rem' }}>🏗️ Stock Inward</button>
            </Link>
         </div>
       </header>
+
+      {/* Add Product Modal */}
+      {showAdd && (
+         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <form onSubmit={handleAddProduct} className="card" style={{ width: '500px', background: 'var(--sidebar)', border: '1px solid var(--primary)', padding: '3rem' }}>
+               <h2 style={{ textAlign: 'center', marginBottom: '2rem' }}>New Master SKU Registration</h2>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input 
+                      placeholder="Product SKU" 
+                      style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                      value={newProduct.sku}
+                      onChange={e => setNewProduct({...newProduct, sku: e.target.value})}
+                      required
+                    />
+                    <select 
+                      style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                      value={newProduct.category}
+                      onChange={e => setNewProduct({...newProduct, category: e.target.value})}
+                    >
+                      {["CEMENT", "STEEL", "ROOFING", "PLUMBING", "ELECTRICAL", "PAINT", "TOOLS"].map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <input 
+                    placeholder="Product Description (e.g. 50kg Cement)" 
+                    style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                    value={newProduct.name}
+                    onChange={e => setNewProduct({...newProduct, name: e.target.value})}
+                    required
+                  />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input 
+                      placeholder="Unit Price (KES)" 
+                      type="number"
+                      style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                      value={newProduct.unitPrice}
+                      onChange={e => setNewProduct({...newProduct, unitPrice: e.target.value})}
+                      required
+                    />
+                    <input 
+                      placeholder="Cost Price (KES)" 
+                      type="number"
+                      style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                      value={newProduct.costPrice}
+                      onChange={e => setNewProduct({...newProduct, costPrice: e.target.value})}
+                      required
+                    />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <input 
+                      placeholder="Weight / Unit (e.g. kg, Pc)" 
+                      style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                      value={newProduct.unit}
+                      onChange={e => setNewProduct({...newProduct, unit: e.target.value})}
+                    />
+                    <input 
+                      placeholder="Min Stock Alert" 
+                      type="number"
+                      style={{ padding: '1rem', borderRadius: '12px', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                      value={newProduct.minStockLevel}
+                      onChange={e => setNewProduct({...newProduct, minStockLevel: parseInt(e.target.value)})}
+                    />
+                  </div>
+               </div>
+               <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
+                  <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowAdd(false)}>Cancel</button>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Register Global SKU</button>
+               </div>
+            </form>
+         </div>
+      )}
 
       {/* Audit Modal Overlay */}
       {selectedProduct && (
