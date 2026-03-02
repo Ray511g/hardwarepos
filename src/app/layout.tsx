@@ -100,11 +100,28 @@ export default function RootLayout({
                    <div style={{ fontWeight: '700', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || "Authenticating..."}</div>
                    <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>{user?.role || "Staff Operator"}</div>
                 </div>
-                <button 
+                 <button 
                   onClick={handleLogout}
-                  style={{ background: 'transparent', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '1.2rem', padding: '0.5rem' }}
+                  style={{ 
+                    background: 'rgba(239, 68, 68, 0.1)', 
+                    border: '1px solid rgba(239, 68, 68, 0.2)', 
+                    color: 'var(--error)', 
+                    cursor: 'pointer', 
+                    fontSize: '0.75rem', 
+                    padding: '0.5rem 0.75rem', 
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)')}
                   title="Logout"
-                >🚪</button>
+                >
+                  <span style={{ fontSize: '1rem' }}>🚪</span> LOGOUT
+                </button>
              </div>
           </footer>
         </aside>
