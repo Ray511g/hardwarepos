@@ -19,9 +19,9 @@ export async function GET() {
     const settings = await prisma.businessSettings.findFirst({
       where: { id: 'singleton' }
     });
-    return NextResponse.json(settings || DEMO_SETTINGS);
+    return NextResponse.json(settings || demoSettings);
   } catch (error) {
-    return NextResponse.json(DEMO_SETTINGS);
+    return NextResponse.json(demoSettings);
   }
 }
 
