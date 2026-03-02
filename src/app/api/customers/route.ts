@@ -3,33 +3,37 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const DEMO_CUSTOMERS = [
+let demoCustomers = [
   { id: '1', name: 'Nairobi Construction Co.', phone: '0711122233', debtBalance: 0, creditLimit: 250000 },
   { id: '2', name: 'James Otieno (Contractor)', phone: '0722233344', debtBalance: 4500, creditLimit: 50000 },
   { id: '3', name: 'Government Housing Project', phone: '0733344455', debtBalance: 125000, creditLimit: 1000000 }
 ];
 
 export async function GET() {
-  if (!dbConnected) return NextResponse.json(DEMO_CUSTOMERS);
+  if (!dbConnected) return NextResponse.json(demoCustomers);
   try {
     const customers = await prisma.customer.findMany({
       orderBy: { name: 'asc' },
       include: { sales: { take: 5, orderBy: { createdAt: 'desc' } } }
     });
     
-    if (!customers || customers.length === 0) return NextResponse.json(DEMO_CUSTOMERS);
+    if (!customers || customers.length === 0) return NextResponse.json(demoCustomers);
     
     return NextResponse.json(customers);
   } catch (error) {
     console.error("Postgres Customer API Failure:", error);
-    return NextResponse.json(DEMO_CUSTOMERS);
+    return NextResponse.json(demoCustomers);
   }
 }
 
 export async function POST(req: Request) {
    try {
       const body = await req.json();
-      if (!dbConnected) return NextResponse.json({ ...body, id: `sim-cust-${Date.now()}`, debtBalance: 0 });
+      if (!dbConnected) {
+         const newC = { ...body, id: `sim-cust-${Date.now()}`, debtBalance: 0 };
+         demoCustomers.push(newC);
+         return NextResponse.json(newC);
+      }
       
       const customer = await prisma.customer.create({
          data: {

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const DEMO_EXPENSES = [
+let demoExpenses = [
   { id: '1', category: 'RENT', description: 'Store Rent - Nairobi HQ', amount: 45000, date: new Date().toISOString() },
   { id: '2', category: 'ELECTRICITY', description: 'Monthly Tokens', amount: 8500, date: new Date().toISOString() }
 ];
@@ -14,7 +14,9 @@ export async function POST(req: Request) {
     const { category, description, amount, date } = body;
 
     if (!dbConnected) {
-       return NextResponse.json({ success: true, expense: { ...body, id: `sim-${Date.now()}`, date: date || new Date().toISOString() } });
+       const newE = { ...body, id: `sim-exp-${Date.now()}`, date: date || new Date().toISOString() };
+       demoExpenses.push(newE);
+       return NextResponse.json({ success: true, expense: newE });
     }
 
     const expense = await prisma.expense.create({
@@ -28,19 +30,19 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true, expense });
   } catch (error) {
-    console.error("Expense Error:", error);
-    return NextResponse.json({ success: true, simulated: true });
+    console.error("Expense POST Error:", error);
+    return NextResponse.json({ success: false, error: "Failed to record expense" }, { status: 500 });
   }
 }
 
 export async function GET() {
-   if (!dbConnected) return NextResponse.json(DEMO_EXPENSES);
+   if (!dbConnected) return NextResponse.json(demoExpenses);
    try {
       const expenses = await prisma.expense.findMany({
          orderBy: { date: 'desc' }
       });
-      return NextResponse.json(expenses || DEMO_EXPENSES);
+      return NextResponse.json(expenses.length > 0 ? expenses : demoExpenses);
    } catch (error) {
-      return NextResponse.json(DEMO_EXPENSES);
+      return NextResponse.json(demoExpenses);
    }
 }
