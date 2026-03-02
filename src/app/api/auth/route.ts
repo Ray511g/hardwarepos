@@ -2,8 +2,12 @@ import { prisma } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  let username = "";
+  let password = "";
   try {
-    const { username, password } = await req.json();
+    const body = await req.json();
+    username = body.username;
+    password = body.password;
 
     // 1. Fetch real user from PostgreSQL
     const user = await prisma.user.findUnique({
