@@ -117,7 +117,7 @@ export default function POSPage() {
       
       {/* Receipts Modal Overlay */}
       {showReceipt && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', z Babel: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
            <div className="card" style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'white', color: 'black' }}>
               <Receipt sale={lastSale} />
               <div style={{ display: 'flex', gap: '1rem' }}>
