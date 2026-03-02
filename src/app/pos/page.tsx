@@ -11,6 +11,9 @@ export default function POSPage() {
   const [activeCategory, setActiveCategory] = useState("ALL");
   const [paymentMethod, setPaymentMethod] = useState("CASH");
   const [products, setProducts] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [business, setBusiness] = useState<any>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [lastSale, setLastSale] = useState<any>(null);
@@ -18,13 +21,16 @@ export default function POSPage() {
   const [customerPhone, setCustomerPhone] = useState(""); // For M-PESA STK
 
   useEffect(() => {
-    fetch("/api/products")
-      .then(res => res.json())
-      .then(data => {
-        setProducts(Array.isArray(data) ? data : []);
-        setIsLoading(false);
-      })
-      .catch(() => setIsLoading(false));
+    Promise.all([
+      fetch("/api/products").then(res => res.json()),
+      fetch("/api/customers").then(res => res.json()),
+      fetch("/api/settings").then(res => res.json())
+    ]).then(([prodData, custData, bizData]) => {
+      setProducts(Array.isArray(prodData) ? prodData : []);
+      setCustomers(Array.isArray(custData) ? custData : []);
+      setBusiness(bizData);
+      setIsLoading(false);
+    }).catch(() => setIsLoading(false));
   }, []);
 
   // Professional Price Calculation with Bulk Discount Logic
@@ -79,6 +85,7 @@ export default function POSPage() {
   const handleCompleteSale = async () => {
     if (cart.length === 0) return alert("🛒 Cart is empty!");
     if (paymentMethod === "MPESA" && !customerPhone) return alert("📱 Please enter phone for STK Push");
+    if (paymentMethod === "CREDIT" && !selectedCustomerId) return alert("👥 Please select a customer for Credit sale");
     
     setIsProcessing(true);
     try {
@@ -87,6 +94,7 @@ export default function POSPage() {
          paymentMethod,
          total,
          taxAmount: vat,
+         customerId: paymentMethod === 'CREDIT' ? selectedCustomerId : null,
          customerPhone: paymentMethod === 'MPESA' ? customerPhone : null,
          stkPush: paymentMethod === 'MPESA' // Trigger STK Push logic in backend
       };
@@ -100,23 +108,44 @@ export default function POSPage() {
       const result = await response.json();
       
       if (result.success || result.id) {
-        const saleData = result.sale || { invoiceNumber: `INV-${Date.now()}`, total, items: cart };
+        const saleData = result.sale || { 
+          invoiceNumber: `INV-${Date.now()}`, 
+          total, 
+          items: cart, 
+          paymentMethod,
+          customer: customers.find(c => c.id === selectedCustomerId)
+        };
         setLastSale(saleData);
         setShowReceipt(true);
         setCart([]);
+        setSelectedCustomerId("");
+        setCustomerPhone("");
         setProducts(products.map(p => {
            const cItem = cart.find(ci => ci.id === p.id);
            if (cItem) return { ...p, stockLevel: p.stockLevel - cItem.qty };
            return p;
         }));
       } else {
-         // Fallback/Sim if DB fails (Still simulation friendly for demos)
-         setLastSale({ invoiceNumber: `SIM-${Date.now()}`, total, items: cart, paymentMethod, etimsSigned: true });
+         setLastSale({ 
+           invoiceNumber: `SIM-${Date.now()}`, 
+           total, 
+           items: cart, 
+           paymentMethod, 
+           etimsSigned: true,
+           customer: customers.find(c => c.id === selectedCustomerId)
+         });
          setShowReceipt(true);
          setCart([]);
       }
     } catch (err) {
-       setLastSale({ invoiceNumber: `INV-${Date.now()}`, total, items: cart, paymentMethod, etimsSigned: true });
+       setLastSale({ 
+         invoiceNumber: `INV-${Date.now()}`, 
+         total, 
+         items: cart, 
+         paymentMethod, 
+         etimsSigned: true,
+         customer: customers.find(c => c.id === selectedCustomerId)
+       });
        setShowReceipt(true);
        setCart([]);
     } finally {
@@ -131,7 +160,7 @@ export default function POSPage() {
       {showReceipt && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.85)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
            <div className="card" style={{ width: '400px', display: 'flex', flexDirection: 'column', gap: '1rem', background: 'white', color: 'black' }}>
-              <Receipt sale={lastSale} />
+              <Receipt sale={lastSale} business={business} />
               <div style={{ display: 'flex', gap: '1rem' }}>
                  <button className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowReceipt(false)}>Close</button>
                  <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => window.print()}>Print Invoice 🖨️</button>
@@ -235,7 +264,7 @@ export default function POSPage() {
           ))}
         </div>
 
-        {/* M-PESA Trigger Field */}
+        {/* Payment Trigger Fields */}
         {paymentMethod === 'MPESA' && (
            <div className="card glass p-3" style={{ border: '1px solid var(--primary)' }}>
               <label style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>📱 CUSTOMER PHONE (07XX...)</label>
@@ -246,6 +275,20 @@ export default function POSPage() {
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
               />
+           </div>
+        )}
+
+        {paymentMethod === 'CREDIT' && (
+           <div className="card glass p-3" style={{ border: '1px solid var(--accent)' }}>
+              <label style={{ fontSize: '0.7rem', fontWeight: 'bold' }}>👥 SELECT CREDIT CUSTOMER</label>
+              <select 
+                style={{ width: '100%', padding: '0.5rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--card-border)', color: 'white', marginTop: '0.5rem', borderRadius: '4px' }}
+                value={selectedCustomerId}
+                onChange={(e) => setSelectedCustomerId(e.target.value)}
+              >
+                 <option value="">Select Contractor...</option>
+                 {customers.map(c => <option key={c.id} value={c.id}>{c.name} (Bal: {c.debtBalance})</option>)}
+              </select>
            </div>
         )}
 

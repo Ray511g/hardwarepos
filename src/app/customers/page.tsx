@@ -19,9 +19,9 @@ export default function CustomersPage() {
       .then(res => res.json())
       .then(data => {
         setCustomers(Array.isArray(data) ? data : []);
-        setIsLoading(false);
+        setLoading(false);
       })
-      .catch(() => setIsLoading(false));
+      .catch(() => setLoading(false));
   };
 
   const handlePayment = async (e: React.FormEvent) => {

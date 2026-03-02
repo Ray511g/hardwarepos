@@ -29,7 +29,7 @@ export async function GET() {
     
     let totalExpenses = expenses.reduce((acc, e) => acc + e.amount, 0);
     let grossProfit = totalRevenue - totalCostOfSales;
-    let netProfit = grossProfit - totalExpenses - (totalRevenue * 0.16); // Estimating VAT 16% deduction
+    let netProfit = grossProfit - totalExpenses - (totalRevenue * (16 / 116)); // Precise VAT liability deduction from inclusive revenue
 
     // Inventory Value (Asset)
     let inventoryValue = products.reduce((acc, p) => acc + (p.stockLevel * p.costPrice), 0);
