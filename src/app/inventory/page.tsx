@@ -13,32 +13,31 @@ export default function InventoryPage() {
   const [newProduct, setNewProduct] = useState({ name: "", sku: "", category: "CEMENT", unit: "Bag", unitPrice: "", costPrice: "", stockLevel: 0, minStockLevel: 5 });
   const [auditQty, setAuditQty] = useState("");
 
+  const fetchData = () => {
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => {
+        const validated = Array.isArray(data) ? data : [];
+        setItems(validated);
+        localStorage.setItem("inventory_items_cache", JSON.stringify(validated));
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
+  };
+
   useEffect(() => {
-     // 1. Instant Ledger Recovery
      const cachedItems = localStorage.getItem("inventory_items_cache");
      if (cachedItems) {
         setItems(JSON.parse(cachedItems));
         setIsLoading(false);
      }
 
-     const pullData = () => {
-        fetch("/api/products")
-          .then(res => res.json())
-          .then(data => {
-            const validated = Array.isArray(data) ? data : [];
-            setItems(validated);
-            localStorage.setItem("inventory_items_cache", JSON.stringify(validated));
-            setIsLoading(false);
-          })
-          .catch(() => setIsLoading(false));
-     };
-
-     pullData();
+     fetchData();
      const interval = setInterval(() => {
         if (!showAdd && !selectedProduct) {
-           pullData();
+           fetchData();
         }
-     }, 10000); // 10-second Background Telemetry
+     }, 10000); 
      return () => clearInterval(interval);
   }, [showAdd, selectedProduct]);
 
