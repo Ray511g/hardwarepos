@@ -57,7 +57,7 @@ export default function RootLayout({
               { label: '📦 Inventory & Audit', path: '/inventory' },
               { label: '🤝 Vendor Network', path: '/suppliers' },
               { label: '🏗️ Stock Inward / PO', path: '/procurement' },
-              { label: '💳 Debt Ledger', path: '/customers' },
+              { label: '💳 Contractor Ledger', path: '/customers' },
               { label: '📉 Profit & Loss', path: '/finance' },
               { label: '👨‍💼 Staff Control', path: '/users' },
               { label: '⚖️ Tax & Reports', path: '/reports' },

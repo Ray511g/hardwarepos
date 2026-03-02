@@ -29,11 +29,18 @@ export async function GET() {
 export async function POST(req: Request) {
    try {
       const body = await req.json();
+      if (!dbConnected) return NextResponse.json({ ...body, id: `sim-cust-${Date.now()}`, debtBalance: 0 });
+      
       const customer = await prisma.customer.create({
-         data: body
+         data: {
+            ...body,
+            debtBalance: body.debtBalance || 0,
+            creditLimit: parseFloat(body.creditLimit) || 0
+         }
       });
       return NextResponse.json(customer);
    } catch (error) {
+      console.error("Customer Creation Error:", error);
       return NextResponse.json({ error: "Failed to register customer" }, { status: 500 });
    }
 }
