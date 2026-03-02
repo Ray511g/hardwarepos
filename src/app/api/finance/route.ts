@@ -1,9 +1,20 @@
-import { prisma } from "@/lib/db";
+import { prisma, dbConnected } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
+const MOCK_FINANCE = {
+  revenue: 154000,
+  cogs: 112000,
+  expenses: 12500,
+  grossProfit: 42000,
+  netProfit: 29500,
+  inventoryAssetValue: 2450000,
+  margin: 19.1
+};
+
 export async function GET() {
+  if (!dbConnected) return NextResponse.json(MOCK_FINANCE);
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

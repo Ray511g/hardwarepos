@@ -1,7 +1,12 @@
-import { prisma } from "@/lib/db";
+import { prisma, dbConnected } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+
+const DEMO_ORDERS = [
+  { orderNumber: 'PO-DUMMY-1', supplier: { name: 'Bamburi Cement' }, createdAt: new Date().toISOString(), items: [1, 2], totalAmount: 125000 },
+  { orderNumber: 'PO-DUMMY-2', supplier: { name: 'Devki Steel' }, createdAt: new Date().toISOString(), items: [1], totalAmount: 85000 }
+];
 
 export async function POST(req: Request) {
   try {
@@ -53,6 +58,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+   if (!dbConnected) return NextResponse.json(DEMO_ORDERS);
    try {
       const orders = await prisma.purchaseOrder.findMany({
          include: { supplier: true, items: { include: { product: true } } },
@@ -60,6 +66,6 @@ export async function GET() {
       });
       return NextResponse.json(orders);
    } catch (error) {
-      return NextResponse.json([]);
+      return NextResponse.json(DEMO_ORDERS);
    }
 }

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+import { prisma, dbConnected } from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +14,7 @@ const MOCK_STATS = {
 };
 
 export async function GET() {
+  if (!dbConnected) return NextResponse.json(MOCK_STATS);
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);

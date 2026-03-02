@@ -5,7 +5,10 @@ const globalForPrisma = globalThis as unknown as {
 }
 
 // PostgreSQL Serverless Connection Pool Management
-const dbUrl = process.env.DATABASE_URL || "postgresql://postgres:dummy@localhost:5432/dummy?schema=public";
+const realDbUrl = process.env.DATABASE_URL;
+const dbUrl = realDbUrl || "postgresql://postgres:dummy@localhost:5432/dummy?schema=public";
+
+export const dbConnected = !!realDbUrl;
 
 export const prisma =
   globalForPrisma.prisma ??
