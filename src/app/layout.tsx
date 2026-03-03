@@ -140,7 +140,7 @@ export default function RootLayout({
                   boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
                   animation: 'fadeIn 0.2s ease-out'
                 }}>
-                   <div style={{ marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', pb: '1rem', paddingBottom: '1rem' }}>
+                   <div style={{ marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '1rem' }}>
                       <div style={{ fontWeight: '800', fontSize: '0.9rem' }}>{user?.name}</div>
                       <div style={{ opacity: 0.5, fontSize: '0.75rem' }}>{user?.role}</div>
                    </div>
