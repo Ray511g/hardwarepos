@@ -15,6 +15,8 @@ export default function ProcurementPage() {
   const [inwardQty, setInwardQty] = useState("");
   const [inwardCost, setInwardCost] = useState("");
 
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -27,32 +29,38 @@ export default function ProcurementPage() {
       setProducts(prodData);
       setOrders(orderData);
       setLoading(false);
-      
-      // Auto-set supplier for demo if not exist
       setSuppliers([{ id: 'sup-1', name: 'Bamburi Cement Ltd' }, { id: 'sup-2', name: 'Devki Steel' }]);
     }).catch(() => setLoading(false));
   };
 
   const handleStockInward = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await fetch("/api/procurement", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        supplierId: selectedSupplier || 'sup-1',
-        items: [{
-           productId: selectedProduct,
-           quantity: parseFloat(inwardQty),
-           costPrice: parseFloat(inwardCost)
-        }]
-      })
-    });
+    if (!selectedProduct || !inwardQty || !inwardCost) return;
+    setIsSaving(true);
+    try {
+       const response = await fetch("/api/procurement", {
+         method: "POST",
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify({
+           supplierId: selectedSupplier || 'sup-1',
+           items: [{
+              productId: selectedProduct,
+              quantity: parseFloat(inwardQty),
+              costPrice: parseFloat(inwardCost)
+           }]
+         })
+       });
 
-    if (response.ok) {
-       setShowInward(false);
-       setInwardQty("");
-       setInwardCost("");
-       fetchData();
+       if (response.ok) {
+          setShowInward(false);
+          setInwardQty("");
+          setInwardCost("");
+          fetchData();
+       }
+    } catch (err) {
+       alert("Failed to record stock inward.");
+    } finally {
+       setIsSaving(false);
     }
   };
 
@@ -124,7 +132,9 @@ export default function ProcurementPage() {
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
                  <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowInward(false)}>Abort</button>
-                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Update Stock Levels</button>
+                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSaving}>
+                    {isSaving ? "RECORDING..." : "Update Stock Levels"}
+                 </button>
               </div>
            </form>
         </div>

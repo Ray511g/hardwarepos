@@ -13,6 +13,8 @@ export default function InventoryPage() {
   const [newProduct, setNewProduct] = useState({ name: "", sku: "", category: "CEMENT", unit: "Bag", unitPrice: "", costPrice: "", stockLevel: 0, minStockLevel: 5 });
   const [auditQty, setAuditQty] = useState("");
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const fetchData = () => {
     fetch("/api/products")
       .then(res => res.json())
@@ -34,7 +36,7 @@ export default function InventoryPage() {
 
      fetchData();
      const interval = setInterval(() => {
-        if (!showAdd && !selectedProduct) {
+        if (!showAdd && !selectedProduct && document.visibilityState === 'visible') {
            fetchData();
         }
      }, 10000); 
@@ -43,6 +45,7 @@ export default function InventoryPage() {
 
   const handleAddProduct = async (e: React.FormEvent) => {
      e.preventDefault();
+     setIsSaving(true);
      try {
         const res = await fetch("/api/products", {
            method: "POST",
@@ -60,29 +63,37 @@ export default function InventoryPage() {
         }
      } catch (err) {
         alert("Product registration failed.");
+     } finally {
+        setIsSaving(false);
      }
   };
 
   const handleAudit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedProduct || !auditQty) return;
+    setIsSaving(true);
     
-    const response = await fetch("/api/inventory/audit", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productId: selectedProduct.id,
-        physicalStock: parseFloat(auditQty),
-        reason: "Manual Reconciliation Audit"
-      })
-    });
+    try {
+      const response = await fetch("/api/inventory/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: selectedProduct.id,
+          physicalStock: parseFloat(auditQty),
+          reason: "Manual Reconciliation Audit"
+        })
+      });
 
-    const result = await response.json();
-    if (result.success) {
-      alert("✅ Audit Successful: Stock level reconciled.");
-      setItems(items.map(p => p.id === selectedProduct.id ? { ...p, stockLevel: parseFloat(auditQty) } : p));
-      setSelectedProduct(null);
-      setAuditQty("");
+      const result = await response.json();
+      if (result.success) {
+        setItems(items.map(p => p.id === selectedProduct.id ? { ...p, stockLevel: parseFloat(auditQty) } : p));
+        setSelectedProduct(null);
+        setAuditQty("");
+      }
+    } catch (error) {
+       alert("Audit failed to save.");
+    } finally {
+       setIsSaving(false);
     }
   };
 
@@ -173,7 +184,9 @@ export default function InventoryPage() {
                </div>
                <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
                   <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowAdd(false)}>Cancel</button>
-                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Register Global SKU</button>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSaving}>
+                     {isSaving ? "REGISTERING..." : "Register Global SKU"}
+                  </button>
                </div>
             </form>
          </div>
@@ -203,7 +216,9 @@ export default function InventoryPage() {
 
               <div style={{ display: 'flex', gap: '1rem' }}>
                  <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setSelectedProduct(null)}>Abort</button>
-                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Finalize Reality</button>
+                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSaving}>
+                    {isSaving ? "RECORDING..." : "Finalize Reality"}
+                 </button>
               </div>
            </form>
         </div>

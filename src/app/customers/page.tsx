@@ -12,13 +12,15 @@ export default function CustomersPage() {
   const [payMethod, setPayMethod] = useState("CASH");
   const [payRef, setPayRef] = useState("");
 
+  const [isSaving, setIsSaving] = useState(false);
+
   useEffect(() => {
     fetchData();
     const interval = setInterval(() => {
-       if (!showAdd && !selectedCustomer) {
+       if (!showAdd && !selectedCustomer && document.visibilityState === 'visible') {
           fetchData();
        }
-    }, 5000); // 5-second Ledger Sync
+    }, 10000); 
     return () => clearInterval(interval);
   }, [showAdd, selectedCustomer]);
 
@@ -34,6 +36,7 @@ export default function CustomersPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
      e.preventDefault();
+     setIsSaving(true);
      try {
        const res = await fetch("/api/customers", {
           method: "POST",
@@ -47,30 +50,38 @@ export default function CustomersPage() {
        }
      } catch (err) {
        alert("Registration failed.");
+     } finally {
+        setIsSaving(false);
      }
   };
 
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedCustomer || !payAmount) return;
+    setIsSaving(true);
 
-    const response = await fetch("/api/customers/payments", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerId: selectedCustomer.id,
-        amount: parseFloat(payAmount),
-        method: payMethod,
-        reference: payRef
-      })
-    });
+    try {
+      const response = await fetch("/api/customers/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerId: selectedCustomer.id,
+          amount: parseFloat(payAmount),
+          method: payMethod,
+          reference: payRef
+        })
+      });
 
-    if (response.ok) {
-       alert("💸 Payment Applied: Debt Ledger Updated.");
-       setSelectedCustomer(null);
-       setPayAmount("");
-       setPayRef("");
-       fetchData();
+      if (response.ok) {
+         setSelectedCustomer(null);
+         setPayAmount("");
+         setPayRef("");
+         fetchData();
+      }
+    } catch (error) {
+       alert("Payment recording failed.");
+    } finally {
+       setIsSaving(false);
     }
   };
 
@@ -124,7 +135,9 @@ export default function CustomersPage() {
                </div>
                <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
                   <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowAdd(false)}>Abort</button>
-                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Finalize Account</button>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSaving}>
+                     {isSaving ? "ONBOARDING..." : "Finalize Account"}
+                  </button>
                </div>
             </form>
          </div>
@@ -180,7 +193,9 @@ export default function CustomersPage() {
 
               <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
                  <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setSelectedCustomer(null)}>Abort</button>
-                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Sync Ledger</button>
+                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSaving}>
+                    {isSaving ? "SYNCING..." : "Sync Ledger"}
+                 </button>
               </div>
            </form>
         </div>

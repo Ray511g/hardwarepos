@@ -24,8 +24,11 @@ export default function SuppliersPage() {
      }
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+
   const handleAdd = async (e: React.FormEvent) => {
      e.preventDefault();
+     setIsSaving(true);
      try {
         const res = await fetch("/api/suppliers", {
            method: "POST",
@@ -39,6 +42,8 @@ export default function SuppliersPage() {
         }
      } catch (err) {
         alert("Failed to save vendor.");
+     } finally {
+        setIsSaving(false);
      }
   };
 
@@ -89,7 +94,9 @@ export default function SuppliersPage() {
                </div>
                <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
                   <button type="button" className="btn btn-secondary" style={{ flex: 1 }} onClick={() => setShowAdd(false)}>Abort</button>
-                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>Finalize Registration</button>
+                  <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={isSaving}>
+                     {isSaving ? "REGISTERING..." : "Finalize Registration"}
+                  </button>
                </div>
             </form>
          </div>

@@ -34,33 +34,30 @@ export default function POSPage() {
     if (cachedProducts) setIsLoading(false);
 
     const fetchData = () => {
+      if (document.visibilityState !== 'visible' || isProcessing) return;
       Promise.all([
         fetch("/api/products").then(res => res.json()),
         fetch("/api/customers").then(res => res.json()),
         fetch("/api/settings").then(res => res.json())
       ]).then(([prodData, custData, bizData]) => {
-        if (!isProcessing) {
-           const validatedProds = Array.isArray(prodData) ? prodData : [];
-           const validatedCusts = Array.isArray(custData) ? custData : [];
-           
-           setProducts(validatedProds);
-           setCustomers(validatedCusts);
-           setBusiness(bizData);
-           
-           // 2. Persistent Local Cache for Offline/Speed
-           localStorage.setItem("pos_products_cache", JSON.stringify(validatedProds));
-           localStorage.setItem("pos_customers_cache", JSON.stringify(validatedCusts));
-           localStorage.setItem("pos_business_cache", JSON.stringify(bizData));
-        }
-        setIsLoading(false);
+         const validatedProds = Array.isArray(prodData) ? prodData : [];
+         const validatedCusts = Array.isArray(custData) ? custData : [];
+         
+         setProducts(validatedProds);
+         setCustomers(validatedCusts);
+         setBusiness(bizData);
+         
+         localStorage.setItem("pos_products_cache", JSON.stringify(validatedProds));
+         localStorage.setItem("pos_customers_cache", JSON.stringify(validatedCusts));
+         localStorage.setItem("pos_business_cache", JSON.stringify(bizData));
+         setIsLoading(false);
       }).catch(() => {
-         console.warn("Using offline cache...");
          setIsLoading(false);
       });
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 10000); // 10-second Background Sync
+    const interval = setInterval(fetchData, 10000); 
     return () => clearInterval(interval);
   }, [isProcessing]);
 
