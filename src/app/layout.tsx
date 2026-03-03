@@ -30,6 +30,8 @@ export default function RootLayout({
      router.push("/login");
   };
 
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
   if (!isReady) return <body style={{ background: '#020202' }}></body>;
 
   if (pathname === "/login") {
@@ -91,43 +93,87 @@ export default function RootLayout({
                 <div style={{ width: '6px', height: '6px', background: 'var(--success)', borderRadius: '50%', boxShadow: '0 0 10px var(--success)' }}></div>
                 KRA eTIMS Signed Online 🇰🇪
              </div>
-             
-             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem' }}>
-                <div style={{ width: '40px', height: '40px', background: 'rgba(255,255,255,0.05)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.25rem' }}>
-                   {user?.avatar || "👤"}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                   <div style={{ fontWeight: '700', fontSize: '0.85rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.name || "Authenticating..."}</div>
-                   <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>{user?.role || "Staff Operator"}</div>
-                </div>
-                 <button 
-                  onClick={handleLogout}
-                  style={{ 
-                    background: 'rgba(239, 68, 68, 0.1)', 
-                    border: '1px solid rgba(239, 68, 68, 0.2)', 
-                    color: 'var(--error)', 
-                    cursor: 'pointer', 
-                    fontSize: '0.75rem', 
-                    padding: '0.5rem 0.75rem', 
-                    borderRadius: '8px',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.4rem',
-                    transition: 'all 0.2s'
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)')}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)')}
-                  title="Logout"
-                >
-                  <span style={{ fontSize: '1rem' }}>🚪</span> LOGOUT
-                </button>
-             </div>
+             <div style={{ fontSize: '0.7rem', opacity: 0.3, textAlign: 'center' }}>V4.0 Terminal Active</div>
           </footer>
         </aside>
 
         {/* Main Workspace */}
         <main style={{ flex: 1, padding: '2.5rem', overflowY: 'auto', position: 'relative' }}>
+          {/* Top Right User Profile */}
+          <div style={{ position: 'absolute', top: '2.5rem', right: '2.5rem', zIndex: 5000 }}>
+             <div 
+               onClick={() => setShowUserMenu(!showUserMenu)}
+               style={{ 
+                 display: 'flex', 
+                 alignItems: 'center', 
+                 gap: '0.75rem', 
+                 padding: '0.5rem 1rem', 
+                 background: 'rgba(255,255,255,0.02)', 
+                 border: '1px solid rgba(255,255,255,0.05)', 
+                 borderRadius: '50px',
+                 cursor: 'pointer',
+                 transition: 'all 0.2s'
+               }}
+               onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+               onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+             >
+                <div style={{ textAlign: 'right', display: 'none' }}>
+                   <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>{user?.name || "User"}</div>
+                   <div style={{ opacity: 0.5, fontSize: '0.7rem' }}>{user?.role || "Staff"}</div>
+                </div>
+                <div style={{ width: '36px', height: '36px', background: 'var(--primary)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'black', fontWeight: '900' }}>
+                   {user?.name?.[0] || user?.avatar || "👤"}
+                </div>
+             </div>
+
+             {showUserMenu && (
+                <div style={{ 
+                  position: 'absolute', 
+                  top: '100%', 
+                  right: 0, 
+                  marginTop: '0.75rem', 
+                  width: '220px', 
+                  background: 'var(--sidebar)', 
+                  border: '1px solid var(--card-border)', 
+                  borderRadius: '16px', 
+                  padding: '1rem',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                  animation: 'fadeIn 0.2s ease-out'
+                }}>
+                   <div style={{ marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)', pb: '1rem', paddingBottom: '1rem' }}>
+                      <div style={{ fontWeight: '800', fontSize: '0.9rem' }}>{user?.name}</div>
+                      <div style={{ opacity: 0.5, fontSize: '0.75rem' }}>{user?.role}</div>
+                   </div>
+                   <button 
+                     onClick={handleLogout}
+                     style={{ 
+                       width: '100%', 
+                       padding: '0.75rem', 
+                       background: 'rgba(239, 68, 68, 0.1)', 
+                       border: '1px solid rgba(239, 68, 68, 0.2)', 
+                       color: 'var(--error)', 
+                       borderRadius: '8px', 
+                       fontWeight: '700', 
+                       fontSize: '0.85rem',
+                       cursor: 'pointer',
+                       display: 'flex',
+                       alignItems: 'center',
+                       justifyContent: 'center',
+                       gap: '0.5rem'
+                     }}
+                   >
+                      🚪 SECURE LOGOUT
+                   </button>
+                </div>
+             )}
+          </div>
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; transform: translateY(-10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+
           {children}
         </main>
       </body>
