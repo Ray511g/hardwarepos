@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useSchool } from '../../context/SchoolContext';
 import { GRADES, DAYS, TIME_SLOTS, TimetableEntry, TimeSlot } from '../../types';
 import AddIcon from '@mui/icons-material/Add';
