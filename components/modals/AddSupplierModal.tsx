@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
+import { Supplier } from '@/types';
 
 interface Props {
     isOpen: boolean;
     onClose: () => void;
-    onSave: (data: any) => void;
-    initialData?: any;
+    onSave: (data: Partial<Supplier>) => void;
+    initialData?: Supplier;
 }
 
 export default function AddSupplierModal({ isOpen, onClose, onSave, initialData }: Props) {

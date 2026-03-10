@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useSchool } from '../../context/SchoolContext';
 import { SUBJECTS } from '../../types';
 import AssessmentIcon from '@mui/icons-material/Assessment';
