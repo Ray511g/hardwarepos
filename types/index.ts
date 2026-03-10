@@ -456,3 +456,76 @@ export interface LibraryBorrow {
     returnedDate?: string;
     status: 'BORROWED' | 'RETURNED' | 'OVERDUE';
 }
+
+// ─── Hardware POS Module ──────────────────────────────
+export interface POSProduct {
+    id: string;
+    name: string;
+    sku?: string;
+    category: string;
+    price: number;
+    cost?: number;
+    stock: number;
+    reorderLevel: number;
+    unit: string;
+    imageUrl?: string;
+    barcode?: string;
+    isActive: boolean;
+    taxRate?: number;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface POSCartItem {
+    product: POSProduct;
+    quantity: number;
+    discount: number; // percentage
+}
+
+export interface POSSaleItem {
+    id?: string;
+    productId: string;
+    productName: string;
+    quantity: number;
+    unitPrice: number;
+    discount: number;
+    total: number;
+}
+
+export interface POSSale {
+    id: string;
+    receiptNumber: string;
+    tillId?: string;
+    tillNumber?: string;
+    items: POSSaleItem[];
+    subtotal: number;
+    tax: number;
+    discount: number;
+    total: number;
+    amountPaid: number;
+    change: number;
+    paymentMethod: 'Cash' | 'M-Pesa' | 'Card' | 'Till';
+    mpesaRef?: string;
+    tillRef?: string;
+    cashierId?: string;
+    cashierName?: string;
+    customerName?: string;
+    status: 'COMPLETED' | 'REFUNDED' | 'VOIDED';
+    createdAt: string;
+}
+
+export interface POSTill {
+    id: string;
+    tillNumber: string;
+    paybillNumber?: string;
+    accountNumber?: string;
+    description?: string;
+    isActive: boolean;
+}
+
+export interface POSCategory {
+    id: string;
+    name: string;
+    color?: string;
+    icon?: string;
+}

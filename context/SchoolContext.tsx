@@ -78,6 +78,7 @@ interface SchoolContextType {
     showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
     refreshData: () => void;
     clearAllData: () => void;
+    resetDashboardStats: () => Promise<void>;
     // New Features
     feeStructures: FeeStructureItem[];
     auditLogs: AuditLogItem[];
@@ -1196,6 +1197,19 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
         window.location.reload();
     };
 
+    const resetDashboardStats = async () => {
+        if (!confirm('This will reset all dashboard figures (finance, academic activity, attendance) to zero. Students and Staff will be preserved. Proceed?')) return;
+
+        setLoading(true);
+        const apiRes = await tryApi(`${API_URL}/admin/reset-dashboard`, { method: 'POST' });
+
+        if (apiRes) {
+            showToast('Dashboard figures reset successfully', 'success');
+            await refreshData();
+        }
+        setLoading(false);
+    };
+
     const downloadTemplate = (type: string) => {
         let headers: string[] = [];
         if (type === 'students') headers = ['Name', 'AdmissionNumber', 'Grade', 'Gender', 'Phone', 'Address'];
@@ -1285,6 +1299,7 @@ export function SchoolProvider({ children }: { children: ReactNode }) {
             showToast,
             refreshData,
             clearAllData,
+            resetDashboardStats,
             feeStructures,
             auditLogs,
             addFeeStructure,

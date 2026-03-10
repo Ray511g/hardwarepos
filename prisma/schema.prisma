@@ -652,3 +652,71 @@ model LibraryBorrow {
   status       String    @default("BORROWED") // BORROWED, RETURNED, OVERDUE
   book         Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
 }
+
+// ─── Hardware POS ─────────────────────────────────────
+
+model POSProduct {
+  id           String       @id @default(cuid())
+  name         String
+  sku          String?      @unique
+  barcode      String?      @unique
+  category     String
+  price        Float
+  cost         Float        @default(0)
+  stock        Int          @default(0)
+  reorderLevel Int          @default(5)
+  unit         String       @default("pcs")
+  imageUrl     String?
+  taxRate      Float        @default(0)
+  isActive     Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  saleItems    POSSaleItem[]
+}
+
+model POSTill {
+  id            String    @id @default(cuid())
+  tillNumber    String    @unique
+  paybillNumber String?
+  accountNumber String?
+  description   String?
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  sales         POSSale[]
+}
+
+model POSSale {
+  id            String       @id @default(cuid())
+  receiptNumber String       @unique
+  tillId        String?
+  till          POSTill?     @relation(fields: [tillId], references: [id])
+  subtotal      Float
+  tax           Float        @default(0)
+  discount      Float        @default(0)
+  total         Float
+  amountPaid    Float
+  change        Float        @default(0)
+  paymentMethod String       @default("Cash")
+  mpesaRef      String?
+  tillRef       String?
+  cashierId     String?
+  cashierName   String?
+  customerName  String?
+  status        String       @default("COMPLETED")
+  createdAt     DateTime     @default(now())
+  items         POSSaleItem[]
+}
+
+model POSSaleItem {
+  id          String     @id @default(cuid())
+  saleId      String
+  productId   String
+  productName String
+  quantity    Int
+  unitPrice   Float
+  discount    Float      @default(0)
+  total       Float
+  sale        POSSale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product     POSProduct @relation(fields: [productId], references: [id])
+}
+

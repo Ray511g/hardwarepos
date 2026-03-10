@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const SchoolSettingsTab: React.FC<Props> = ({ editing, setEditing }) => {
-    const { settings, updateSettings, uploadStudents, uploadTeachers, clearAllData, downloadTemplate } = useSchool();
+    const { settings, updateSettings, uploadStudents, uploadTeachers, clearAllData, resetDashboardStats, downloadTemplate } = useSchool();
     const [form, setForm] = useState<SchoolSettings>(settings);
 
     // Synchronize local form whenever global settings are updated (from API or other tabs)
@@ -261,6 +261,18 @@ export const SchoolSettingsTab: React.FC<Props> = ({ editing, setEditing }) => {
                                 <button className="btn-outline flex-1" onClick={() => (downloadTemplate('teachers'))}>Template</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                <div className="danger-zone mt-24">
+                    <div className="flex-between">
+                        <div>
+                            <h3 className="danger-zone-title" style={{ margin: 0, color: 'var(--accent-blue)' }}>Dashboard Reset</h3>
+                            <p className="fs-12 opacity-80" style={{ margin: '5px 0 0 0' }}>Reset all charts, finance totals, and activity metrics to zero. (Keeps Students & Staff)</p>
+                        </div>
+                        <button className="btn-outline" style={{ borderColor: 'var(--accent-blue)', color: 'var(--accent-blue)' }} onClick={resetDashboardStats}>
+                            RESET DASHBOARD
+                        </button>
                     </div>
                 </div>
 

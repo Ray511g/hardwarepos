@@ -25,6 +25,7 @@ import BadgeIcon from '@mui/icons-material/Badge';
 import InfoIcon from '@mui/icons-material/Info';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import InventoryIcon from '@mui/icons-material/Inventory';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 
 export const PERMISSIONS = [
     { code: 'MANAGE_STUDENTS', label: 'Students Module' },
@@ -52,6 +53,7 @@ const navItems = [
     { path: '/approvals', icon: <AssignmentIcon />, label: 'Workflow', permission: 'MANAGE_WORKFLOW' },
     { path: '/fees', icon: <PaymentIcon />, label: 'Finance', permission: 'MANAGE_FINANCE' },
     { path: '/operations', icon: <InventoryIcon />, label: 'Operations', permission: 'MANAGE_ADMIN' },
+    { path: '/pos', icon: <PointOfSaleIcon />, label: 'Hardware POS', permission: 'MANAGE_ADMIN' },
     { path: '/grades', icon: <GradeIcon />, label: 'Grades', permission: 'MANAGE_EXAMS' },
     { path: '/exams', icon: <AssignmentIcon />, label: 'Exams', permission: 'MANAGE_EXAMS' },
     { path: '/results', icon: <AssessmentIcon />, label: 'Results', permission: 'MANAGE_REPORTS' },
