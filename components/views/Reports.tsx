@@ -359,6 +359,103 @@ export default function Reports() {
         }
     };
 
+    const handlePrintFinancialAudit = () => {
+        const totalIncome = payments.reduce((sum, p) => sum + p.amount, 0);
+        const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+        const balance = totalIncome - totalExpenses;
+
+        const reportHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { font-family: 'Outfit', 'Inter', sans-serif; padding: 0; margin: 0; color: #1a1a1a; }
+                    .page { width: 210mm; padding: 20mm; margin: 0 auto; background: white; }
+                    .header { border-bottom: 3px solid #1e293b; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+                    .report-title { text-align: center; font-size: 24px; font-weight: 800; margin: 30px 0; text-transform: uppercase; color: #1e293b; }
+                    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 40px; }
+                    .summary-card { padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center; }
+                    .summary-card.green { background: #f0fdf4; border-color: #bcf0da; }
+                    .summary-card.red { background: #fef2f2; border-color: #fecaca; }
+                    .summary-card.blue { background: #eff6ff; border-color: #bfdbfe; }
+                    .label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .value { font-size: 20px; font-weight: 700; margin-top: 5px; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+                    th { background: #f8fafc; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; border: 1px solid #e2e8f0; }
+                    td { padding: 12px; border: 1px solid #e2e8f0; font-size: 13px; }
+                    .footer { margin-top: 50px; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 11px; text-align: center; color: #94a3b8; }
+                </style>
+            </head>
+            <body>
+                <div class="page">
+                    <div class="header">
+                        <div>
+                            <h1 style="margin:0; color:#1e293b">${settings.schoolName}</h1>
+                            <p style="margin:5px 0 0; color:#64748b; font-style:italic">${settings.motto}</p>
+                        </div>
+                        <div style="text-align:right; font-size:12px">
+                            ${settings.address}<br/>${settings.phone}
+                        </div>
+                    </div>
+                    <div class="report-title">Financial Audit Statement</div>
+                    <div class="summary-grid">
+                        <div class="summary-card green">
+                            <div class="label">Total Revenue</div>
+                            <div class="value">KSh ${totalIncome.toLocaleString()}</div>
+                        </div>
+                        <div class="summary-card red">
+                            <div class="label">Total Expenditure</div>
+                            <div class="value">KSh ${totalExpenses.toLocaleString()}</div>
+                        </div>
+                        <div class="summary-card blue">
+                            <div class="label">Net Balance</div>
+                            <div class="value">KSh ${balance.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <h3 style="font-size:16px; margin-bottom:15px">Recent Ledger Entries</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th style="text-align:right">Amount (KSh)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${[...payments.map(p => ({ d: p.date, n: `Fee: ${p.studentName}`, c: 'INCOME', a: p.amount, t: 'in' })),
+            ...expenses.map(e => ({ d: e.createdAt, n: e.description, c: e.category, a: e.amount, t: 'out' }))]
+                .sort((a, b) => new Date(b.d).getTime() - new Date(a.d).getTime())
+                .slice(0, 50)
+                .map(item => `
+                                    <tr>
+                                        <td>${new Date(item.d).toLocaleDateString()}</td>
+                                        <td>${item.n}</td>
+                                        <td>${item.c}</td>
+                                        <td style="text-align:right; font-weight:600; color: ${item.t === 'in' ? '#16a34a' : '#dc2626'}">
+                                            ${item.t === 'in' ? '+' : '-'} ${item.a.toLocaleString()}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                        </tbody>
+                    </table>
+                    <div class="footer">
+                        Generated by ${settings.schoolName} ERP | ${new Date().toLocaleString()}
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const win = window.open('', '_blank');
+        if (win) {
+            win.document.write(reportHTML);
+            win.document.close();
+            win.focus();
+            setTimeout(() => { win.print(); }, 1000);
+        }
+    };
+
     const reportsDashboard = useMemo(() => [
         {
             id: 'assessment',
